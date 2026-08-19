@@ -1,0 +1,38 @@
+.heroVideoContainer {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 20px 50px -10px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+  cursor: pointer;
+}
+
+.heroVideo {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.unmuteOverlay {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  background: rgba(10, 10, 12, 0.8);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.unmuteOverlay:hover {
+  background: rgba(212, 175, 55, 0.9);
+  color: #000;
+  transform: scale(1.05);
+}
