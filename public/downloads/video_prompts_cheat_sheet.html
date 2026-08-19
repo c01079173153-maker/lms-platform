@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 영상 제작 1급 프롬프트 치트키</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: #1a1a1a; color: #f0f0f0; line-height: 1.8; padding: 40px; max-width: 900px; margin: 0 auto; }
+        h1 { color: #ff5e62; font-size: 2.5em; text-align: center; border-bottom: 2px solid #ff5e62; padding-bottom: 20px; }
+        h2 { color: #ff9966; font-size: 1.8em; margin-top: 40px; }
+        p, li { font-size: 1.2em; color: #cccccc; }
+        .highlight { background-color: rgba(255, 94, 98, 0.1); border-left: 5px solid #ff5e62; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .prompt-box { background-color: #2b2b2b; border: 1px solid #ff9966; padding: 20px; border-radius: 8px; font-family: monospace; color: #ffcc99; font-size: 1.2em; line-height: 1.6; margin-bottom: 20px; }
+        .copy-hint { font-size: 0.9em; color: #888; text-align: right; margin-top: -15px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <h1>🎬 AI 영상 제작 1급 프롬프트 치트키</h1>
+    
+    <div class="highlight">
+        <p><strong>시니어 사령관님을 위한 안내서:</strong> 얼굴이 나오지 않아도, 목소리를 녹음하지 않아도 100만 유튜버가 될 수 있습니다. 이 문서에 있는 프롬프트를 그대로 복사해서 AI에게 명령하십시오.</p>
+    </div>
+
+    <h2>1. 유튜브 '쇼츠(Shorts)' 대본 자동 생성기</h2>
+    <p>조회수가 터지는 1분짜리 쇼츠 대본을 만들고 싶을 때 챗지피티에 복사해 넣으세요.</p>
+    <div class="prompt-box">
+        "너는 구독자 100만 명을 보유한 유튜브 쇼츠 전문가야.<br>
+        주제: [건강하게 장수하는 아침 습관 3가지]<br>
+        조건:<br>
+        1. 1분 이내로 읽을 수 있는 분량 (약 300자 내외)<br>
+        2. 첫 3초 안에 시청자의 시선을 끄는 자극적인 후킹(Hook) 멘트 필수<br>
+        3. 화면에 띄울 '자막'과 AI 성우가 읽을 '나레이션'을 구분해서 표 형태로 정리해 줘."
+    </div>
+
+    <h2>2. 미드저니(Midjourney) 초고화질 이미지 썸네일 프롬프트</h2>
+    <p>유튜브 썸네일이나 영상 배경에 쓸 사진을 그릴 때 사용하는 마법의 프롬프트입니다. (영어로 입력해야 효과가 좋습니다)</p>
+    <div class="prompt-box">
+        "A hyper-realistic cinematic portrait of an elegant Korean senior business professional, wearing a sharp suit, standing in a modern futuristic office with neon lights, confident smile, 8k resolution, highly detailed, photorealistic, cinematic lighting --ar 16:9 --v 6.0"
+    </div>
+    <div class="copy-hint">(번역: 미래지향적인 사무실에서 정장을 입고 자신감 있게 웃고 있는 우아한 한국 시니어 비즈니스 전문가의 8K 초고화질 시네마틱 사진)</div>
+
+    <h2>3. 런웨이(Runway) 이미지 ➔ 비디오 변환 프롬프트</h2>
+    <p>미드저니로 만든 정지된 사진을 런웨이(Runway Gen-2)에 넣고 움직이는 영상으로 만들 때 사용합니다.</p>
+    <div class="prompt-box">
+        "Slow camera pan from left to right, the person is softly smiling and looking directly into the camera, cinematic motion, highly detailed."
+    </div>
+    <div class="copy-hint">(번역: 카메라가 왼쪽에서 오른쪽으로 천천히 이동하며, 인물이 부드럽게 미소 지으며 카메라를 응시함, 시네마틱 모션)</div>
+
+    <h2>4. AI 성우 (TTS) 감정 조절 프롬프트 팁</h2>
+    <p>우리가 구축한 파이썬 음성 공장이나 무료 TTS를 사용할 때 팁입니다.</p>
+    <ul>
+        <li><strong>쉬어 읽기:</strong> 대본 중간에 마침표(.)나 쉼표(,)를 과도하게 넣으면 AI가 숨을 쉬며 훨씬 사람처럼 들립니다. (예: "안녕하세요... 저는, 오늘, 여러분께...")</li>
+        <li><strong>강조하기:</strong> 물음표(?)와 느낌표(!)를 적절히 섞으면 톤이 올라갔다 내려갔다 하며 지루함을 없앱니다.</li>
+    </ul>
+
+    <div style="text-align: center; margin-top: 50px; color: #666;">
+        <p>© 2026 AI 비즈니스 마스터 클래스. All rights reserved.</p>
+    </div>
+</body>
+</html>

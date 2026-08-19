@@ -32,6 +32,33 @@ export default function Dashboard({ searchParams }: { searchParams: { success?: 
             강의 학습하기
           </Link>
         </div>
+
+        {/* Bonus Downloads Card */}
+        <div className="glass-panel hover-lift" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ padding: '8px 16px', background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', borderRadius: '20px', fontWeight: 600, alignSelf: 'flex-start' }}>🎁 보너스 비법서</div>
+          <h2 style={{ fontSize: 'var(--text-lg)', fontWeight: 700, lineHeight: 1.4 }}>
+            AI 마스터클래스 실전 콘텐츠 3종
+          </h2>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>다운로드 후 평생 소장하세요.</p>
+          
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <li>
+              <a href="/downloads/chatgpt_master_guide.html" target="_blank" rel="noopener noreferrer" style={{ display: 'block', padding: '16px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', textDecoration: 'none', color: 'white', transition: 'background 0.2s' }}>
+                📘 [비법서 1] ChatGPT 수익화 마스터 가이드
+              </a>
+            </li>
+            <li>
+              <a href="/downloads/gemini_features_guide.html" target="_blank" rel="noopener noreferrer" style={{ display: 'block', padding: '16px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', textDecoration: 'none', color: 'white', transition: 'background 0.2s' }}>
+                📙 [비법서 2] 제미나이(Gemini) 무한 활용 백서
+              </a>
+            </li>
+            <li>
+              <a href="/downloads/video_prompts_cheat_sheet.html" target="_blank" rel="noopener noreferrer" style={{ display: 'block', padding: '16px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', textDecoration: 'none', color: 'white', transition: 'background 0.2s' }}>
+                📕 [비법서 3] AI 영상 제작 1급 프롬프트 치트키
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   );
