@@ -175,6 +175,15 @@ export default function Home() {
                 ▶ 지금 바로 시청하기
               </a>
             </div>
+
+            {/* Resource 5: Web Screen Recorder */}
+            <div style={{ background: 'rgba(212, 175, 55, 0.05)', padding: '32px', borderRadius: '16px', border: '1px solid rgba(212, 175, 55, 0.2)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ fontSize: '2.5rem' }}>🎥</div>
+              <h4 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#d4af37' }}>[무료 툴] 프로그램 설치 없는 웹 화면 녹화기</h4>
+              <Link href="/tools/recorder" className={styles.courseButton} style={{ marginTop: 'auto', background: 'linear-gradient(90deg, #d4af37 0%, #b58d19 100%)', color: '#000', border: 'none', display: 'block', textAlign: 'center' }}>
+                🚀 웹에서 바로 사용하기
+              </Link>
+            </div>
           </div>
         </div>
       </section>
