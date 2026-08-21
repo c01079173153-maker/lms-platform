@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
-export default function PlayerPage({ params }: { params: { id: string } }) {
+export default async function PlayerPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
   // In a real app, verify the user has purchased this course before rendering
   
   return (
@@ -14,7 +15,7 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
         </div>
         
         {/* Video Player */}
-        {params.id === 'course-ai-101' ? (
+        {resolvedParams.id === 'course-ai-101' ? (
           <video 
             src="/videos/lecture1.mp4" 
             controls 

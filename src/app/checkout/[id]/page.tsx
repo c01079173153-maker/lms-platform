@@ -56,8 +56,9 @@ const courses = {
   }
 };
 
-export default function CheckoutPage({ params }: { params: { id: string } }) {
-  const course = courses[params.id as keyof typeof courses];
+export default async function CheckoutPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const course = courses[resolvedParams.id as keyof typeof courses];
 
   if (!course) {
     return <div style={{ padding: '100px 5%', textAlign: 'center' }}>존재하지 않는 강의입니다.</div>;
@@ -125,7 +126,7 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
             <span style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--accent-primary)' }}>₩ {course.price.toLocaleString()}</span>
           </div>
 
-          <CheckoutClient courseId={params.id} price={course.price} courseTitle={course.title} />
+          <CheckoutClient courseId={resolvedParams.id} price={course.price} courseTitle={course.title} />
 
           <div style={{ marginTop: '32px', padding: '24px', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-sm)' }}>
             <h4 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '12px' }}>🔒 안심 결제 보장</h4>

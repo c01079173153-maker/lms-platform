@@ -1,7 +1,8 @@
 import Link from 'next/link';
 
-export default function Dashboard({ searchParams }: { searchParams: { success?: string } }) {
-  const isSuccess = searchParams.success === 'true';
+export default async function Dashboard({ searchParams }: { searchParams: Promise<{ success?: string }> }) {
+  const resolvedSearchParams = await searchParams;
+  const isSuccess = resolvedSearchParams.success === 'true';
 
   return (
     <div className="animate-fade-in" style={{ padding: '80px 5%', maxWidth: '1200px', margin: '0 auto' }}>
