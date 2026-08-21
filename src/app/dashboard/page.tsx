@@ -22,7 +22,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         <div className="glass-panel hover-lift" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <div style={{ padding: '8px 16px', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--accent-success)', borderRadius: '20px', fontWeight: 600, alignSelf: 'flex-start' }}>수강 중</div>
           <h2 style={{ fontSize: 'var(--text-lg)', fontWeight: 700, lineHeight: 1.4 }}>
-            시니어 비즈니스 AI 101 - 업무 자동화의 비밀
+            시니어 AI 101 - 10강 마스터 클래스
           </h2>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>진도율: 0%</p>
           <div style={{ height: '8px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden' }}>
