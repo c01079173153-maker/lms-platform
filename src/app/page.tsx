@@ -242,6 +242,28 @@ export default function Home() {
               </Link>
             </div>
           </div>
+
+          {/* Course 4: Vibe Coding */}
+          <div className={`glass-panel ${styles.courseCard} hover-lift`}>
+            <img src="/hero-bg.png" alt="바이브 코딩 마스터" className={styles.courseImage} />
+            <div className={styles.courseContent}>
+              <span className={styles.courseBadge} style={{ background: 'rgba(212, 175, 55, 0.2)', color: '#d4af37', border: '1px solid #d4af37' }}>VVIP EXCLUSIVE</span>
+              <h3 className={styles.courseTitle}>[고급과정] 클로드 & 커서<br/><span style={{fontSize:'0.85em', color:'var(--text-secondary)'}}>바이브 코딩 마스터</span></h3>
+              <p className={styles.courseDesc}>
+                코딩을 몰라도, 타이핑을 못해도 괜찮습니다! AI와 대화만으로 나만의 자동화 프로그램과 웹사이트를 뚝딱 만들어내는 기적의 코딩법.
+              </p>
+              
+              <div style={{ marginTop: '16px', background: 'rgba(212, 175, 55, 0.05)', padding: '16px', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
+                <p style={{ fontSize: '0.9rem', color: '#d4af37', marginBottom: '4px', fontWeight: 700 }}>💡 프리미엄 혜택</p>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>1:1 원격 설치 지원 및 평생 평생 업데이트 제공</p>
+              </div>
+
+              <div className={styles.coursePrice}>₩ 399,000</div>
+              <Link href="/checkout/course-vibe-coding" className={styles.courseButton} style={{ background: 'linear-gradient(90deg, #d4af37 0%, #b58d19 100%)', color: '#000' }}>
+                상세 커리큘럼 보기 & 결제하기
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
     </div>
