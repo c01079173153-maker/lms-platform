@@ -186,12 +186,12 @@ export default function Home() {
         <div className={styles.courseGrid}>
           {/* Course 1 */}
           <div className={`glass-panel ${styles.courseCard} hover-lift`}>
-            <img src="/course-ai.png" alt="챗GPT, 클로드, 제미나이 완벽 활용법" className={styles.courseImage} />
+            <img src="/course-ai.png" alt="챗GPT, 제미나이 완벽 활용법" className={styles.courseImage} />
             <div className={styles.courseContent}>
               <span className={styles.courseBadge}>BEST SELLER</span>
-              <h3 className={styles.courseTitle}>시니어 AI 101<br/><span style={{fontSize:'0.85em', color:'var(--accent-primary)'}}>챗GPT, 클로드, 제미나이 활용법</span></h3>
+              <h3 className={styles.courseTitle}>시니어 AI 101<br/><span style={{fontSize:'0.85em', color:'var(--accent-primary)'}}>챗GPT, 제미나이 활용법</span></h3>
               <p className={styles.courseDesc}>
-                세상에서 가장 똑똑한 3대 AI를 내 비서처럼 부리는 방법! 일상 대화부터 번역, 문서 요약, 아이디어 기획까지 가장 쉽고 완벽하게 알려드립니다.
+                세상에서 가장 똑똑한 2대 AI를 내 비서처럼 부리는 방법! 일상 대화부터 번역, 문서 요약, 아이디어 기획까지 가장 쉽고 완벽하게 알려드립니다.
               </p>
               <div className={styles.coursePrice}>₩ 199,000</div>
               <Link href="/checkout/course-ai-101" className={styles.courseButton}>
