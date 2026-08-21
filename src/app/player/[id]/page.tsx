@@ -14,7 +14,7 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
         </div>
         
         {/* Video Player */}
-        {params.id === '1' ? (
+        {params.id === 'course-ai-101' ? (
           <video 
             src="/videos/lecture1.mp4" 
             controls 
