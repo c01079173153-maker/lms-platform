@@ -13,11 +13,22 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
           </Link>
         </div>
         
-        {/* Placeholder for CapCut generated video */}
-        <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
-          <div style={{ fontSize: 'var(--text-2xl)', marginBottom: '16px' }}>▶️</div>
-          <p style={{ fontSize: 'var(--text-lg)' }}>캡컷으로 완성된 프리미엄 강의 영상이 이곳에 재생됩니다.</p>
-        </div>
+        {/* Video Player */}
+        {params.id === '1' ? (
+          <video 
+            src="/videos/lecture1.mp4" 
+            controls 
+            autoPlay 
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+          >
+            Your browser does not support the video tag.
+          </video>
+        ) : (
+          <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
+            <div style={{ fontSize: 'var(--text-2xl)', marginBottom: '16px' }}>▶️</div>
+            <p style={{ fontSize: 'var(--text-lg)' }}>캡컷으로 완성된 프리미엄 강의 영상이 이곳에 재생됩니다.</p>
+          </div>
+        )}
       </div>
 
       {/* Course Info Area */}
