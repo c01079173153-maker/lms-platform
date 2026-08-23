@@ -33,12 +33,22 @@ export default async function PlayerPage({
           {/* Video Player */}
           {resolvedParams.id === 'course-ai-101' ? (
             lecture === '3' ? (
-              <iframe 
-                key="special-lecture"
-                src="/특별강의_GPT이미지생성.html" 
-                style={{ width: '100%', height: '100%', border: 'none' }}
-                allowFullScreen
-              />
+              <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <div style={{ 
+                  aspectRatio: '16/9', 
+                  maxWidth: '100%', 
+                  maxHeight: '100%', 
+                  width: '100%', /* on mobile (tall container) this takes 100% width. on desktop (wide container) maxHeight takes over and width shrinks */
+                  display: 'flex' 
+                }}>
+                  <iframe 
+                    key="special-lecture"
+                    src="/특별강의_GPT이미지생성.html" 
+                    style={{ flex: 1, border: 'none' }}
+                    allowFullScreen
+                  />
+                </div>
+              </div>
             ) : (
               <video 
                 key={videoSrc}
