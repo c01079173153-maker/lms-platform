@@ -213,7 +213,11 @@ html, body {
   gap:clamp(1.6px,1vw,14px);
   padding:0 clamp(3.2px,2vw,28px);
   z-index:600;
+  overflow-x:auto;
+  flex-wrap:nowrap;
+  scrollbar-width:none; /* Firefox */
 }
+#ctrl::-webkit-scrollbar { display: none; } /* Chrome/Safari */
 .cb {
   background:rgba(255,255,255,.07);
   border:1px solid rgba(255,255,255,.1);
@@ -247,7 +251,7 @@ html, body {
   transition:all .2s; white-space:nowrap;
 }
 .sj:hover,.sj.now{color:var(--gold);border-color:var(--gold);}
-@media(max-width:600px){.sj{display:none;} #tdisplay{min-width:60px;}}
+@media(max-width:600px){#tdisplay{min-width:60px;}}
 
 /* ─── 시작 오버레이 ─── */
 #overlay {
