@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPT 이미지 생성 완전 마스터</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ─── 리셋 & 루트 ─── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --purple:#6c63ff; --pink:#ff6584; --gold:#ffd700;
+  --cyan:#00d4ff;   --green:#00ff88; --red:#ff4444;
+  --dark:#070714;   --card:#0f0f1e;
+  --fs-xl: clamp(2rem, 5vw, 4.8rem);
+  --fs-lg: clamp(1.5rem, 3.5vw, 3.2rem);
+  --fs-md: clamp(1rem, 2vw, 1.6rem);
+  --fs-sm: clamp(0.85rem, 1.5vw, 1.3rem);
+  --fs-code: clamp(0.75rem, 1.4vw, 1.15rem);
+}
+html, body {
+  width:100%; height:100%;
+  background:var(--dark); color:#fff;
+  font-family:'Noto Sans KR', sans-serif;
+  overflow:hidden;
+}
+
+/* ─── 파티클 캔버스 ─── */
+#cvs { position:fixed; inset:0; z-index:0; }
+
+/* ─── 무대 ─── */
+#stage { position:fixed; inset:0; z-index:10; overflow:hidden; }
+
+/* ─── 씬 ─── */
+.scene {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  justify-content:center; align-items:center;
+  opacity:0; pointer-events:none;
+  transition:opacity .65s ease;
+  padding: clamp(12px,3vw,60px) clamp(16px,4vw,80px);
+  padding-bottom: clamp(60px,8vh,100px); /* 컨트롤 바 여백 */
+}
+.scene.visible { opacity:1; pointer-events:auto; }
+
+/* ─── 레이아웃 ─── */
+.split {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap: clamp(16px,3vw,60px);
+  width:100%; height:100%;
+  align-items:center;
+}
+@media(max-width:700px){
+  .split { grid-template-columns:1fr; height:auto; gap:16px; }
+  .img-col { order:-1; max-height:35vh; }
+}
+.col { display:flex; flex-direction:column; gap:clamp(8px,1.5vw,20px); }
+
+/* ─── 타이포 ─── */
+.tag {
+  font-size:clamp(.7rem,1.2vw,.95rem);
+  font-weight:700; letter-spacing:4px;
+  text-transform:uppercase; margin-bottom:2px;
+}
+.big { font-size:var(--fs-xl); font-weight:900; line-height:1.1; }
+.med { font-size:var(--fs-lg); font-weight:700; line-height:1.2; }
+.body-t { font-size:var(--fs-md); color:#c0c0d0; line-height:1.8; }
+
+/* 그라디언트 텍스트 */
+.gp{background:linear-gradient(135deg,var(--purple),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.gg{background:linear-gradient(135deg,var(--gold),#ff8c00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.gr{background:linear-gradient(135deg,var(--red),#ff8c00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.gn{background:linear-gradient(135deg,var(--green),#00cc6a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.gk{background:linear-gradient(135deg,#ff9de2,#c77dff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+
+/* ─── 카드 ─── */
+.card {
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:clamp(10px,1.5vw,18px);
+  padding:clamp(12px,2vw,28px) clamp(14px,2.5vw,32px);
+}
+.card.p{border-color:rgba(108,99,255,.3);}
+.card.g{border-color:rgba(255,215,0,.25);}
+.card.r{border-color:rgba(255,68,68,.3);}
+.card.n{border-color:rgba(0,255,136,.25);}
+.card.c{border-color:rgba(0,212,255,.25);}
+
+/* ─── 3D 이미지 ─── */
+.img3d {
+  border-radius:clamp(10px,1.5vw,20px);
+  overflow:hidden;
+  box-shadow:0 clamp(15px,3vw,40px) clamp(40px,6vw,100px) rgba(0,0,0,.8),
+             0 0 clamp(15px,2vw,40px) rgba(108,99,255,.2);
+  transform:perspective(900px) rotateY(-10deg) rotateX(4deg);
+  transition:transform .5s ease;
+  width:100%; height:100%;
+}
+.img3d.r { transform:perspective(900px) rotateY(10deg) rotateX(4deg); }
+.img3d img { width:100%; height:100%; object-fit:cover; display:block; }
+
+/* ─── 터미널 ─── */
+.terminal {
+  background:#0d1117;
+  border:1px solid #30363d;
+  border-radius:clamp(6px,1vw,12px);
+  padding:clamp(12px,1.5vw,24px) clamp(14px,2vw,32px);
+  font-family:'Courier New',monospace;
+  font-size:var(--fs-code); line-height:1.85;
+}
+.tc{color:#3fb950;} .tb{color:#79c0ff;} .ty{color:#e3b341;}
+.tr{color:#ff7b72;} .tg{color:#8b949e;}
+
+/* ─── 스텝 아이템 ─── */
+.step {
+  display:flex; align-items:flex-start;
+  gap:clamp(10px,1.5vw,18px);
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:clamp(8px,1.2vw,14px);
+  padding:clamp(12px,1.5vw,20px);
+}
+.step-num {
+  width:clamp(32px,3vw,44px); height:clamp(32px,3vw,44px);
+  border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:clamp(.9rem,1.5vw,1.2rem); font-weight:900;
+}
+.step-title{font-size:var(--fs-sm);font-weight:700;margin-bottom:3px;}
+.step-desc{font-size:clamp(.75rem,1.3vw,1.1rem);color:#9090b0;}
+
+/* ─── 키워드 칩 ─── */
+.chip {
+  display:inline-block;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:6px; padding:4px 12px;
+  font-size:clamp(.7rem,1.2vw,1rem); color:#c0d0ff;
+  margin:3px;
+}
+
+/* ─── 체크 아이템 ─── */
+.check {
+  display:flex; align-items:center; gap:12px;
+  padding:clamp(8px,1.2vw,14px) clamp(12px,2vw,20px);
+  border-radius:clamp(6px,1vw,12px);
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.03);
+  margin-bottom:8px;
+}
+.check .ic{color:var(--green);font-size:clamp(1rem,2vw,1.4rem);}
+.check .tx{font-size:var(--fs-sm);color:#c0c0d0;}
+
+/* ─── 경고 박스 ─── */
+.warn {
+  display:flex; align-items:flex-start; gap:14px;
+  background:rgba(255,40,40,.06);
+  border:1px solid rgba(255,68,68,.3);
+  border-radius:clamp(8px,1.2vw,14px);
+  padding:clamp(12px,1.5vw,20px);
+}
+.warn-icon{font-size:clamp(1.2rem,2.5vw,2rem);flex-shrink:0;}
+.warn-title{font-size:var(--fs-sm);font-weight:800;color:var(--red);margin-bottom:6px;}
+.warn-body{font-size:clamp(.75rem,1.3vw,1.1rem);color:#ffaaaa;line-height:1.7;}
+
+/* ─── 인트로 배지 ─── */
+.badge {
+  display:inline-block;
+  background:rgba(108,99,255,.12); border:1px solid var(--purple);
+  border-radius:40px; padding:5px 20px;
+  font-size:clamp(.7rem,1.2vw,.95rem); font-weight:700;
+  letter-spacing:4px; color:var(--purple); margin-bottom:16px;
+}
+.stat-grid {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:clamp(8px,1.5vw,16px); margin-top:clamp(12px,2vw,24px);
+}
+.stat {
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+  border-radius:clamp(8px,1.2vw,14px); padding:clamp(10px,1.5vw,16px);
+  text-align:center;
+}
+.stat-num{font-size:clamp(1.2rem,2.5vw,2.2rem);font-weight:900;color:var(--gold);}
+.stat-lbl{font-size:clamp(.65rem,1.1vw,.9rem);color:#8888aa;margin-top:2px;}
+
+/* ─── 스타일 씬 ─── */
+.style-wrap {
+  display:grid;
+  grid-template-columns:clamp(200px,30vw,480px) 1fr;
+  gap:clamp(16px,3vw,60px);
+  width:100%; height:100%; align-items:center;
+}
+@media(max-width:700px){
+  .style-wrap{grid-template-columns:1fr;height:auto;}
+  .style-img-col{max-height:30vh;}
+}
+.style-badge {
+  display:inline-block;
+  border-radius:30px; padding:5px 18px;
+  font-size:clamp(.65rem,1.1vw,.95rem); font-weight:700;
+  letter-spacing:3px; margin-bottom:12px;
+}
+
+/* ─── 컨트롤 바 ─── */
+#ctrl {
+  position:fixed; bottom:0; left:0; width:100%;
+  height:clamp(48px,7vh,65px);
+  background:rgba(5,5,18,.95);
+  border-top:1px solid rgba(255,255,255,.07);
+  backdrop-filter:blur(16px);
+  display:flex; align-items:center;
+  gap:clamp(4px,1vw,14px);
+  padding:0 clamp(8px,2vw,28px);
+  z-index:600;
+}
+.cb {
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.1);
+  color:#fff; font-size:clamp(.7rem,1.2vw,1rem); font-weight:700;
+  border-radius:6px; padding:6px clamp(8px,1.2vw,16px);
+  cursor:pointer; white-space:nowrap;
+  transition:background .2s;
+}
+.cb:hover{background:rgba(108,99,255,.25);border-color:var(--purple);}
+#progress-wrap {
+  flex:1; height:8px; background:rgba(255,255,255,.1);
+  border-radius:4px; cursor:pointer; position:relative; min-width:40px;
+}
+#progress-fill {
+  height:100%; border-radius:4px;
+  background:linear-gradient(90deg,var(--purple),var(--pink),var(--gold));
+  transition:width .25s; pointer-events:none;
+}
+#progress-thumb {
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:14px; height:14px; background:#fff; border-radius:50%;
+  pointer-events:none; margin-left:-7px;
+  box-shadow:0 0 8px rgba(108,99,255,.8);
+  transition:left .25s;
+}
+#tdisplay{font-size:clamp(.65rem,1vw,.95rem);color:#888;min-width:80px;text-align:right;}
+.sj {
+  background:transparent; border:1px solid rgba(255,255,255,.1);
+  color:#777; font-size:clamp(.6rem,1vw,.82rem);
+  border-radius:5px; padding:4px 8px; cursor:pointer;
+  transition:all .2s; white-space:nowrap;
+}
+.sj:hover,.sj.now{color:var(--gold);border-color:var(--gold);}
+@media(max-width:600px){.sj{display:none;} #tdisplay{min-width:60px;}}
+
+/* ─── 시작 오버레이 ─── */
+#overlay {
+  position:fixed; inset:0; background:var(--dark);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  z-index:9999; padding:24px; text-align:center;
+}
+#overlay h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:900;margin-bottom:8px;}
+#overlay .os{color:#8888aa;font-size:clamp(.9rem,1.8vw,1.3rem);margin-bottom:32px;}
+.prev-grid {
+  display:grid; grid-template-columns:repeat(5,1fr);
+  gap:10px; width:min(800px,90vw); margin-bottom:32px;
+}
+.prev-grid img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:8px;opacity:.55;}
+@media(max-width:500px){.prev-grid{grid-template-columns:repeat(3,1fr);}}
+#start-btn {
+  padding:clamp(14px,2.5vw,20px) clamp(40px,8vw,80px);
+  font-size:clamp(1.1rem,2.5vw,1.7rem); font-weight:800;
+  background:linear-gradient(135deg,var(--purple),var(--pink));
+  color:#fff; border:none; border-radius:60px; cursor:pointer;
+  box-shadow:0 0 50px rgba(108,99,255,.5);
+  transition:transform .2s,box-shadow .2s;
+}
+#start-btn:hover{transform:scale(1.06);box-shadow:0 0 70px rgba(108,99,255,.7);}
+</style>
+</head>
+<body>
+
+<canvas id="cvs"></canvas>
+
+<!-- ═══ 시작 오버레이 ═══ -->
+<div id="overlay">
+  <h1><span style="background:linear-gradient(135deg,var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">특별강의: GPT 이미지 생성</span><br>완전 마스터</h1>
+  <p class="os">기초 원리 · 토큰 절약 꿀팁 · 5대 스타일 프롬프트</p>
+  <div class="prev-grid">
+    <img src="img_s1_intro.png"><img src="img_s2_principle.png"><img src="img_s3_token.png">
+    <img src="img_s6_ghibli.png"><img src="img_s6_cyberpunk.png">
+  </div>
+  <button id="start-btn">▶ 강의 시작</button>
+</div>
+
+<!-- ═══ 무대 ═══ -->
+<div id="stage">
+
+<!-- S0: 인트로 -->
+<div class="scene" id="s-intro">
+  <div class="split">
+    <div class="col">
+      <div class="badge">GPT 이미지 마스터</div>
+      <div class="big gp">GPT로<br>이미지를<br><span class="gg">완벽 정복</span></div>
+      <p class="body-t">기초 원리 · 편집 · 토큰 절약 꿀팁 · 5대 스타일 프롬프트</p>
+      <div class="stat-grid">
+        <div class="stat"><div class="stat-num">10분</div><div class="stat-lbl">강의 시간</div></div>
+        <div class="stat"><div class="stat-num">5가지</div><div class="stat-lbl">스타일 꿀팁</div></div>
+        <div class="stat"><div class="stat-num">100%</div><div class="stat-lbl">실전 활용</div></div>
+      </div>
+    </div>
+    <div class="img-col" style="height:clamp(240px,45vh,540px);">
+      <div class="img3d"><img src="img_s1_intro.png" alt="GPT 인터페이스"></div>
+    </div>
+  </div>
+</div>
+
+<!-- S1: 원리 -->
+<div class="scene" id="s-principle">
+  <div class="split">
+    <div class="col">
+      <div class="tag" style="color:var(--purple);">CHAPTER 01</div>
+      <div class="big gp">이미지 생성의<br>원리</div>
+      <div class="step">
+        <div class="step-num" style="background:linear-gradient(135deg,var(--purple),var(--cyan));">1</div>
+        <div><div class="step-title" style="color:var(--cyan);">텍스트 입력 (프롬프트)</div><div class="step-desc">원하는 장면을 일상 언어로 묘사합니다</div></div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="background:linear-gradient(135deg,var(--gold),#ff8c00);">2</div>
+        <div><div class="step-title" style="color:var(--gold);">DALL-E 3 처리</div><div class="step-desc">수십억 이미지 패턴에서 최적 결과 조합 (10~30초)</div></div>
+      </div>
+      <div class="step">
+        <div class="step-num" style="background:linear-gradient(135deg,var(--green),#00cc6a);">3</div>
+        <div><div class="step-title" style="color:var(--green);">고품질 이미지 출력</div><div class="step-desc">전문 디자이너급 결과물 즉시 완성</div></div>
+      </div>
+      <div class="card p" style="margin-top:4px;">
+        <div style="font-size:var(--fs-sm);color:#8888aa;margin-bottom:6px;">프롬프트 차이의 예</div>
+        <div style="font-size:var(--fs-sm);color:#ff6666;">❌ "예쁜 강아지 그려줘"</div>
+        <div style="font-size:var(--fs-sm);color:var(--green);margin-top:4px;">✅ "골든 리트리버, 사이버펑크 옥상, 네온사인, 8K 시네마틱"</div>
+      </div>
+    </div>
+    <div class="img-col" style="height:clamp(240px,45vh,500px);">
+      <div class="img3d r"><img src="img_s2_principle.png" alt="이미지 생성 원리"></div>
+    </div>
+  </div>
+</div>
+
+<!-- S2: 토큰 절약 -->
+<div class="scene" id="s-token">
+  <div class="split">
+    <div class="col">
+      <div class="tag" style="color:var(--red);">⚠ SECRET TIP</div>
+      <div class="big gr">토큰 낭비를<br>막아라!</div>
+      <div class="warn">
+        <div class="warn-icon">🚨</div>
+        <div>
+          <div class="warn-title">문제 상황</div>
+          <div class="warn-body">"이미지 프롬프트 써줘" 요청 시 AI가 멋대로 이미지를 <strong>직접 생성</strong>해버려 유료 토큰이 날아갑니다!</div>
+        </div>
+      </div>
+      <div class="card n">
+        <div style="font-size:var(--fs-sm);font-weight:800;color:var(--green);margin-bottom:12px;">✅ 마법 주문 — 요청 끝에 꼭 추가!</div>
+        <div class="terminal">
+          <span class="tg"># 한국어</span><br>
+          <span class="ty">"이미지를 직접 생성하지 마세요.</span><br>
+          <span class="ty">&nbsp;텍스트 프롬프트만 제공해 주세요."</span><br><br>
+          <span class="tg"># English (더 강력)</span><br>
+          <span class="tb">Do NOT generate an image.</span><br>
+          <span class="tb">Provide text prompt only.</span>
+        </div>
+      </div>
+    </div>
+    <div class="img-col" style="height:clamp(240px,45vh,520px);">
+      <div class="img3d"><img src="img_s3_token.png" alt="토큰 절약"></div>
+    </div>
+  </div>
+</div>
+
+<!-- S3: 편집 -->
+<div class="scene" id="s-edit">
+  <div class="col" style="width:100%;gap:clamp(12px,2vw,24px);">
+    <div style="text-align:center;">
+      <div class="tag" style="color:var(--gold);">CHAPTER 02</div>
+      <div class="big gg">이미지 수정 &amp; 업그레이드</div>
+    </div>
+    <div style="width:100%;height:clamp(160px,28vh,360px);border-radius:clamp(10px,1.5vw,20px);overflow:hidden;
+         transform:perspective(1200px) rotateX(5deg);
+         box-shadow:0 20px 60px rgba(0,0,0,.8),0 0 30px rgba(255,215,0,.15);">
+      <img src="img_s4_edit.png" style="width:100%;height:100%;object-fit:cover;">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:clamp(8px,1.5vw,20px);">
+      <div class="card g" style="text-align:center;">
+        <div style="font-size:clamp(1.2rem,3vw,2rem);margin-bottom:6px;">🖼️</div>
+        <div style="font-size:var(--fs-sm);font-weight:700;color:var(--gold);">원본 유지 수정</div>
+        <div style="font-size:clamp(.65rem,1.1vw,.9rem);color:#9090b0;margin-top:6px;">"배경만 우주로 바꿔줘"</div>
+      </div>
+      <div class="card c" style="text-align:center;">
+        <div style="font-size:clamp(1.2rem,3vw,2rem);margin-bottom:6px;">🎨</div>
+        <div style="font-size:var(--fs-sm);font-weight:700;color:var(--cyan);">스타일 변환</div>
+        <div style="font-size:clamp(.65rem,1.1vw,.9rem);color:#9090b0;margin-top:6px;">"지브리 스타일로 변환"</div>
+      </div>
+      <div class="card r" style="text-align:center;">
+        <div style="font-size:clamp(1.2rem,3vw,2rem);margin-bottom:6px;">⚠️</div>
+        <div style="font-size:var(--fs-sm);font-weight:700;color:var(--red);">주의사항</div>
+        <div style="font-size:clamp(.65rem,1.1vw,.9rem);color:#9090b0;margin-top:6px;">실제인물·저작권·성인물 금지</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S4: 지브리 -->
+<div class="scene" id="s-ghibli">
+  <div class="style-wrap">
+    <div class="style-img-col" style="height:clamp(220px,48vh,580px);">
+      <div class="img3d"><img src="img_s6_ghibli.png" alt="지브리"></div>
+    </div>
+    <div class="col">
+      <div class="style-badge" style="background:rgba(0,255,136,.1);border:1px solid rgba(0,255,136,.3);color:var(--green);">STYLE 01 / 5</div>
+      <div class="big gn">지브리 / 감성 애니</div>
+      <p class="body-t">부드럽고 따뜻한 감성. 여행·라이프스타일 콘텐츠에 최적.</p>
+      <div class="terminal">
+        <span class="tg"># 핵심 키워드</span><br>
+        <span class="tc">in the style of Studio Ghibli (스튜디오 지브리 스타일),</span><br>
+        <span class="ty">soft pastel colors (부드러운 파스텔 색감),</span><br>
+        <span class="tb">hand-drawn animation (수작업 느낌의 애니메이션),</span><br>
+        <span class="tc">whimsical magical atmosphere (환상적이고 동화같은 분위기),</span><br>
+        <span class="ty">Hayao Miyazaki style (미야자키 하야오 스타일),</span><br>
+        <span class="tb">warm nostalgic lighting (따뜻하고 향수를 자극하는 조명)</span>
+      </div>
+      <div><span class="chip">지브리</span><span class="chip">파스텔</span><span class="chip">수작업</span><span class="chip">따뜻한 조명</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- S5: 사이버펑크 -->
+<div class="scene" id="s-cyberpunk">
+  <div class="style-wrap">
+    <div class="style-img-col" style="height:clamp(220px,48vh,580px);">
+      <div class="img3d r"><img src="img_s6_cyberpunk.png" alt="사이버펑크"></div>
+    </div>
+    <div class="col">
+      <div class="style-badge" style="background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.3);color:var(--red);">STYLE 02 / 5</div>
+      <div class="big gr">사이버펑크 / 미래</div>
+      <p class="body-t">강렬하고 미래지향적. AI·기술·브랜딩 콘텐츠에 최적.</p>
+      <div class="terminal">
+        <span class="tg"># 핵심 키워드</span><br>
+        <span class="tr">cyberpunk aesthetic (사이버펑크 분위기),</span><br>
+        <span class="tb">neon lights (네온 조명), rain-soaked streets (빗속의 거리),</span><br>
+        <span class="ty">8K ultra-detailed (8K 초고화질),</span><br>
+        <span class="tr">dark dystopian city (어두운 미래 도시),</span><br>
+        <span class="tb">holographic displays (홀로그램 디스플레이), dramatic fog (극적인 안개)</span>
+      </div>
+      <div><span class="chip">사이버펑크</span><span class="chip">네온</span><span class="chip">빗속 도시</span><span class="chip">8K</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- S6: 수채화 -->
+<div class="scene" id="s-watercolor">
+  <div class="style-wrap">
+    <div class="style-img-col" style="height:clamp(220px,48vh,580px);">
+      <div class="img3d"><img src="img_s6_watercolor.png" alt="수채화"></div>
+    </div>
+    <div class="col">
+      <div class="style-badge" style="background:rgba(255,157,226,.1);border:1px solid rgba(255,157,226,.3);color:#ff9de2;">STYLE 03 / 5</div>
+      <div class="big gk">수채화 / 아트</div>
+      <p class="body-t">우아하고 예술적인 감성. 뷰티·결혼·인테리어에 최적.</p>
+      <div class="terminal">
+        <span class="tg"># 핵심 키워드</span><br>
+        <span class="tc">delicate watercolor illustration (섬세한 수채화 일러스트),</span><br>
+        <span class="ty">soft translucent brush strokes (부드럽고 투명한 붓 터치),</span><br>
+        <span class="tb">pastel color palette (파스텔 색상 팔레트),</span><br>
+        <span class="tc">paint bleeding at the edges (가장자리 번짐 효과),</span><br>
+        <span class="ty">art nouveau style (아르누보 스타일), white paper texture (흰색 종이 질감)</span>
+      </div>
+      <div><span class="chip">수채화</span><span class="chip">파스텔</span><span class="chip">아르누보</span><span class="chip">붓 터치</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- S7: 픽사 -->
+<div class="scene" id="s-pixar">
+  <div class="style-wrap">
+    <div class="style-img-col" style="height:clamp(220px,48vh,580px);">
+      <div class="img3d r"><img src="img_s6_pixar.png" alt="픽사"></div>
+    </div>
+    <div class="col">
+      <div class="style-badge" style="background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);color:var(--gold);">STYLE 04 / 5</div>
+      <div class="big gg">픽사 / 3D 애니</div>
+      <p class="body-t">귀엽고 사랑스러운 캐릭터. 아동·교육·마케팅에 최적.</p>
+      <div class="terminal">
+        <span class="tg"># 핵심 키워드</span><br>
+        <span class="ty">Pixar-style 3D animation (픽사 스타일 3D 애니메이션),</span><br>
+        <span class="tc">big expressive eyes (크고 표정이 풍부한 눈),</span><br>
+        <span class="tb">vibrant saturated colors (선명하고 채도 높은 색감),</span><br>
+        <span class="ty">smooth 3D render quality (부드러운 3D 렌더링 품질),</span><br>
+        <span class="tc">cinematic warm rim light (시네마틱한 따뜻한 테두리 조명)</span>
+      </div>
+      <div><span class="chip">픽사</span><span class="chip">3D</span><span class="chip">큰 눈</span><span class="chip">선명한 색</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- S8: 시네마틱 -->
+<div class="scene" id="s-cinematic">
+  <div class="style-wrap">
+    <div class="style-img-col" style="height:clamp(220px,48vh,580px);">
+      <div class="img3d"><img src="img_s6_cinematic.png" alt="시네마틱"></div>
+    </div>
+    <div class="col">
+      <div class="style-badge" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--cyan);">STYLE 05 / 5</div>
+      <div class="big gp">시네마틱 실사</div>
+      <p class="body-t">최고급 사진 느낌. 비즈니스·프리미엄 브랜딩에 최적.</p>
+      <div class="terminal">
+        <span class="tg"># 핵심 키워드</span><br>
+        <span class="tb">photorealistic (사진처럼 사실적인), cinematic portrait (시네마틱 인물 사진),</span><br>
+        <span class="ty">ARRI Alexa camera (아리 알렉사 카메라 느낌), bokeh (아웃포커스 배경),</span><br>
+        <span class="tc">golden hour lighting (황금 시간대 조명), film grain (필름 느낌의 입자감),</span><br>
+        <span class="tb">professional retouching (전문적인 보정),</span><br>
+        <span class="ty">magazine cover quality (잡지 표지 수준의 품질)</span>
+      </div>
+      <div><span class="chip">실사</span><span class="chip">시네마틱</span><span class="chip">황금빛</span><span class="chip">잡지 커버</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- S9: 마무리 -->
+<div class="scene" id="s-outro">
+  <div class="split">
+    <div class="col">
+      <div class="tag" style="color:var(--gold);">오늘 강의 핵심 정리</div>
+      <div class="big gg" style="font-size:var(--fs-lg);">완전 정복 완료!</div>
+      <div class="check"><span class="ic">✅</span><span class="tx">DALL-E 3 — 텍스트 한 줄로 전문가급 이미지 생성</span></div>
+      <div class="check"><span class="ic">✅</span><span class="tx">토큰 절약 주문 — "텍스트 프롬프트만 제공해 주세요"</span></div>
+      <div class="check"><span class="ic">✅</span><span class="tx">이미지 업로드 후 배경·스타일 자유 수정</span></div>
+      <div class="check"><span class="ic">✅</span><span class="tx">5대 스타일: 지브리·사이버펑크·수채화·픽사·시네마틱</span></div>
+      <div class="check"><span class="ic">✅</span><span class="tx">각 스타일별 핵심 영어 키워드 완전 정복</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(12px,2vw,24px);">
+      <div style="font-size:clamp(2.5rem,6vw,5rem);">🏆</div>
+      <div style="font-size:clamp(1rem,2.5vw,1.8rem);font-weight:900;text-align:center;color:#fff;">GPT 이미지 생성<br><span class="gg">완전 마스터!</span></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:min(360px,80vw);">
+        <img src="img_s6_ghibli.png" style="border-radius:8px;width:100%;aspect-ratio:1;object-fit:cover;opacity:.7;">
+        <img src="img_s6_cyberpunk.png" style="border-radius:8px;width:100%;aspect-ratio:1;object-fit:cover;opacity:.7;">
+        <img src="img_s6_watercolor.png" style="border-radius:8px;width:100%;aspect-ratio:1;object-fit:cover;opacity:.7;">
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /stage -->
+
+<!-- 컨트롤 바 -->
+<div id="ctrl">
+  <button class="cb" id="btn-restart">⏮</button>
+  <button class="cb" id="btn-back">◀ 10초</button>
+  <button class="cb" id="btn-play">▶</button>
+  <button class="cb" id="btn-fwd">10초 ▶</button>
+  <div id="progress-wrap">
+    <div id="progress-fill"></div>
+    <div id="progress-thumb"></div>
+  </div>
+  <div id="tdisplay">0:00 / 0:00</div>
+  <button class="sj" data-i="0">인트로</button>
+  <button class="sj" data-i="1">원리</button>
+  <button class="sj" data-i="2">토큰절약</button>
+  <button class="sj" data-i="3">편집</button>
+  <button class="sj" data-i="4">지브리</button>
+  <button class="sj" data-i="5">사이버펑크</button>
+  <button class="sj" data-i="6">수채화</button>
+  <button class="sj" data-i="7">픽사</button>
+  <button class="sj" data-i="8">시네마틱</button>
+  <button class="sj" data-i="9">정리</button>
+</div>
+
+<audio id="aud" src="GPT_이미지생성_최종.mp4" preload="auto"></audio>
+
+<script>
+/* ── 파티클 ── */
+const cvs=document.getElementById('cvs'),ctx=cvs.getContext('2d');
+function resize(){cvs.width=window.innerWidth;cvs.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+const P=Array.from({length:80},()=>({
+  x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,
+  r:Math.random()*2+.5,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,
+  a:Math.random()*.5+.1,
+  c:['#6c63ff','#ff6584','#ffd700','#00d4ff','#00ff88'][Math.floor(Math.random()*5)]
+}));
+(function loop(){
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  P.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=cvs.width;if(p.x>cvs.width)p.x=0;
+    if(p.y<0)p.y=cvs.height;if(p.y>cvs.height)p.y=0;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=p.c;ctx.globalAlpha=p.a*.3;ctx.fill();
+  });
+  for(let i=0;i<P.length;i++)for(let j=i+1;j<P.length;j++){
+    const d=Math.hypot(P[i].x-P[j].x,P[i].y-P[j].y);
+    if(d<100){ctx.beginPath();ctx.moveTo(P[i].x,P[i].y);ctx.lineTo(P[j].x,P[j].y);
+    ctx.strokeStyle='rgba(108,99,255,'+(1-d/100)*.12+')';ctx.globalAlpha=1;ctx.lineWidth=.5;ctx.stroke();}
+  }
+  requestAnimationFrame(loop);
+})();
+
+/* ── 씬 정의 (씬별 WAV 실제 측정값 기반 — 100% 정확) ──
+   각 씬의 startSec는 Python wave 모듈로 직접 측정한 값
+*/
+const SCENES=[
+  {id:'s-intro',      startSec:0},
+  {id:'s-principle',  startSec:27.48},
+  {id:'s-token',      startSec:91.78},
+  {id:'s-edit',       startSec:151.18},
+  {id:'s-ghibli',     startSec:208.78},
+  {id:'s-cyberpunk',  startSec:261.34},
+  {id:'s-watercolor', startSec:304.40},
+  {id:'s-pixar',      startSec:345.50},
+  {id:'s-cinematic',  startSec:390.00},
+  {id:'s-outro',      startSec:440.16},
+];
+const TOTAL_SEC=481.54;
+
+const aud=document.getElementById('aud');
+let dur=TOTAL_SEC, curIdx=-1;
+
+function fmt(s){const m=Math.floor(s/60);return m+':'+(Math.floor(s%60)+'').padStart(2,'0');}
+
+function showScene(idx){
+  if(idx===curIdx)return;
+  curIdx=idx;
+  document.querySelectorAll('.scene').forEach((el,i)=>el.classList.toggle('visible',i===idx));
+  document.querySelectorAll('.sj').forEach((b,i)=>b.classList.toggle('now',i===idx));
+}
+
+aud.addEventListener('loadedmetadata',()=>{dur=aud.duration||TOTAL_SEC;});
+
+aud.addEventListener('timeupdate',()=>{
+  const t=aud.currentTime, pct=t/dur;
+  document.getElementById('progress-fill').style.width=(pct*100)+'%';
+  document.getElementById('progress-thumb').style.left=(pct*100)+'%';
+  document.getElementById('tdisplay').textContent=fmt(t)+' / '+fmt(dur);
+  // 씬: 현재 시간보다 startSec이 작은 마지막 씬
+  let si=0;
+  for(let i=SCENES.length-1;i>=0;i--){
+    if(t>=SCENES[i].startSec){si=i;break;}
+  }
+  showScene(si);
+});
+
+aud.addEventListener('ended',()=>{document.getElementById('btn-play').textContent='▶';});
+
+const btn=document.getElementById('btn-play');
+btn.addEventListener('click',()=>{
+  if(aud.paused){aud.play();btn.textContent='⏸';}
+  else{aud.pause();btn.textContent='▶';}
+});
+document.getElementById('btn-restart').addEventListener('click',()=>{
+  aud.currentTime=0;aud.play();btn.textContent='⏸';
+});
+document.getElementById('btn-back').addEventListener('click',()=>{aud.currentTime=Math.max(0,aud.currentTime-10);});
+document.getElementById('btn-fwd').addEventListener('click',()=>{aud.currentTime=Math.min(dur,aud.currentTime+10);});
+
+document.getElementById('progress-wrap').addEventListener('click',e=>{
+  const r=e.currentTarget.getBoundingClientRect();
+  aud.currentTime=((e.clientX-r.left)/r.width)*dur;
+  if(aud.paused){aud.play();btn.textContent='⏸';}
+});
+
+document.querySelectorAll('.sj').forEach(b=>{
+  b.addEventListener('click',()=>{
+    aud.currentTime=SCENES[parseInt(b.dataset.i)].startSec;
+    if(aud.paused){aud.play();btn.textContent='⏸';}
+  });
+});
+
+document.getElementById('start-btn').addEventListener('click',()=>{
+  document.getElementById('overlay').style.display='none';
+  showScene(0);
+  aud.play().catch(()=>{});
+  btn.textContent='⏸';
+});
+</script>
+</body>
+</html>

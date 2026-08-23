@@ -11,6 +11,7 @@ const courses = {
     curriculum: [
       '1강: 챗GPT 가입부터 기본 대화법 마스터하기',
       '2강: 챗GPT 실전 활용 - 긴 글 요약의 달인 되기',
+      '특별강의: GPT 이미지 생성 완전 마스터',
       '3강: 구글과 찰떡궁합, 제미나이(Gemini) 실전 팁',
       '4강: 상황별 맞춤 AI 선택 가이드',
       '5강: 똑똑하게 질문하는 프롬프트 공식 (기초 편)',
@@ -91,7 +92,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ id: s
         </Link>
       </div>
       
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '48px', alignItems: 'start' }}>
+      <div className="checkout-grid">
         
         {/* Left Column: Sales Content */}
         <div>

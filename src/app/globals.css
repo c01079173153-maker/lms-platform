@@ -94,3 +94,49 @@ button {
   transform: translateY(-4px);
   box-shadow: 0 10px 25px -5px rgba(212, 175, 55, 0.15);
 }
+
+/* Responsive Utilities for Mobile */
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.player-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 90px);
+}
+
+.player-video {
+  flex: 1;
+  min-height: 40vh;
+}
+
+.player-sidebar {
+  flex: 1;
+  max-height: 60vh;
+}
+
+@media (min-width: 900px) {
+  .checkout-grid {
+    grid-template-columns: 1.2fr 1fr;
+    gap: 48px;
+  }
+  
+  .player-layout {
+    flex-direction: row;
+    height: calc(100vh - 90px);
+  }
+
+  .player-video {
+    flex: 3;
+    min-height: unset;
+  }
+
+  .player-sidebar {
+    flex: 1;
+    max-height: unset;
+  }
+}

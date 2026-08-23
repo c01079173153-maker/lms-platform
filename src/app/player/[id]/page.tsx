@@ -14,15 +14,15 @@ export default async function PlayerPage({
   const videoSrc = lecture === '2' ? "/videos/lecture2.mp4" : "/videos/lecture1.mp4";
   const lectureTitle = lecture === '2' 
     ? "[2강] 챗GPT 실전 활용 - 긴 글 요약의 달인 되기" 
-    : "[1강] 챗GPT 가입부터 기본 대화법 마스터하기";
+    : lecture === '3' ? "특별강의: GPT 이미지 생성 완전 마스터" : "[1강] 챗GPT 가입부터 기본 대화법 마스터하기";
   const lectureDesc = lecture === '2'
     ? "아무리 길고 복잡한 뉴스 기사나 건강 칼럼도 챗GPT를 활용해 단 3줄로 완벽하게 요약하는 비법을 알아봅니다."
-    : "시니어 여러분이 왜 AI를 당장 시작해야 하는지, 그리고 가장 쉽게 접근할 수 있는 첫 단추를 채우는 방법에 대해 알아봅니다.";
+    : lecture === '3' ? "텍스트로 이미지를 생성하는 기본 원리부터 5대 화풍(지브리, 픽사, 사이버펑크 등) 프롬프트 팁까지 완벽하게 알아봅니다." : "시니어 여러분이 왜 AI를 당장 시작해야 하는지, 그리고 가장 쉽게 접근할 수 있는 첫 단추를 채우는 방법에 대해 알아봅니다.";
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 90px)' }}>
+    <div className="player-layout">
       {/* Left: Video Area */}
-      <div style={{ flex: 3, display: 'flex', flexDirection: 'column' }}>
+      <div className="player-video" style={{ display: 'flex', flexDirection: 'column' }}>
         <div style={{ flex: 1, backgroundColor: '#000', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
           <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', padding: '24px', zIndex: 10 }}>
             <Link href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', color: '#fff', textDecoration: 'underline', fontSize: '1.125rem', background: 'rgba(0,0,0,0.5)', padding: '8px 16px', borderRadius: '4px' }}>
@@ -32,15 +32,24 @@ export default async function PlayerPage({
           
           {/* Video Player */}
           {resolvedParams.id === 'course-ai-101' ? (
-            <video 
-              key={videoSrc}
-              src={videoSrc} 
-              controls 
-              autoPlay 
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-            >
-              Your browser does not support the video tag.
-            </video>
+            lecture === '3' ? (
+              <iframe 
+                key="special-lecture"
+                src="/특별강의_GPT이미지생성.html" 
+                style={{ width: '100%', height: '100%', border: 'none' }}
+                allowFullScreen
+              />
+            ) : (
+              <video 
+                key={videoSrc}
+                src={videoSrc} 
+                controls 
+                autoPlay 
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              >
+                Your browser does not support the video tag.
+              </video>
+            )
           ) : (
             <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
               <div style={{ fontSize: 'var(--text-2xl)', marginBottom: '16px' }}>▶️</div>
@@ -61,7 +70,7 @@ export default async function PlayerPage({
       </div>
 
       {/* Right: Playlist Sidebar */}
-      <div style={{ flex: 1, backgroundColor: '#1a1a1a', borderLeft: '1px solid rgba(255,255,255,0.05)', overflowY: 'auto' }}>
+      <div className="player-sidebar" style={{ backgroundColor: '#1a1a1a', borderLeft: '1px solid rgba(255,255,255,0.05)', overflowY: 'auto' }}>
         <div style={{ padding: '24px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
           <h2 style={{ fontSize: '1.25rem', color: '#fff' }}>📚 강의 목차</h2>
         </div>
@@ -73,6 +82,10 @@ export default async function PlayerPage({
           <Link href={`/player/${resolvedParams.id}?lecture=2`} style={{ padding: '20px 24px', display: 'block', borderBottom: '1px solid rgba(255,255,255,0.05)', backgroundColor: lecture === '2' ? 'rgba(212, 175, 55, 0.1)' : 'transparent', textDecoration: 'none' }}>
             <div style={{ fontSize: '0.9rem', color: lecture === '2' ? '#d4af37' : 'var(--text-secondary)', marginBottom: '8px' }}>제 2강 (7:10)</div>
             <div style={{ color: '#fff', fontSize: '1.1rem', fontWeight: lecture === '2' ? 'bold' : 'normal' }}>챗GPT 실전 활용 - 긴 글 요약의 달인 되기</div>
+          </Link>
+          <Link href={`/player/${resolvedParams.id}?lecture=3`} style={{ padding: '20px 24px', display: 'block', borderBottom: '1px solid rgba(255,255,255,0.05)', backgroundColor: lecture === '3' ? 'rgba(212, 175, 55, 0.1)' : 'transparent', textDecoration: 'none' }}>
+            <div style={{ fontSize: '0.9rem', color: lecture === '3' ? '#d4af37' : 'var(--text-secondary)', marginBottom: '8px' }}>특별강의 (8:01)</div>
+            <div style={{ color: '#fff', fontSize: '1.1rem', fontWeight: lecture === '3' ? 'bold' : 'normal' }}>GPT 이미지 생성 완전 마스터</div>
           </Link>
         </div>
       </div>
