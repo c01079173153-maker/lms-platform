@@ -184,6 +184,16 @@ export default function Home() {
                 🚀 웹에서 바로 사용하기
               </Link>
             </div>
+
+            {/* Resource 6: Secret Prompts 10 */}
+            <div style={{ background: 'rgba(255, 50, 50, 0.05)', padding: '32px', borderRadius: '16px', border: '1px solid rgba(255, 50, 50, 0.3)', display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: '12px', right: '-30px', background: '#ff3333', color: '#fff', padding: '4px 40px', transform: 'rotate(45deg)', fontSize: '0.8rem', fontWeight: 'bold' }}>TOP SECRET</div>
+              <div style={{ fontSize: '2.5rem' }}>🚨</div>
+              <h4 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#ff6b6b' }}>[1급 기밀] 절대 외부에 공유 금지! 분야별 시크릿 프롬프트 10선</h4>
+              <Link href="/downloads/secret-prompts" className={styles.courseButton} style={{ marginTop: 'auto', background: 'linear-gradient(90deg, #ff3333 0%, #cc0000 100%)', color: '#fff', border: 'none', display: 'block', textAlign: 'center', fontWeight: 'bold' }}>
+                🔓 기밀 해제하고 프롬프트 보기
+              </Link>
+            </div>
           </div>
         </div>
       </section>
