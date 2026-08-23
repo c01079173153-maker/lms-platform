@@ -568,6 +568,7 @@ html, body {
   <button class="sj" data-i="7">픽사</button>
   <button class="sj" data-i="8">시네마틱</button>
   <button class="sj" data-i="9">정리</button>
+  <button class="cb" id="btn-fullscreen" style="margin-left:auto; background:rgba(108,99,255,.2); border-color:var(--purple);">전체화면</button>
 </div>
 
 <audio id="aud" src="/videos/GPT_이미지생성_최종.mp4" preload="auto"></audio>
@@ -675,6 +676,26 @@ document.getElementById('start-btn').addEventListener('click',()=>{
   showScene(0);
   aud.play().catch(()=>{});
   btn.textContent='⏸';
+});
+
+const btnFs = document.getElementById('btn-fullscreen');
+btnFs.addEventListener('click', () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(err => {
+      console.log("Error attempting to enable fullscreen:", err);
+    });
+  } else {
+    if(document.exitFullscreen) {
+      document.exitFullscreen();
+    }
+  }
+});
+document.addEventListener('fullscreenchange', () => {
+  if (document.fullscreenElement) {
+    btnFs.textContent = '기본화면';
+  } else {
+    btnFs.textContent = '전체화면';
+  }
 });
 </script>
 </body>
