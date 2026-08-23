@@ -39,7 +39,6 @@ export default async function PlayerPage({
                   maxWidth: '100%', 
                   maxHeight: '100%', 
                   width: '100%', 
-                  containerType: 'inline-size',
                   position: 'relative',
                   overflow: 'hidden'
                 }}>
@@ -50,10 +49,8 @@ export default async function PlayerPage({
                       position: 'absolute',
                       top: 0,
                       left: 0,
-                      width: '1280px', 
-                      height: '720px',
-                      transform: 'scale(calc(100cqw / 1280))',
-                      transformOrigin: 'top left',
+                      width: '100%', 
+                      height: '100%',
                       border: 'none' 
                     }}
                     allowFullScreen
