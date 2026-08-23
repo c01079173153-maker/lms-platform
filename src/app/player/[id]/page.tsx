@@ -33,12 +33,12 @@ export default async function PlayerPage({
           {/* Video Player */}
           {resolvedParams.id === 'course-ai-101' ? (
             lecture === '3' ? (
-              <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}>
+              <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#000', containerType: 'size' }}>
                 <div style={{ 
                   aspectRatio: '16/9', 
-                  maxWidth: '100%', 
                   maxHeight: '100%', 
-                  width: '100%', 
+                  width: '100cqw',
+                  maxWidth: 'calc(100cqh * 16 / 9)',
                   position: 'relative',
                   overflow: 'hidden'
                 }}>
