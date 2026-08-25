@@ -194,6 +194,15 @@ export default function Home() {
                 🔓 기밀 해제하고 프롬프트 보기
               </Link>
             </div>
+
+            {/* Resource 7: Practical Video Lecture */}
+            <div style={{ background: 'rgba(255,255,255,0.03)', padding: '32px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ fontSize: '2.5rem' }}>🎬</div>
+              <h4 style={{ fontSize: '1.25rem', fontWeight: '700' }}>[실전 영상] 특별강의: GPT 이미지 생성 완벽 마스터</h4>
+              <a href="/특별강의_실전영상본.html" className={styles.courseButton} style={{ marginTop: 'auto', background: 'linear-gradient(90deg, #6c63ff 0%, #ff6584 100%)', color: '#fff', border: 'none', display: 'block', textAlign: 'center' }}>
+                ▶ 영상 강의 시청하기
+              </a>
+            </div>
           </div>
         </div>
       </section>
