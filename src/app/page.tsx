@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import styles from './page.module.css';
-import HeroVideoClient from './HeroVideoClient';
 import BgmPlayerClient from './BgmPlayerClient';
 import JoseonHipHopShowcase from './JoseonHipHopShowcase';
 import programsData from '../data/programs.json';
@@ -156,7 +155,26 @@ export default function Home() {
             </div>
           </div>
 
-          <HeroVideoClient />
+          {/* 우측: 조선힙합소리꾼 공식 대표 비주얼 아트 */}
+          <div
+            style={{
+              position: 'relative',
+              borderRadius: '24px',
+              overflow: 'hidden',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(212, 175, 55, 0.25)',
+              border: '2px solid rgba(212, 175, 55, 0.5)',
+            }}
+          >
+            <img
+              src="/sorikkun/joseon-hiphop-banner.jpg"
+              alt="조선힙합소리꾼 (판소리 x 힙합 x 코미디)"
+              style={{
+                width: '100%',
+                height: 'auto',
+                display: 'block',
+              }}
+            />
+          </div>
         </div>
       </section>
 
@@ -322,16 +340,16 @@ export default function Home() {
         <div className={styles.courseGrid}>
           {/* Course 1 */}
           <div className={`glass-panel ${styles.courseCard} hover-lift`} style={{ border: '1px solid rgba(16,185,129,0.4)' }}>
-            <img src="/course-ai.png" alt="챗GPT, 제미나이 완벽 활용법" className={styles.courseImage} />
+            <img src="/course_ai_music.png" alt="챗GPT, 제미나이 완벽 활용법" className={styles.courseImage} />
             <div className={styles.courseContent}>
               <span className={styles.courseBadge} style={{ background: '#10b981', color: '#000', fontWeight: 900 }}>
                 100% 무료 개방
               </span>
               <h3 className={styles.courseTitle}>
-                시니어 AI 101
+                왕초보 AI 실전 101
                 <br />
                 <span style={{ fontSize: '0.85em', color: 'var(--accent-primary)' }}>
-                  챗GPT · 제미나이 실전 활용법
+                  챗GPT · 제미나이 실전 기초 활용법
                 </span>
               </h3>
               <p className={styles.courseDesc}>
