@@ -133,23 +133,26 @@ export default async function CheckoutPage({ params }: { params: Promise<{ id: s
           </div>
         </div>
 
-        {/* Right Column: Sticky Checkout Panel */}
-        <div className="glass-panel" style={{ padding: '40px', position: 'sticky', top: '120px' }}>
+        {/* Right Column: Sticky Free Access Panel */}
+        <div className="glass-panel" style={{ padding: '40px', position: 'sticky', top: '120px', border: '2px solid #10b981' }}>
           <h2 style={{ fontSize: 'var(--text-lg)', marginBottom: '32px', textAlign: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '24px' }}>
-            수강 신청 결제
+            🎁 100% 전면 무료 수강
           </h2>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-            <span style={{ fontSize: 'var(--text-md)', fontWeight: 500 }}>총 결제 금액</span>
-            <span style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--accent-primary)' }}>₩ {course.price.toLocaleString()}</span>
+            <span style={{ fontSize: 'var(--text-md)', fontWeight: 500 }}>수강 금액</span>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ textDecoration: 'line-through', color: '#71717a', fontSize: '1.1rem' }}>₩ {course.price.toLocaleString()}</div>
+              <span style={{ fontSize: 'var(--text-2xl)', fontWeight: 900, color: '#10b981' }}>₩ 0 (전면 무료)</span>
+            </div>
           </div>
 
-          <CheckoutClient courseId={resolvedParams.id} price={course.price} courseTitle={course.title} />
+          <CheckoutClient courseId={resolvedParams.id} price={0} courseTitle={course.title} />
 
           <div style={{ marginTop: '32px', padding: '24px', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-sm)' }}>
-            <h4 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '12px' }}>🔒 안심 결제 보장</h4>
+            <h4 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '12px', color: '#d4af37' }}>👑 조선힙합소리꾼 무료 나눔 약속</h4>
             <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.5 }}>
-              결제 후 7일 이내 수강 이력이 없을 경우 100% 전액 환불을 보장합니다. 카카오페이/토스페이를 통한 안전한 결제가 지원됩니다.
+              모든 강의와 앞으로 제작되는 영상 제작 도구·유용한 프로그램은 조건 없이 100% 무료로 제공됩니다.
             </p>
           </div>
         </div>

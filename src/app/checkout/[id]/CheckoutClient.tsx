@@ -1,13 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-
-// PortOne V2 SDK Type (Simple Mock)
-declare global {
-  interface Window {
-    PortOne: any;
-  }
-}
+import Link from 'next/link';
 
 interface Props {
   courseId: string;
@@ -15,142 +8,64 @@ interface Props {
   courseTitle: string;
 }
 
-export default function CheckoutClient({ courseId, price, courseTitle }: Props) {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const requestPayment = async (channelKey: string, providerName: string) => {
-    if (typeof window === 'undefined' || !window.PortOne) {
-      setError('결제 모듈을 불러오고 있습니다. 잠시 후 다시 시도해주세요.');
-      return;
-    }
-
-    setIsProcessing(true);
-    setError(null);
-
-    try {
-      const paymentId = `payment-${crypto.randomUUID()}`;
-
-      // 포트원 V2 SDK 결제 요청
-      const response = await window.PortOne.requestPayment({
-        // Store ID (Test) - 실제로 포트원 관리자 페이지에서 발급받은 ID 사용 필요
-        storeId: 'store-42b785fc-3e6e-4172-8ee4-2a6c382f643f', 
-        channelKey: channelKey, // 예: 카카오페이 채널 키
-        paymentId: paymentId,
-        orderName: courseTitle,
-        totalAmount: price,
-        currency: 'CURRENCY_KRW',
-        payMethod: 'EASY_PAY',
-        customer: {
-          fullName: '홍길동',
-          phoneNumber: '010-1234-5678',
-          email: 'test@example.com',
-        },
-      });
-
-      if (response.code != null) {
-        // 오류 발생
-        setError(`결제 실패: ${response.message}`);
-        setIsProcessing(false);
-        return;
-      }
-
-      // 결제 성공 (Client-side)
-      // 백엔드로 결제 검증 요청
-      const verifyRes = await fetch('/api/payment/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentId: response.paymentId, courseId }),
-      });
-
-      if (verifyRes.ok) {
-        window.location.href = `/dashboard?success=true`;
-      } else {
-        setError('결제는 완료되었으나 내부 시스템 검증에 실패했습니다. 관리자에게 문의해주세요.');
-      }
-    } catch (e: any) {
-      setError(`결제 중 오류가 발생했습니다: ${e.message}`);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const btnStyle = {
-    width: '100%',
-    padding: '20px',
-    fontSize: 'var(--text-lg)',
-    fontWeight: 700,
-    borderRadius: 'var(--radius-sm)',
-    marginBottom: '16px',
-    transition: 'transform 0.2s, filter 0.2s',
-  };
-
+export default function CheckoutClient({ courseId, courseTitle }: Props) {
   return (
     <div>
-      {error && (
-        <div style={{ padding: '16px', backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--accent-danger)', border: '1px solid var(--accent-danger)', borderRadius: 'var(--radius-sm)', marginBottom: '24px' }}>
-          {error}
-        </div>
-      )}
-      
-      <button 
-        disabled={isProcessing}
-        onClick={() => requestPayment('channel-key-kakaopay', '카카오페이')}
+      <div
         style={{
-          ...btnStyle,
-          backgroundColor: '#FEE500',
-          color: '#191919',
-          border: 'none',
-          opacity: isProcessing ? 0.7 : 1,
-          cursor: isProcessing ? 'not-allowed' : 'pointer'
+          padding: '20px',
+          backgroundColor: 'rgba(16, 185, 129, 0.12)',
+          color: '#6ee7b7',
+          border: '1px solid #10b981',
+          borderRadius: '12px',
+          marginBottom: '24px',
+          fontWeight: 700,
+          lineHeight: 1.6,
+          textAlign: 'center',
         }}
-        onMouseOver={(e) => e.currentTarget.style.filter = 'brightness(0.95)'}
-        onMouseOut={(e) => e.currentTarget.style.filter = 'brightness(1)'}
       >
-        {isProcessing ? '결제 진행 중...' : '카카오페이로 결제하기'}
-      </button>
+        🎉 <strong>[전면 무료 개방]</strong>
+        <br />
+        《{courseTitle}》 과정은 결제 없이 <strong>100% 무료(₩0)</strong>로 즉시 수강하실 수 있습니다!
+      </div>
 
-      <button 
-        disabled={isProcessing}
-        onClick={() => requestPayment('channel-key-tosspay', '토스페이')}
+      <Link
+        href={`/player/${courseId}`}
         style={{
-          ...btnStyle,
-          backgroundColor: '#3182F6',
-          color: '#FFFFFF',
-          border: 'none',
-          opacity: isProcessing ? 0.7 : 1,
-          cursor: isProcessing ? 'not-allowed' : 'pointer'
+          display: 'block',
+          width: '100%',
+          padding: '22px',
+          fontSize: '1.35rem',
+          fontWeight: 900,
+          borderRadius: '12px',
+          marginBottom: '16px',
+          backgroundColor: '#10b981',
+          color: '#000',
+          textAlign: 'center',
+          boxShadow: '0 8px 25px rgba(16, 185, 129, 0.35)',
         }}
-        onMouseOver={(e) => e.currentTarget.style.filter = 'brightness(0.95)'}
-        onMouseOut={(e) => e.currentTarget.style.filter = 'brightness(1)'}
       >
-        토스페이로 결제하기
-      </button>
+        🎓 지금 바로 무료 강의실 입장하기
+      </Link>
 
-      <button 
-        disabled={isProcessing}
-        onClick={() => {
-          alert('국민은행 1234-56-7890 (예금주: 염상민)으로 입금해 주시면 확인 후 강의 접속 권한이 부여됩니다. 입금 후 카카오톡으로 연락주세요!');
-          window.location.href = `/dashboard?success=true&method=bank`;
-        }}
+      <a
+        href="https://www.youtube.com/@%EC%A1%B0%EC%84%A0%ED%9E%99%ED%95%A9%EC%86%8C%EB%A6%AC%EA%BE%BC"
+        target="_blank"
+        rel="noopener noreferrer"
         style={{
-          ...btnStyle,
-          backgroundColor: 'transparent',
-          color: 'var(--accent-primary)',
-          border: '2px solid var(--accent-primary)',
-          opacity: isProcessing ? 0.7 : 1,
-          cursor: isProcessing ? 'not-allowed' : 'pointer',
-          marginTop: '8px'
+          display: 'block',
+          width: '100%',
+          padding: '18px',
+          fontSize: '1.15rem',
+          fontWeight: 800,
+          borderRadius: '12px',
+          backgroundColor: '#ff0033',
+          color: '#fff',
+          textAlign: 'center',
         }}
-        onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(212, 175, 55, 0.1)'}
-        onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
       >
-        무통장 입금으로 결제하기
-      </button>
-
-      <p style={{ textAlign: 'center', marginTop: '16px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-        * 보안 결제 모듈을 통해 안전하게 처리됩니다.
-      </p>
+        📺 ‘조선힙합소리꾼’ 유튜브 채널 바로가기 ↗
+      </a>
     </div>
   );
 }
