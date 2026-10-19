@@ -155,7 +155,27 @@ export default function RootLayout({
           <p>
             앞으로도 영상 제작 비법, AI 음악 창작 노하우, 각종 유용한 자동화 프로그램을 만들어 100% 무료로 배포합니다.
           </p>
-          <p style={{ marginTop: '12px', fontSize: '0.9rem', opacity: 0.7 }}>
+          <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <a
+              href="mailto:sorikkun.official@gmail.com"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 24px',
+                borderRadius: '999px',
+                background: 'rgba(212, 175, 55, 0.12)',
+                border: '1px solid rgba(212, 175, 55, 0.4)',
+                color: '#fff1b8',
+                fontSize: '0.98rem',
+                fontWeight: 700,
+                textDecoration: 'none',
+              }}
+            >
+              ✉️ 공식 문의 및 협업 제안 : sorikkun.official@gmail.com
+            </a>
+          </div>
+          <p style={{ marginTop: '16px', fontSize: '0.9rem', opacity: 0.7 }}>
             © 2026 조선힙합소리꾼 & AI Master Class. All rights reserved.
           </p>
         </footer>

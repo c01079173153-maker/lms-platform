@@ -531,22 +531,43 @@ export default function Home() {
               <br />
               • AI 영상 제작 · 음원 프로듀싱 · 자동화 프로그램 개발 및 무료 배포
             </div>
-            <a
-              href="https://www.youtube.com/@%EC%A1%B0%EC%84%A0%ED%9E%99%ED%95%A9%EC%86%8C%EB%A6%AC%EA%BE%BC"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                display: 'inline-block',
-                padding: '16px 32px',
-                borderRadius: '12px',
-                background: '#ff0033',
-                color: '#fff',
-                fontWeight: 900,
-                fontSize: '1.1rem',
-              }}
-            >
-              📺 조선힙합소리꾼 유튜브 채널 구독·구경하기 ↗
-            </a>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', alignItems: 'center' }}>
+              <a
+                href="https://www.youtube.com/@%EC%A1%B0%EC%84%A0%ED%9E%99%ED%95%A9%EC%86%8C%EB%A6%AC%EA%BE%BC"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-block',
+                  padding: '16px 32px',
+                  borderRadius: '12px',
+                  background: '#ff0033',
+                  color: '#fff',
+                  fontWeight: 900,
+                  fontSize: '1.1rem',
+                  boxShadow: '0 8px 24px rgba(255, 0, 51, 0.4)',
+                }}
+              >
+                📺 조선힙합소리꾼 유튜브 채널 구독·구경하기 ↗
+              </a>
+              <a
+                href="mailto:sorikkun.official@gmail.com"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '16px 28px',
+                  borderRadius: '12px',
+                  background: 'rgba(212, 175, 55, 0.15)',
+                  border: '1px solid rgba(212, 175, 55, 0.5)',
+                  color: '#fff1b8',
+                  fontWeight: 900,
+                  fontSize: '1.05rem',
+                  textDecoration: 'none',
+                }}
+              >
+                ✉️ 공식 문의 : sorikkun.official@gmail.com
+              </a>
+            </div>
           </div>
         </div>
       </section>
