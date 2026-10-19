@@ -252,6 +252,24 @@ export default function JoseonHipHopShowcase() {
             <strong>누구에게도 말 못 한 삶의 서러움, 위로, 그리고 속 시원한 사이다</strong>를 노래합니다.
           </p>
 
+          {/* 공식 아트 배너 */}
+          <div
+            style={{
+              maxWidth: '920px',
+              margin: '0 auto 36px',
+              borderRadius: '20px',
+              overflow: 'hidden',
+              boxShadow: '0 16px 50px rgba(0, 0, 0, 0.7)',
+              border: '2px solid rgba(212, 175, 55, 0.45)',
+            }}
+          >
+            <img
+              src="/sorikkun/joseon-hiphop-banner.jpg"
+              alt="조선힙합소리꾼 (판소리 x 힙합 x 코미디)"
+              style={{ width: '100%', height: 'auto', display: 'block' }}
+            />
+          </div>
+
           {/* 채널 직행 빅 버튼 */}
           <div
             style={{

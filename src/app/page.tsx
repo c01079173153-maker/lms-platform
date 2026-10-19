@@ -490,7 +490,7 @@ export default function Home() {
       {/* 5. 크리에이터 & 강사 소개 */}
       <section className={styles.sectionBlock} style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: '24px', marginBottom: '80px' }}>
         <div className={styles.instructorGrid}>
-          <img src="/sorikkun/thumb_hogu.jpg" alt="조선힙합소리꾼" className={styles.instructorImage} />
+          <img src="/sorikkun/joseon-hiphop-banner.jpg" alt="조선힙합소리꾼" className={styles.instructorImage} />
           <div>
             <h2 className={styles.sectionTitle} style={{ textAlign: 'left' }}>
               음악으로 위로하고, <span className="text-gradient">기술을 무료로 나누는</span>
