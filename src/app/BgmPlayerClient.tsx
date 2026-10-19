@@ -1,47 +1,63 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import songsData from '../data/songs.json';
+import bgmData from '../data/bgm.json';
 
-const TRACKS = (songsData as any[])
-  .filter((s) => s.mp3Src)
-  .map((s) => ({
-    title: s.title.replace(/^🎧\s*/, ''),
-    src: s.mp3Src as string,
-    youtubeUrl: s.youtubeUrl as string,
-  }));
+interface BgmTrack {
+  id: string;
+  title: string;
+  src: string;
+  youtubeUrl?: string;
+}
+
+const TRACKS: BgmTrack[] = (bgmData.tracks || []) as BgmTrack[];
+const DEFAULT_ID: string = bgmData.defaultTrackId || (TRACKS[0]?.id ?? '');
 
 export default function BgmPlayerClient() {
+  const initialIdx = Math.max(
+    0,
+    TRACKS.findIndex((t) => t.id === DEFAULT_ID)
+  );
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [trackIdx, setTrackIdx] = useState(0);
+  const [trackIdx, setTrackIdx] = useState(initialIdx);
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    const startAudio = () => {
-      if (audioRef.current && audioRef.current.paused) {
-        audioRef.current.volume = 0.35;
-        audioRef.current
-          .play()
-          .then(() => {
-            setIsPlaying(true);
-            document.removeEventListener('click', startAudio);
-            document.removeEventListener('keydown', startAudio);
-            document.removeEventListener('touchstart', startAudio);
-          })
-          .catch(() => {});
-      }
+    let started = false;
+
+    const tryPlay = () => {
+      if (started || !audioRef.current) return;
+      audioRef.current.volume = 0.4;
+      audioRef.current
+        .play()
+        .then(() => {
+          started = true;
+          setIsPlaying(true);
+          cleanup();
+        })
+        .catch(() => {});
     };
 
-    document.addEventListener('click', startAudio);
-    document.addEventListener('keydown', startAudio);
-    document.addEventListener('touchstart', startAudio);
+    const events = [
+      'click',
+      'keydown',
+      'touchstart',
+      'scroll',
+      'wheel',
+      'pointermove',
+      'mousemove',
+    ];
 
-    return () => {
-      document.removeEventListener('click', startAudio);
-      document.removeEventListener('keydown', startAudio);
-      document.removeEventListener('touchstart', startAudio);
+    const cleanup = () => {
+      events.forEach((ev) => window.removeEventListener(ev, tryPlay));
     };
+
+    // 페이지 열리자마자 즉시 자동재생 시도 + 마우스 이동/스크롤/클릭 시 즉시 재생
+    tryPlay();
+    events.forEach((ev) => window.addEventListener(ev, tryPlay, { passive: true }));
+
+    return cleanup;
   }, []);
 
   if (TRACKS.length === 0) return null;
@@ -52,7 +68,7 @@ export default function BgmPlayerClient() {
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
-      audioRef.current.volume = 0.35;
+      audioRef.current.volume = 0.4;
       audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
     }
   };
@@ -61,7 +77,7 @@ export default function BgmPlayerClient() {
     setTrackIdx(idx);
     setTimeout(() => {
       if (audioRef.current) {
-        audioRef.current.volume = 0.35;
+        audioRef.current.volume = 0.4;
         audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
       }
     }, 80);
@@ -76,7 +92,13 @@ export default function BgmPlayerClient() {
 
   return (
     <>
-      <audio ref={audioRef} src={currentTrack.src} onEnded={nextTrack} />
+      <audio
+        ref={audioRef}
+        src={currentTrack.src}
+        autoPlay
+        preload="auto"
+        onEnded={nextTrack}
+      />
 
       <div
         style={{
@@ -87,7 +109,7 @@ export default function BgmPlayerClient() {
           display: 'flex',
           flexDirection: 'column',
           gap: '10px',
-          maxWidth: '360px',
+          maxWidth: '370px',
         }}
       >
         {expanded && (
@@ -129,7 +151,7 @@ export default function BgmPlayerClient() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {TRACKS.map((t, i) => (
                 <button
-                  key={t.src}
+                  key={t.id}
                   onClick={() => selectTrack(i)}
                   style={{
                     textAlign: 'left',

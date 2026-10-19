@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-👑 조선힙합소리꾼 × AI 무료 나눔 홈페이지 자동 관리기 (GUI)
-- 코드 수정 없이 마우스 클릭만으로:
-  1) 조선힙합소리꾼 신곡/유튜브 영상 추가·순서변경·삭제 (MP3 첨부 시 배경음악 자동 등록)
-  2) 무료 프로그램(.zip, .exe, .pdf, .html 등) 및 자료실 항목 추가·삭제
-  3) [🚀 홈페이지 서버에 즉시 반영하기] 버튼 클릭 한 번으로 GitHub -> Vercel 자동 배포!
+👑 조선힙합소리꾼 × AI 무료 나눔 홈페이지 자동 관리기 (GUI v2)
+- 탭 1: 🎵 홈페이지 명곡 선곡표 & '홈페이지 열면 바로 나오는 첫 시작 음악' 직접 지정!
+- 탭 2: 📺 조선힙합소리꾼 유튜브 쇼케이스 곡 추가·순서변경·삭제
+- 탭 3: 🛠️ 무료 프로그램(.zip, .exe, .pdf, .html 등) 및 자료실 항목 추가·삭제
+- 우측 하단: [🚀 홈페이지 서버에 즉시 반영하기] 버튼 클릭 한 번으로 GitHub -> Vercel 자동 배포!
 """
 import json
 import os
@@ -13,7 +13,6 @@ import shutil
 import subprocess
 import threading
 import time
-import urllib.parse
 import urllib.request
 import webbrowser
 from pathlib import Path
@@ -21,6 +20,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 
 BASE_DIR = Path(r"D:\lms_platform")
+BGM_JSON = BASE_DIR / "src" / "data" / "bgm.json"
 SONGS_JSON = BASE_DIR / "src" / "data" / "songs.json"
 PROGRAMS_JSON = BASE_DIR / "src" / "data" / "programs.json"
 SORIKKUN_PUBLIC_DIR = BASE_DIR / "public" / "sorikkun"
@@ -48,9 +48,9 @@ def extract_youtube_id(url_or_id: str) -> str:
     return s
 
 
-def load_json(path: Path):
+def load_json(path: Path, default_val):
     if not path.exists():
-        return []
+        return default_val
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -64,14 +64,16 @@ def save_json(path: Path, data):
 class HomepageManagerApp:
     def __init__(self, root: tk.Tk):
         self.root = root
-        self.root.title("👑 조선힙합소리꾼 & 무료 프로그램 홈페이지 자동 관리기")
-        self.root.geometry("1080x820")
+        self.root.title("👑 조선힙합소리꾼 홈페이지 자동 관리기 (명곡 선곡표 · 유튜브 · 무료프로그램)")
+        self.root.geometry("1120x840")
         self.root.configure(bg="#121216")
 
-        self.songs = load_json(SONGS_JSON)
-        self.programs = load_json(PROGRAMS_JSON)
+        self.bgm_data = load_json(BGM_JSON, {"defaultTrackId": "", "tracks": []})
+        self.songs = load_json(SONGS_JSON, [])
+        self.programs = load_json(PROGRAMS_JSON, [])
 
         self._build_ui()
+        self.refresh_bgm_list()
         self.refresh_songs_list()
         self.refresh_programs_list()
 
@@ -82,7 +84,7 @@ class HomepageManagerApp:
 
         tk.Label(
             header,
-            text="👑 조선힙합소리꾼 × 무료 나눔 홈페이지 자동 관리기",
+            text="👑 조선힙합소리꾼 홈페이지 자동 관리기",
             font=("맑은 고딕", 18, "bold"),
             fg="#d4af37",
             bg="#1b1b22",
@@ -90,7 +92,7 @@ class HomepageManagerApp:
 
         tk.Button(
             header,
-            text="🌐 홈페이지 바로 열기",
+            text="🌐 현재 홈페이지 열기",
             font=("맑은 고딕", 11, "bold"),
             bg="#3182f6",
             fg="white",
@@ -101,18 +103,14 @@ class HomepageManagerApp:
             command=lambda: webbrowser.open(SITE_URL),
         ).pack(side="right", padx=6)
 
-        # 노트북 탭
+        # 노트북 탭 스타일
         style = ttk.Style()
         style.theme_use("default")
-        style.configure(
-            "TNotebook",
-            background="#121216",
-            borderwidth=0,
-        )
+        style.configure("TNotebook", background="#121216", borderwidth=0)
         style.configure(
             "TNotebook.Tab",
-            font=("맑은 고딕", 13, "bold"),
-            padding=[20, 10],
+            font=("맑은 고딕", 12, "bold"),
+            padding=[18, 10],
             background="#23232e",
             foreground="#cccccc",
         )
@@ -125,12 +123,15 @@ class HomepageManagerApp:
         self.notebook = ttk.Notebook(self.root)
         self.notebook.pack(fill="both", expand=True, padx=18, pady=10)
 
+        self.tab_bgm = tk.Frame(self.notebook, bg="#181820", padx=18, pady=14)
         self.tab_songs = tk.Frame(self.notebook, bg="#181820", padx=18, pady=14)
         self.tab_programs = tk.Frame(self.notebook, bg="#181820", padx=18, pady=14)
 
-        self.notebook.add(self.tab_songs, text=" 🎧 1. 조선힙합소리꾼 노래 / 유튜브 영상 관리 ")
-        self.notebook.add(self.tab_programs, text=" 🛠️ 2. 무료 프로그램 / 전자책 / 자료실 관리 ")
+        self.notebook.add(self.tab_bgm, text=" 🎵 1. 홈페이지 명곡 선곡표 & 첫 시작 음악 지정 ")
+        self.notebook.add(self.tab_songs, text=" 📺 2. 메인 화면 유튜브 영상 쇼케이스 관리 ")
+        self.notebook.add(self.tab_programs, text=" 🛠️ 3. 무료 프로그램 / 전자책 / 자료실 관리 ")
 
+        self._build_bgm_tab()
         self._build_songs_tab()
         self._build_programs_tab()
 
@@ -140,7 +141,7 @@ class HomepageManagerApp:
 
         self.status_label = tk.Label(
             footer,
-            text="💡 항목을 추가/수정한 뒤 오른쪽 [🚀 홈페이지 서버에 즉시 반영하기] 버튼을 누르시면 1분 내로 실제 사이트에 반영됩니다!",
+            text="💡 원하는 시작 음악을 지정하거나 곡/프로그램을 추가한 뒤 오른쪽 [🚀 홈페이지 서버에 즉시 반영하기]를 눌러주세요!",
             font=("맑은 고딕", 11, "bold"),
             fg="#a7f3d0",
             bg="#1b1b22",
@@ -161,13 +162,200 @@ class HomepageManagerApp:
         )
         self.deploy_btn.pack(side="right")
 
+    # =========================================================================
+    # 탭 1: 🎵 홈페이지 명곡 선곡표 & 시작 음악 지정
+    # =========================================================================
+    def _build_bgm_tab(self):
+        left = tk.Frame(self.tab_bgm, bg="#181820")
+        left.pack(side="left", fill="both", expand=True, padx=(0, 14))
+
+        tk.Label(
+            left,
+            text="🎧 홈페이지 좌측 하단 [조선힙합소리꾼 명곡 선곡표] 목록",
+            font=("맑은 고딕", 14, "bold"),
+            fg="#d4af37",
+            bg="#181820",
+        ).pack(anchor="w", pady=(0, 4))
+
+        self.current_default_banner = tk.Label(
+            left,
+            text="👑 현재 홈페이지 열면 바로 나오는 시작 음악: 불러오는 중...",
+            font=("맑은 고딕", 12, "bold"),
+            fg="#000000",
+            bg="#f5d061",
+            padx=12,
+            pady=8,
+            anchor="w",
+        )
+        self.current_default_banner.pack(fill="x", pady=(0, 10))
+
+        self.bgm_listbox = tk.Listbox(
+            left,
+            font=("맑은 고딕", 12, "bold"),
+            bg="#0f0f14",
+            fg="#ffffff",
+            selectbackground="#d4af37",
+            selectforeground="#000000",
+            height=13,
+            relief="flat",
+        )
+        self.bgm_listbox.pack(fill="both", expand=True)
+        self.bgm_listbox.bind("<Double-Button-1>", lambda e: self.set_as_opening_bgm())
+
+        # 대표 시작 음악 지정 빅 버튼
+        tk.Button(
+            left,
+            text="👑 선택한 곡을 [홈페이지 열면 바로 나오는 첫 음악]으로 지정하기 (더블클릭 가능)",
+            font=("맑은 고딕", 12, "bold"),
+            bg="#d4af37",
+            fg="#000000",
+            pady=12,
+            relief="flat",
+            cursor="hand2",
+            command=self.set_as_opening_bgm,
+        ).pack(fill="x", pady=(10, 6))
+
+        btn_row = tk.Frame(left, bg="#181820", pady=4)
+        btn_row.pack(fill="x")
+
+        tk.Button(
+            btn_row,
+            text="🔼 선곡표 위로 이동",
+            font=("맑은 고딕", 10, "bold"),
+            bg="#2d2d3a",
+            fg="white",
+            padx=12,
+            pady=6,
+            relief="flat",
+            command=self.move_bgm_up,
+        ).pack(side="left", padx=4)
+
+        tk.Button(
+            btn_row,
+            text="🔽 선곡표 아래로 이동",
+            font=("맑은 고딕", 10, "bold"),
+            bg="#2d2d3a",
+            fg="white",
+            padx=12,
+            pady=6,
+            relief="flat",
+            command=self.move_bgm_down,
+        ).pack(side="left", padx=4)
+
+        tk.Button(
+            btn_row,
+            text="🗑️ 선곡표에서 삭제",
+            font=("맑은 고딕", 10, "bold"),
+            bg="#b91c1c",
+            fg="white",
+            padx=12,
+            pady=6,
+            relief="flat",
+            command=self.delete_selected_bgm,
+        ).pack(side="right", padx=4)
+
+        # 오른쪽: 명곡 선곡표에 새 MP3 노래 추가하기
+        right = tk.Frame(self.tab_bgm, bg="#22222c", padx=18, pady=16)
+        right.pack(side="right", fill="both", expand=True)
+
+        tk.Label(
+            right,
+            text="➕ 명곡 선곡표에 내 컴퓨터의 MP3 노래 추가하기",
+            font=("맑은 고딕", 14, "bold"),
+            fg="#fff1b8",
+            bg="#22222c",
+        ).pack(anchor="w", pady=(0, 14))
+
+        tk.Label(
+            right,
+            text="① 추가할 MP3 음악 파일 선택 (D:\\음악 폴더 등):",
+            font=("맑은 고딕", 11, "bold"),
+            fg="white",
+            bg="#22222c",
+        ).pack(anchor="w")
+
+        mp3_row = tk.Frame(right, bg="#22222c")
+        mp3_row.pack(fill="x", pady=(6, 14))
+
+        self.new_bgm_path_entry = tk.Entry(
+            mp3_row, font=("맑은 고딕", 11), bg="#121216", fg="#a7f3d0", insertbackground="white"
+        )
+        self.new_bgm_path_entry.pack(side="left", fill="x", expand=True, ipady=5)
+
+        tk.Button(
+            mp3_row,
+            text="📂 MP3 파일 선택",
+            font=("맑은 고딕", 10, "bold"),
+            bg="#10b981",
+            fg="black",
+            padx=12,
+            pady=5,
+            relief="flat",
+            command=self.browse_new_bgm_mp3,
+        ).pack(side="right", padx=(8, 0))
+
+        tk.Label(
+            right,
+            text="② 선곡표에 표시될 노래 제목 (예: 인생 설명서 어디 있소 | 내 인생 반품이요!):",
+            font=("맑은 고딕", 11, "bold"),
+            fg="white",
+            bg="#22222c",
+        ).pack(anchor="w")
+
+        self.new_bgm_title_entry = tk.Entry(
+            right, font=("맑은 고딕", 11), bg="#121216", fg="white", insertbackground="white"
+        )
+        self.new_bgm_title_entry.pack(fill="x", pady=(6, 14), ipady=5)
+
+        self.set_new_as_default_var = tk.BooleanVar(value=True)
+        tk.Checkbutton(
+            right,
+            text="👑 이 노래를 추가함과 동시에 [홈페이지 열면 바로 나오는 첫 음악]으로 지정",
+            variable=self.set_new_as_default_var,
+            font=("맑은 고딕", 11, "bold"),
+            fg="#f5d061",
+            bg="#22222c",
+            selectcolor="#121216",
+            activebackground="#22222c",
+            activeforeground="#f5d061",
+        ).pack(anchor="w", pady=(4, 18))
+
+        tk.Button(
+            right,
+            text="➕ 명곡 선곡표에 이 노래 등록하기",
+            font=("맑은 고딕", 13, "bold"),
+            bg="#10b981",
+            fg="black",
+            pady=12,
+            relief="flat",
+            cursor="hand2",
+            command=self.add_bgm_track,
+        ).pack(fill="x")
+
+        tk.Label(
+            right,
+            text=(
+                "\n📌 안내:\n"
+                "• 왼쪽 목록에서 원하는 곡을 클릭하고 황금색 [👑 선택한 곡을 첫 음악으로 지정] 버튼을 누르면,\n"
+                "  사람들이 홈페이지를 열었을 때 그 노래가 가장 먼저 자동으로 흘러나옵니다!\n"
+                "• 지정 후 오른쪽 아래 빨간색 [🚀 홈페이지 서버에 즉시 반영하기] 버튼을 꼭 눌러주세요."
+            ),
+            font=("맑은 고딕", 10),
+            fg="#a1a1aa",
+            bg="#22222c",
+            justify="left",
+        ).pack(anchor="w", pady=(16, 0))
+
+    # =========================================================================
+    # 탭 2: 📺 유튜브 영상 쇼케이스 관리
+    # =========================================================================
     def _build_songs_tab(self):
         left = tk.Frame(self.tab_songs, bg="#181820")
         left.pack(side="left", fill="both", expand=True, padx=(0, 12))
 
         tk.Label(
             left,
-            text="📋 현재 홈페이지에 등록된 조선힙합소리꾼 곡 목록",
+            text="📋 메인 화면 [조선힙합소리꾼 공식 채널관] 등록 곡 목록",
             font=("맑은 고딕", 13, "bold"),
             fg="#d4af37",
             bg="#181820",
@@ -224,7 +412,6 @@ class HomepageManagerApp:
             command=self.delete_selected_song,
         ).pack(side="right", padx=4)
 
-        # 오른쪽 입력 폼
         right = tk.Frame(self.tab_songs, bg="#22222c", padx=18, pady=14)
         right.pack(side="right", fill="both", expand=True)
 
@@ -236,15 +423,7 @@ class HomepageManagerApp:
             bg="#22222c",
         ).pack(anchor="w", pady=(0, 12))
 
-        # 1. 유튜브 링크
-        tk.Label(
-            right,
-            text="① 유튜브 영상 주소(URL) 붙여넣기:",
-            font=("맑은 고딕", 11, "bold"),
-            fg="white",
-            bg="#22222c",
-        ).pack(anchor="w")
-
+        tk.Label(right, text="① 유튜브 영상 주소(URL) 붙여넣기:", font=("맑은 고딕", 11, "bold"), fg="white", bg="#22222c").pack(anchor="w")
         url_frame = tk.Frame(right, bg="#22222c")
         url_frame.pack(fill="x", pady=(4, 10))
 
@@ -263,17 +442,14 @@ class HomepageManagerApp:
             command=self.autofill_youtube_info,
         ).pack(side="right", padx=(8, 0))
 
-        # 2. 곡 제목
         tk.Label(right, text="② 곡 제목 (예: 🎧 나도 사람이다!):", font=("맑은 고딕", 11, "bold"), fg="white", bg="#22222c").pack(anchor="w")
         self.song_title_entry = tk.Entry(right, font=("맑은 고딕", 11), bg="#121216", fg="white", insertbackground="white")
         self.song_title_entry.pack(fill="x", pady=(4, 10), ipady=5)
 
-        # 3. 한 줄 부제
         tk.Label(right, text="③ 한 줄 소개 (부제):", font=("맑은 고딕", 11, "bold"), fg="white", bg="#22222c").pack(anchor="w")
         self.song_sub_entry = tk.Entry(right, font=("맑은 고딕", 11), bg="#121216", fg="white", insertbackground="white")
         self.song_sub_entry.pack(fill="x", pady=(4, 10), ipady=5)
 
-        # 4. 카테고리 & 배지
         cat_frame = tk.Frame(right, bg="#22222c")
         cat_frame.pack(fill="x", pady=(0, 10))
 
@@ -295,15 +471,13 @@ class HomepageManagerApp:
         self.song_badge_entry.insert(0, "🔥 최신 신곡")
         self.song_badge_entry.pack(side="left", ipady=3)
 
-        # 5. 상세 설명
         tk.Label(right, text="⑤ 곡 상세 설명:", font=("맑은 고딕", 11, "bold"), fg="white", bg="#22222c").pack(anchor="w")
         self.song_desc_entry = tk.Entry(right, font=("맑은 고딕", 11), bg="#121216", fg="white", insertbackground="white")
         self.song_desc_entry.pack(fill="x", pady=(4, 10), ipady=5)
 
-        # 6. MP3 파일 첨부 (선택)
         tk.Label(
             right,
-            text="⑥ 고음질 MP3 원곡 파일 첨부 (선택 - 첨부 시 배경음악에도 자동 등록):",
+            text="⑥ 고음질 MP3 원곡 파일 첨부 (선택 - 첨부 시 명곡 선곡표에도 자동 등록):",
             font=("맑은 고딕", 10, "bold"),
             fg="#a7f3d0",
             bg="#22222c",
@@ -339,6 +513,9 @@ class HomepageManagerApp:
             command=self.add_song,
         ).pack(fill="x", pady=(6, 0))
 
+    # =========================================================================
+    # 탭 3: 🛠️ 무료 프로그램 / 자료실 관리
+    # =========================================================================
     def _build_programs_tab(self):
         left = tk.Frame(self.tab_programs, bg="#181820")
         left.pack(side="left", fill="both", expand=True, padx=(0, 12))
@@ -402,7 +579,6 @@ class HomepageManagerApp:
             command=self.delete_selected_program,
         ).pack(side="right", padx=4)
 
-        # 오른쪽 무료 프로그램 추가 폼
         right = tk.Frame(self.tab_programs, bg="#22222c", padx=18, pady=14)
         right.pack(side="right", fill="both", expand=True)
 
@@ -473,7 +649,132 @@ class HomepageManagerApp:
             command=self.add_program,
         ).pack(fill="x", pady=(10, 0))
 
-    # --- Songs Logic ---
+    # =========================================================================
+    # BGM 선곡표 관리 로직
+    # =========================================================================
+    def refresh_bgm_list(self):
+        self.bgm_listbox.delete(0, tk.END)
+        tracks = self.bgm_data.get("tracks", [])
+        default_id = self.bgm_data.get("defaultTrackId", "")
+        default_title = "지정 안됨"
+
+        for i, t in enumerate(tracks, 1):
+            is_def = t["id"] == default_id
+            if is_def:
+                default_title = f"{i}번. {t['title']}"
+            prefix = "👑 [홈페이지 첫 시작 음악] " if is_def else "🎵 "
+            self.bgm_listbox.insert(tk.END, f"{prefix}{i}. {t['title']}")
+            if is_def:
+                self.bgm_listbox.itemconfig(i - 1, {"fg": "#fff1b8", "bg": "#3b2f10"})
+
+        self.current_default_banner.config(
+            text=f"👑 현재 홈페이지 열면 바로 나오는 시작 음악:  {default_title}"
+        )
+
+    def set_as_opening_bgm(self):
+        sel = self.bgm_listbox.curselection()
+        if not sel:
+            messagebox.showwarning("곡 선택", "먼저 목록에서 [홈페이지 열면 바로 나올 노래]를 마우스로 클릭해 선택해 주세요!")
+            return
+        idx = sel[0]
+        tracks = self.bgm_data.get("tracks", [])
+        chosen = tracks[idx]
+        self.bgm_data["defaultTrackId"] = chosen["id"]
+        save_json(BGM_JSON, self.bgm_data)
+        self.refresh_bgm_list()
+        self.bgm_listbox.selection_set(idx)
+        self.status_label.config(
+            text=f"👑 '{chosen['title']}' 곡이 홈페이지 첫 시작 음악으로 지정되었습니다! [🚀 홈페이지 서버에 즉시 반영하기]를 눌러주세요."
+        )
+        messagebox.showinfo(
+            "첫 시작 음악 지정 완료 👑",
+            f"이제 홈페이지를 열면\n\n🎵 《{chosen['title']}》\n\n노래가 가장 먼저 자동으로 재생됩니다!\n\n오른쪽 아래 [🚀 홈페이지 서버에 즉시 반영하기] 버튼을 누르시면 실제 사이트에 적용됩니다.",
+        )
+
+    def browse_new_bgm_mp3(self):
+        initial = r"D:\음악" if os.path.exists(r"D:\음악") else str(BASE_DIR)
+        path = filedialog.askopenfilename(
+            initialdir=initial,
+            title="명곡 선곡표에 추가할 MP3 파일 선택",
+            filetypes=[("MP3 Audio", "*.mp3"), ("All Files", "*.*")],
+        )
+        if path:
+            self.new_bgm_path_entry.delete(0, tk.END)
+            self.new_bgm_path_entry.insert(0, path)
+            if not self.new_bgm_title_entry.get().strip():
+                stem = Path(path).stem
+                self.new_bgm_title_entry.insert(0, stem)
+
+    def add_bgm_track(self):
+        mp3_path = self.new_bgm_path_entry.get().strip()
+        title = self.new_bgm_title_entry.get().strip()
+        if not mp3_path or not os.path.exists(mp3_path):
+            messagebox.showwarning("파일 확인", "먼저 [📂 MP3 파일 선택] 버튼으로 음악 파일을 선택해 주세요!")
+            return
+        if not title:
+            title = Path(mp3_path).stem
+
+        safe_name = f"bgm_{int(time.time())}.mp3"
+        dest = SORIKKUN_PUBLIC_DIR / safe_name
+        shutil.copy2(mp3_path, dest)
+
+        new_id = f"bgm-{int(time.time())}"
+        new_track = {
+            "id": new_id,
+            "title": title,
+            "src": f"/sorikkun/{safe_name}",
+        }
+        self.bgm_data.setdefault("tracks", []).append(new_track)
+        if self.set_new_as_default_var.get():
+            self.bgm_data["defaultTrackId"] = new_id
+
+        save_json(BGM_JSON, self.bgm_data)
+        self.refresh_bgm_list()
+
+        self.new_bgm_path_entry.delete(0, tk.END)
+        self.new_bgm_title_entry.delete(0, tk.END)
+
+        self.status_label.config(text=f"✅ '{title}' 곡이 명곡 선곡표에 등록되었습니다!")
+        messagebox.showinfo("선곡표 등록 완료", f"'{title}' 곡이 명곡 선곡표에 등록되었습니다!\n\n오른쪽 아래 [🚀 홈페이지 서버에 즉시 반영하기]를 눌러주세요.")
+
+    def move_bgm_up(self):
+        sel = self.bgm_listbox.curselection()
+        if not sel or sel[0] == 0:
+            return
+        i = sel[0]
+        tracks = self.bgm_data["tracks"]
+        tracks[i - 1], tracks[i] = tracks[i], tracks[i - 1]
+        save_json(BGM_JSON, self.bgm_data)
+        self.refresh_bgm_list()
+        self.bgm_listbox.selection_set(i - 1)
+
+    def move_bgm_down(self):
+        sel = self.bgm_listbox.curselection()
+        tracks = self.bgm_data.get("tracks", [])
+        if not sel or sel[0] >= len(tracks) - 1:
+            return
+        i = sel[0]
+        tracks[i + 1], tracks[i] = tracks[i], tracks[i + 1]
+        save_json(BGM_JSON, self.bgm_data)
+        self.refresh_bgm_list()
+        self.bgm_listbox.selection_set(i + 1)
+
+    def delete_selected_bgm(self):
+        sel = self.bgm_listbox.curselection()
+        if not sel:
+            return
+        i = sel[0]
+        tracks = self.bgm_data["tracks"]
+        removed = tracks.pop(i)
+        if self.bgm_data.get("defaultTrackId") == removed["id"] and tracks:
+            self.bgm_data["defaultTrackId"] = tracks[0]["id"]
+        save_json(BGM_JSON, self.bgm_data)
+        self.refresh_bgm_list()
+        self.status_label.config(text=f"🗑️ 선곡표에서 '{removed['title']}' 곡을 삭제했습니다.")
+
+    # =========================================================================
+    # 탭 2 & 탭 3 기존 로직
+    # =========================================================================
     def refresh_songs_list(self):
         self.songs_listbox.delete(0, tk.END)
         for i, s in enumerate(self.songs, 1):
@@ -499,9 +800,9 @@ class HomepageManagerApp:
                 if not self.song_sub_entry.get().strip():
                     self.song_sub_entry.insert(0, "조선힙합소리꾼의 가슴 울리는 명곡")
                 if not self.song_desc_entry.get().strip():
-                    self.song_desc_entry.insert(0, f"유튜브 '조선힙합소리꾼' 채널에서 풀버전 뮤직비디오와 가사를 감상하세요.")
+                    self.song_desc_entry.insert(0, "유튜브 '조선힙합소리꾼' 채널에서 풀버전 뮤직비디오와 가사를 감상하세요.")
                 self.status_label.config(text=f"✅ 유튜브 영상({vid}) 제목을 자동으로 불러왔습니다!")
-        except Exception as e:
+        except Exception:
             messagebox.showinfo("알림", f"유튜브 영상 ID({vid})를 확인했습니다. 제목을 직접 입력해 주세요.")
 
     def browse_mp3(self):
@@ -546,13 +847,22 @@ class HomepageManagerApp:
             dest = SORIKKUN_PUBLIC_DIR / safe_name
             shutil.copy2(mp3_local, dest)
             new_item["mp3Src"] = f"/sorikkun/{safe_name}"
+            # 명곡 선곡표에도 함께 추가
+            self.bgm_data.setdefault("tracks", []).append(
+                {
+                    "id": f"bgm-{vid}",
+                    "title": title.replace("🎧", "").strip(),
+                    "src": f"/sorikkun/{safe_name}",
+                    "youtubeUrl": f"https://youtu.be/{vid}",
+                }
+            )
+            save_json(BGM_JSON, self.bgm_data)
+            self.refresh_bgm_list()
 
-        # 맨 앞에 추가하여 최신곡이 가장 먼저 보이게 함
         self.songs.insert(0, new_item)
         save_json(SONGS_JSON, self.songs)
         self.refresh_songs_list()
 
-        # 입력칸 초기화
         self.song_url_entry.delete(0, tk.END)
         self.song_title_entry.delete(0, tk.END)
         self.song_sub_entry.delete(0, tk.END)
@@ -560,7 +870,7 @@ class HomepageManagerApp:
         self.song_mp3_entry.delete(0, tk.END)
 
         self.status_label.config(text=f"✅ '{title}' 곡이 추가되었습니다! 우측 하단 [🚀 홈페이지 서버에 즉시 반영하기]를 눌러주세요.")
-        messagebox.showinfo("추가 완료", f"'{title}' 곡이 목록 맨 위에 추가되었습니다!\n\n오른쪽 아래 [🚀 홈페이지 서버에 즉시 반영하기] 버튼을 누르면 실제 사이트에 반영됩니다.")
+        messagebox.showinfo("추가 완료", f"'{title}' 곡이 추가되었습니다!")
 
     def move_song_up(self):
         sel = self.songs_listbox.curselection()
@@ -592,7 +902,6 @@ class HomepageManagerApp:
         self.refresh_songs_list()
         self.status_label.config(text=f"🗑️ '{removed['title']}' 항목을 삭제했습니다.")
 
-    # --- Programs Logic ---
     def refresh_programs_list(self):
         self.programs_listbox.delete(0, tk.END)
         for i, p in enumerate(self.programs, 1):
@@ -657,8 +966,8 @@ class HomepageManagerApp:
         self.prog_title_entry.delete(0, tk.END)
         self.prog_desc_entry.delete(0, tk.END)
 
-        self.status_label.config(text=f"✅ '{title}' 자료가 추가되었습니다! 우측 하단 [🚀 홈페이지 서버에 즉시 반영하기]를 눌러주세요.")
-        messagebox.showinfo("추가 완료", f"'{title}' 항목이 무료 자료실 맨 앞에 추가되었습니다!\n\n오른쪽 아래 [🚀 홈페이지 서버에 즉시 반영하기] 버튼을 누르면 실제 사이트에 반영됩니다.")
+        self.status_label.config(text=f"✅ '{title}' 자료가 추가되었습니다!")
+        messagebox.showinfo("추가 완료", f"'{title}' 항목이 무료 자료실 맨 앞에 추가되었습니다!")
 
     def move_program_up(self):
         sel = self.programs_listbox.curselection()
@@ -690,7 +999,6 @@ class HomepageManagerApp:
         self.refresh_programs_list()
         self.status_label.config(text=f"🗑️ '{removed['title']}' 항목을 삭제했습니다.")
 
-    # --- Deploy Logic ---
     def deploy_to_server(self):
         self.deploy_btn.config(state="disabled", text="⏳ 서버에 업로드 중입니다... 잠시만 기다려주세요")
         self.status_label.config(text="🚀 GitHub & Vercel 서버에 변경 사항을 자동 배포하는 중입니다...")

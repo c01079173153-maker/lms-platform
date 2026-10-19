@@ -1,0 +1,29 @@
+{
+  "defaultTrackId": "bgm-banpum",
+  "tracks": [
+    {
+      "id": "bgm-nado",
+      "title": "평생 남부터 챙겼는데 😭 나도 사람이다!",
+      "src": "/sorikkun/nado_saramida.mp3",
+      "youtubeUrl": "https://youtu.be/B5aPSbuycM0"
+    },
+    {
+      "id": "bgm-yeolsimhi",
+      "title": "열심히 살았는데 남는 게 없더라 | 당신은 참 잘 살아왔소",
+      "src": "/sorikkun/yeolsimhi.mp3",
+      "youtubeUrl": "https://youtu.be/kHw5fVvYw2g"
+    },
+    {
+      "id": "bgm-banpum",
+      "title": "인생 설명서 어디 있소 | 내 인생 반품이요!",
+      "src": "/sorikkun/banpum.mp3",
+      "youtubeUrl": "https://youtu.be/RuLf3zN8tBo"
+    },
+    {
+      "id": "bgm-hogu",
+      "title": "착하게 살면 호구가 되더라 🤬 이제는 절대 안 참는다",
+      "src": "/sorikkun/hogu.mp3",
+      "youtubeUrl": "https://youtu.be/KevwDMC0Ey0"
+    }
+  ]
+}
