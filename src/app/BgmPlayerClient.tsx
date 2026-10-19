@@ -1,29 +1,15 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import songsData from '../data/songs.json';
 
-const TRACKS = [
-  {
-    title: '나도 사람이다 (평생 남부터 챙겼는데)',
-    src: '/sorikkun/nado_saramida.mp3',
-    youtubeUrl: 'https://youtu.be/B5aPSbuycM0',
-  },
-  {
-    title: '열심히 살았는데 남는 게 없더라',
-    src: '/sorikkun/yeolsimhi.mp3',
-    youtubeUrl: 'https://youtu.be/kHw5fVvYw2g',
-  },
-  {
-    title: '인생 설명서 어디 있소 (인생 반품이요)',
-    src: '/sorikkun/banpum.mp3',
-    youtubeUrl: 'https://youtu.be/RuLf3zN8tBo',
-  },
-  {
-    title: '착하게 살면 호구가 되더라',
-    src: '/sorikkun/hogu.mp3',
-    youtubeUrl: 'https://youtu.be/KevwDMC0Ey0',
-  },
-];
+const TRACKS = (songsData as any[])
+  .filter((s) => s.mp3Src)
+  .map((s) => ({
+    title: s.title.replace(/^🎧\s*/, ''),
+    src: s.mp3Src as string,
+    youtubeUrl: s.youtubeUrl as string,
+  }));
 
 export default function BgmPlayerClient() {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -58,6 +44,8 @@ export default function BgmPlayerClient() {
     };
   }, []);
 
+  if (TRACKS.length === 0) return null;
+
   const toggleBgm = () => {
     if (!audioRef.current) return;
     if (isPlaying) {
@@ -84,15 +72,11 @@ export default function BgmPlayerClient() {
     selectTrack(next);
   };
 
-  const currentTrack = TRACKS[trackIdx];
+  const currentTrack = TRACKS[trackIdx] || TRACKS[0];
 
   return (
     <>
-      <audio
-        ref={audioRef}
-        src={currentTrack.src}
-        onEnded={nextTrack}
-      />
+      <audio ref={audioRef} src={currentTrack.src} onEnded={nextTrack} />
 
       <div
         style={{

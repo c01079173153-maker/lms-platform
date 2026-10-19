@@ -3,6 +3,23 @@ import styles from './page.module.css';
 import HeroVideoClient from './HeroVideoClient';
 import BgmPlayerClient from './BgmPlayerClient';
 import JoseonHipHopShowcase from './JoseonHipHopShowcase';
+import programsData from '../data/programs.json';
+
+interface ProgramItem {
+  id: string;
+  badge: string;
+  badgeBg: string;
+  badgeColor: string;
+  icon: string;
+  title: string;
+  desc: string;
+  href: string;
+  downloadName?: string;
+  buttonText: string;
+  isDownload: boolean;
+}
+
+const PROGRAMS: ProgramItem[] = programsData as ProgramItem[];
 
 export default function Home() {
   return (
@@ -206,248 +223,73 @@ export default function Home() {
               margin: '0 auto',
             }}
           >
-            {/* Tool 1: Web Screen Recorder */}
-            <div
-              style={{
-                background: 'rgba(212, 175, 55, 0.1)',
-                padding: '32px',
-                borderRadius: '18px',
-                border: '2px solid #d4af37',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '14px',
-              }}
-            >
-              <span
+            {PROGRAMS.map((item) => (
+              <div
+                key={item.id}
                 style={{
-                  alignSelf: 'center',
-                  background: '#d4af37',
-                  color: '#000',
-                  padding: '4px 12px',
-                  borderRadius: '999px',
-                  fontWeight: 900,
-                  fontSize: '0.8rem',
+                  background: 'rgba(255,255,255,0.04)',
+                  padding: '32px',
+                  borderRadius: '18px',
+                  border: `2px solid ${item.badgeBg}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '14px',
                 }}
               >
-                무료 웹 프로그램 #1
-              </span>
-              <div style={{ fontSize: '2.8rem' }}>🎥</div>
-              <h4 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#fff1b8' }}>
-                설치 없는 무제한 웹 화면 녹화기
-              </h4>
-              <p style={{ color: '#cbd5e1', fontSize: '0.98rem' }}>
-                복잡한 프로그램 설치 없이 브라우저에서 클릭 한 번으로 PC 화면과 소리를 고화질 녹화·저장합니다.
-              </p>
-              <Link
-                href="/tools/recorder"
-                className={styles.courseButton}
-                style={{
-                  marginTop: 'auto',
-                  background: 'linear-gradient(90deg, #d4af37 0%, #b58d19 100%)',
-                  color: '#000',
-                  border: 'none',
-                  display: 'block',
-                  fontWeight: 900,
-                }}
-              >
-                🚀 무료 프로그램 바로 실행하기
-              </Link>
-            </div>
-
-            {/* Tool 2: Secret Prompts 10 */}
-            <div
-              style={{
-                background: 'rgba(255, 50, 50, 0.08)',
-                padding: '32px',
-                borderRadius: '18px',
-                border: '2px solid rgba(255, 80, 80, 0.5)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '14px',
-              }}
-            >
-              <span
-                style={{
-                  alignSelf: 'center',
-                  background: '#ff3333',
-                  color: '#fff',
-                  padding: '4px 12px',
-                  borderRadius: '999px',
-                  fontWeight: 900,
-                  fontSize: '0.8rem',
-                }}
-              >
-                무료 프로그램·프롬프트 #2
-              </span>
-              <div style={{ fontSize: '2.8rem' }}>🚨</div>
-              <h4 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#ff8080' }}>
-                분야별 만능 AI 시크릿 프롬프트 10선
-              </h4>
-              <p style={{ color: '#cbd5e1', fontSize: '0.98rem' }}>
-                창작·글쓰기·코딩·마케팅·업무자동화 등 복사해서 바로 쓰는 실전 치트키 모음집입니다.
-              </p>
-              <Link
-                href="/downloads/secret-prompts"
-                className={styles.courseButton}
-                style={{
-                  marginTop: 'auto',
-                  background: 'linear-gradient(90deg, #ff3333 0%, #cc0000 100%)',
-                  color: '#fff',
-                  border: 'none',
-                  display: 'block',
-                  fontWeight: 900,
-                }}
-              >
-                🔓 무료로 열람 &amp; 다운로드
-              </Link>
-            </div>
-
-            {/* Tool 3: Practical Video Lecture */}
-            <div
-              style={{
-                background: 'rgba(108, 99, 255, 0.1)',
-                padding: '32px',
-                borderRadius: '18px',
-                border: '2px solid rgba(108, 99, 255, 0.5)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '14px',
-              }}
-            >
-              <span
-                style={{
-                  alignSelf: 'center',
-                  background: '#6c63ff',
-                  color: '#fff',
-                  padding: '4px 12px',
-                  borderRadius: '999px',
-                  fontWeight: 900,
-                  fontSize: '0.8rem',
-                }}
-              >
-                AI 영상·이미지 제작 #3
-              </span>
-              <div style={{ fontSize: '2.8rem' }}>🎬</div>
-              <h4 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#c4b5fd' }}>
-                [실전 영상] AI 이미지·뮤비 제작 마스터
-              </h4>
-              <p style={{ color: '#cbd5e1', fontSize: '0.98rem' }}>
-                조선힙합소리꾼 뮤직비디오처럼 고퀄리티 AI 캐릭터와 영상을 뽑아내는 핵심 비법 강의입니다.
-              </p>
-              <a
-                href="/특별강의_실전영상본.html"
-                className={styles.courseButton}
-                style={{
-                  marginTop: 'auto',
-                  background: 'linear-gradient(90deg, #6c63ff 0%, #ff6584 100%)',
-                  color: '#fff',
-                  border: 'none',
-                  display: 'block',
-                  fontWeight: 900,
-                }}
-              >
-                ▶ 무료 실전 영상 바로 보기
-              </a>
-            </div>
-
-            {/* Resource 4: ChatGPT */}
-            <div
-              style={{
-                background: 'rgba(255,255,255,0.04)',
-                padding: '28px',
-                borderRadius: '16px',
-                border: '1px solid rgba(255,255,255,0.12)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '14px',
-              }}
-            >
-              <div style={{ fontSize: '2.4rem' }}>📕</div>
-              <h4 style={{ fontSize: '1.2rem', fontWeight: 700 }}>
-                [전자책] 나만 모르는 챗GPT 실전 프롬프트 50선
-              </h4>
-              <a
-                href="/downloads/chatgpt_50.html"
-                download="챗GPT_프롬프트_50선.html"
-                className={styles.courseButton}
-                style={{
-                  marginTop: 'auto',
-                  background: '#10b981',
-                  color: '#000',
-                  border: 'none',
-                  display: 'block',
-                  fontWeight: 800,
-                }}
-              >
-                📥 무료 다운로드 (₩0)
-              </a>
-            </div>
-
-            {/* Resource 5: Claude */}
-            <div
-              style={{
-                background: 'rgba(255,255,255,0.04)',
-                padding: '28px',
-                borderRadius: '16px',
-                border: '1px solid rgba(255,255,255,0.12)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '14px',
-              }}
-            >
-              <div style={{ fontSize: '2.4rem' }}>📘</div>
-              <h4 style={{ fontSize: '1.2rem', fontWeight: 700 }}>
-                [전자책] 긴 글 요약·작사의 달인 클로드(Claude) 백서
-              </h4>
-              <a
-                href="/downloads/claude_guide.html"
-                download="클로드_활용_백서.html"
-                className={styles.courseButton}
-                style={{
-                  marginTop: 'auto',
-                  background: '#10b981',
-                  color: '#000',
-                  border: 'none',
-                  display: 'block',
-                  fontWeight: 800,
-                }}
-              >
-                📥 무료 다운로드 (₩0)
-              </a>
-            </div>
-
-            {/* Resource 6: YouTube Starter */}
-            <div
-              style={{
-                background: 'rgba(255,255,255,0.04)',
-                padding: '28px',
-                borderRadius: '16px',
-                border: '1px solid rgba(255,255,255,0.12)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '14px',
-              }}
-            >
-              <div style={{ fontSize: '2.4rem' }}>📺</div>
-              <h4 style={{ fontSize: '1.2rem', fontWeight: 700 }}>
-                [가이드] 초보자도 5분 만에 끝내는 유튜브 채널 개설법
-              </h4>
-              <a
-                href="/downloads/youtube_guide.html"
-                download="유튜브_채널_개설법.html"
-                className={styles.courseButton}
-                style={{
-                  marginTop: 'auto',
-                  background: '#10b981',
-                  color: '#000',
-                  border: 'none',
-                  display: 'block',
-                  fontWeight: 800,
-                }}
-              >
-                📥 무료 다운로드 (₩0)
-              </a>
-            </div>
+                <span
+                  style={{
+                    alignSelf: 'center',
+                    background: item.badgeBg,
+                    color: item.badgeColor,
+                    padding: '4px 12px',
+                    borderRadius: '999px',
+                    fontWeight: 900,
+                    fontSize: '0.8rem',
+                  }}
+                >
+                  {item.badge}
+                </span>
+                <div style={{ fontSize: '2.6rem' }}>{item.icon}</div>
+                <h4 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>
+                  {item.title}
+                </h4>
+                <p style={{ color: '#cbd5e1', fontSize: '0.96rem', lineHeight: 1.5 }}>
+                  {item.desc}
+                </p>
+                {item.isDownload ? (
+                  <a
+                    href={item.href}
+                    download={item.downloadName || true}
+                    className={styles.courseButton}
+                    style={{
+                      marginTop: 'auto',
+                      background: item.badgeBg,
+                      color: item.badgeColor,
+                      border: 'none',
+                      display: 'block',
+                      fontWeight: 900,
+                    }}
+                  >
+                    {item.buttonText}
+                  </a>
+                ) : (
+                  <Link
+                    href={item.href}
+                    className={styles.courseButton}
+                    style={{
+                      marginTop: 'auto',
+                      background: item.badgeBg,
+                      color: item.badgeColor,
+                      border: 'none',
+                      display: 'block',
+                      fontWeight: 900,
+                    }}
+                  >
+                    {item.buttonText}
+                  </Link>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </section>

@@ -1,0 +1,77 @@
+[
+  {
+    "id": "web-recorder",
+    "badge": "무료 웹 프로그램 #1",
+    "badgeBg": "#d4af37",
+    "badgeColor": "#000",
+    "icon": "🎥",
+    "title": "설치 없는 무제한 웹 화면 녹화기",
+    "desc": "복잡한 프로그램 설치 없이 브라우저에서 클릭 한 번으로 PC 화면과 소리를 고화질 녹화·저장합니다.",
+    "href": "/tools/recorder",
+    "buttonText": "🚀 무료 프로그램 바로 실행하기",
+    "isDownload": false
+  },
+  {
+    "id": "secret-prompts",
+    "badge": "무료 프로그램·프롬프트 #2",
+    "badgeBg": "#ff3333",
+    "badgeColor": "#fff",
+    "icon": "🚨",
+    "title": "분야별 만능 AI 시크릿 프롬프트 10선",
+    "desc": "창작·글쓰기·코딩·마케팅·업무자동화 등 복사해서 바로 쓰는 실전 치트키 모음집입니다.",
+    "href": "/downloads/secret-prompts",
+    "buttonText": "🔓 무료로 열람 & 다운로드",
+    "isDownload": false
+  },
+  {
+    "id": "ai-video-lecture",
+    "badge": "AI 영상·이미지 제작 #3",
+    "badgeBg": "#6c63ff",
+    "badgeColor": "#fff",
+    "icon": "🎬",
+    "title": "[실전 영상] AI 이미지·뮤비 제작 마스터",
+    "desc": "조선힙합소리꾼 뮤직비디오처럼 고퀄리티 AI 캐릭터와 영상을 뽑아내는 핵심 비법 강의입니다.",
+    "href": "/특별강의_실전영상본.html",
+    "buttonText": "▶ 무료 실전 영상 바로 보기",
+    "isDownload": false
+  },
+  {
+    "id": "chatgpt-50",
+    "badge": "무료 전자책 #4",
+    "badgeBg": "#10b981",
+    "badgeColor": "#000",
+    "icon": "📕",
+    "title": "[전자책] 나만 모르는 챗GPT 실전 프롬프트 50선",
+    "desc": "일상과 업무, 창작에 바로 쓸 수 있는 50가지 핵심 프롬프트 가이드북입니다.",
+    "href": "/downloads/chatgpt_50.html",
+    "downloadName": "챗GPT_프롬프트_50선.html",
+    "buttonText": "📥 무료 다운로드 (₩0)",
+    "isDownload": true
+  },
+  {
+    "id": "claude-guide",
+    "badge": "무료 전자책 #5",
+    "badgeBg": "#10b981",
+    "badgeColor": "#000",
+    "icon": "📘",
+    "title": "[전자책] 긴 글 요약·작사의 달인 클로드(Claude) 백서",
+    "desc": "감성적인 가사 작성과 긴 문서 정리에 탁월한 클로드 완벽 활용 가이드입니다.",
+    "href": "/downloads/claude_guide.html",
+    "downloadName": "클로드_활용_백서.html",
+    "buttonText": "📥 무료 다운로드 (₩0)",
+    "isDownload": true
+  },
+  {
+    "id": "youtube-guide",
+    "badge": "무료 가이드 #6",
+    "badgeBg": "#10b981",
+    "badgeColor": "#000",
+    "icon": "📺",
+    "title": "[가이드] 초보자도 5분 만에 끝내는 유튜브 채널 개설법",
+    "desc": "처음 유튜브를 시작하시는 분들을 위한 큰 글씨 실전 개설 매뉴얼입니다.",
+    "href": "/downloads/youtube_guide.html",
+    "downloadName": "유튜브_채널_개설법.html",
+    "buttonText": "📥 무료 다운로드 (₩0)",
+    "isDownload": true
+  }
+]
