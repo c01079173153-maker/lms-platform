@@ -1,16 +1,5 @@
 [
   {
-    "id": "song-1792424636",
-    "videoId": "8cE1sGoB2pk",
-    "title": "🎧 마음에도 계절이 있다 | 쓸쓸할 때 듣는 위로",
-    "subtitle": "조선힙합소리꾼의 가슴 울리는 명곡",
-    "category": "comfort",
-    "badge": "🔥 최신 신곡",
-    "badgeColor": "#f59e0b",
-    "desc": "유튜브 '조선힙합소리꾼' 채널에서 풀버전 뮤직비디오와 가사를 감상하세요.",
-    "youtubeUrl": "https://youtu.be/8cE1sGoB2pk"
-  },
-  {
     "id": "collection-37m",
     "videoId": "9gb3YrrfjyQ",
     "title": "🎧 다 포기하고 싶을 때 듣는 위로곡 모음 (37분 연속듣기)",
@@ -20,6 +9,17 @@
     "badgeColor": "#ff3b30",
     "desc": "다들 내가 안 힘든 줄 안다 · 마음에도 계절이 있다 · 해도 지랄 안 해도 지랄 · 월급은 오겠지 · 힘들었겠구나 · 아프지말아라 · 잠시 쉬어가 외 전곡 수록",
     "youtubeUrl": "https://youtu.be/9gb3YrrfjyQ"
+  },
+  {
+    "id": "song-1792424636",
+    "videoId": "8cE1sGoB2pk",
+    "title": "🎧 마음에도 계절이 있다 | 쓸쓸할 때 듣는 위로",
+    "subtitle": "조선힙합소리꾼의 가슴 울리는 명곡",
+    "category": "comfort",
+    "badge": "🔥 최신 신곡",
+    "badgeColor": "#f59e0b",
+    "desc": "유튜브 '조선힙합소리꾼' 채널에서 풀버전 뮤직비디오와 가사를 감상하세요.",
+    "youtubeUrl": "https://youtu.be/8cE1sGoB2pk"
   },
   {
     "id": "nado-saramida",
@@ -32,6 +32,17 @@
     "desc": "새벽부터 허리 굽혀 가족 위해 살아왔는데, 내가 아플 땐 늘 혼자였던 서러움... \"참 많이도 애썼다, 이제 나도 행복하자!\"",
     "youtubeUrl": "https://youtu.be/B5aPSbuycM0",
     "mp3Src": "/sorikkun/nado_saramida.mp3"
+  },
+  {
+    "id": "song-1792424790",
+    "videoId": "d7RQ4Zja5U8",
+    "title": "🎧 상사 눈치 보일 때 사이다 🤬 해도 지랄",
+    "subtitle": "조선힙합소리꾼의 가슴 울리는 명곡",
+    "category": "comfort",
+    "badge": "🔥 최신 신곡",
+    "badgeColor": "#f59e0b",
+    "desc": "유튜브 '조선힙합소리꾼' 채널에서 풀버전 뮤직비디오와 가사를 감상하세요.",
+    "youtubeUrl": "https://youtu.be/d7RQ4Zja5U8"
   },
   {
     "id": "yeolsimhi",
@@ -79,5 +90,38 @@
     "badgeColor": "#ec4899",
     "desc": "좋은 사람이고 싶어서 싫은 소리 한 번 못 했는데 돌아보니 내가 제일 만만했더라. 나를 아프게 하는 것들과 조금씩 멀어지겠다!",
     "youtubeUrl": "https://youtu.be/pq4nkDCOPtY"
+  },
+  {
+    "id": "song-1792424765",
+    "videoId": "MoFMAvJ-izI",
+    "title": "🎧 통장 잔고 한숨 나올 때 💸 월급은 오겠지🎶",
+    "subtitle": "조선힙합소리꾼의 가슴 울리는 명곡",
+    "category": "comfort",
+    "badge": "🔥 최신 신곡",
+    "badgeColor": "#f59e0b",
+    "desc": "유튜브 '조선힙합소리꾼' 채널에서 풀버전 뮤직비디오와 가사를 감상하세요.",
+    "youtubeUrl": "https://youtu.be/MoFMAvJ-izI"
+  },
+  {
+    "id": "song-1792424868",
+    "videoId": "h7KGzwOhU_U",
+    "title": "🎧 오늘도 참 수고했다 | 지친 마음을 위한 위로곡 🎧 조선힙합소리꾼",
+    "subtitle": "조선힙합소리꾼의 가슴 울리는 명곡",
+    "category": "comfort",
+    "badge": "🔥 최신 신곡",
+    "badgeColor": "#f59e0b",
+    "desc": "유튜브 '조선힙합소리꾼' 채널에서 풀버전 뮤직비디오와 가사를 감상하세요.",
+    "youtubeUrl": "https://youtu.be/h7KGzwOhU_U"
+  },
+  {
+    "id": "song-1792424821",
+    "videoId": "Odl-2rsJX-8",
+    "title": "🎧 오늘도 참 잘 버텼다 🎧 조선힙합소리꾼",
+    "subtitle": "조선힙합소리꾼의 가슴 울리는 명곡",
+    "category": "comfort",
+    "badge": "🔥 최신 신곡",
+    "badgeColor": "#f59e0b",
+    "desc": "유튜브 '조선힙합소리꾼' 채널에서 풀버전 뮤직비디오와 가사를 감상하세요.",
+    "youtubeUrl": "https://youtu.be/Odl-2rsJX-8"
   }
 ]
