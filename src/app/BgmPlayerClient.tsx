@@ -10,22 +10,15 @@ interface BgmTrack {
   youtubeUrl?: string;
 }
 
-const INITIAL_TRACKS: BgmTrack[] = (bgmData.tracks || []) as BgmTrack[];
-const INITIAL_DEFAULT_ID: string = bgmData.defaultTrackId || (INITIAL_TRACKS[0]?.id ?? '');
-
 export default function BgmPlayerClient() {
-  const [tracks, setTracks] = useState<BgmTrack[]>(INITIAL_TRACKS);
-  const [trackIdx, setTrackIdx] = useState<number>(
-    Math.max(
-      0,
-      INITIAL_TRACKS.findIndex((t) => t.id === INITIAL_DEFAULT_ID)
-    )
-  );
+  const [tracks, setTracks] = useState<BgmTrack[]>((bgmData.tracks || []) as BgmTrack[]);
+  const [trackIdx, setTrackIdx] = useState<number>(0);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // 배포 직후에도 1초 만에 최신 선곡표 및 첫 시작 음악 설정을 불러오도록 실시간 동기화
+  // 실시간 최신 bgm.json 동기화 (tracks가 빈 배열([])이면 즉시 빈 배열 반영)
   useEffect(() => {
     fetch(
       `https://api.github.com/repos/c01079173153-maker/lms-platform/contents/src/data/bgm.json?t=${Date.now()}`,
@@ -36,65 +29,34 @@ export default function BgmPlayerClient() {
     )
       .then((res) => (res.ok ? res.json() : null))
       .then((liveBgm: { defaultTrackId?: string; tracks?: BgmTrack[] } | null) => {
-        if (liveBgm && Array.isArray(liveBgm.tracks) && liveBgm.tracks.length > 0) {
+        setIsLoaded(true);
+        if (liveBgm && Array.isArray(liveBgm.tracks)) {
           setTracks(liveBgm.tracks);
-          const defIdx = liveBgm.tracks.findIndex(
-            (t) => t.id === liveBgm.defaultTrackId
-          );
-          if (defIdx >= 0) {
-            setTrackIdx(defIdx);
+          if (liveBgm.tracks.length > 0) {
+            const defIdx = liveBgm.tracks.findIndex(
+              (t) => t.id === liveBgm.defaultTrackId
+            );
+            setTrackIdx(defIdx >= 0 ? defIdx : 0);
           }
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        setIsLoaded(true);
+      });
   }, []);
 
-  useEffect(() => {
-    let started = false;
-
-    const tryPlay = () => {
-      if (started || !audioRef.current) return;
-      audioRef.current.volume = 0.4;
-      audioRef.current
-        .play()
-        .then(() => {
-          started = true;
-          setIsPlaying(true);
-          cleanup();
-        })
-        .catch(() => {});
-    };
-
-    const events = [
-      'click',
-      'keydown',
-      'touchstart',
-      'scroll',
-      'wheel',
-      'pointermove',
-      'mousemove',
-    ];
-
-    const cleanup = () => {
-      events.forEach((ev) => window.removeEventListener(ev, tryPlay));
-    };
-
-    tryPlay();
-    events.forEach((ev) => window.addEventListener(ev, tryPlay, { passive: true }));
-
-    return cleanup;
-  }, [trackIdx]);
-
-  if (tracks.length === 0) return null;
-
+  // 상시 자동재생 끄기: 사용자가 직접 ON/OFF 버튼을 누를 때만 재생/정지
   const toggleBgm = () => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || tracks.length === 0) return;
     if (isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
       audioRef.current.volume = 0.4;
-      audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+      audioRef.current
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch(() => {});
     }
   };
 
@@ -103,15 +65,24 @@ export default function BgmPlayerClient() {
     setTimeout(() => {
       if (audioRef.current) {
         audioRef.current.volume = 0.4;
-        audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+        audioRef.current
+          .play()
+          .then(() => setIsPlaying(true))
+          .catch(() => {});
       }
     }, 80);
   };
 
   const nextTrack = () => {
+    if (tracks.length === 0) return;
     const next = (trackIdx + 1) % tracks.length;
     selectTrack(next);
   };
+
+  // 선곡표에 등록된 곡이 0개이면 플레이어 UI 자체를 아예 표시하지 않음 (완전 숨김)
+  if (tracks.length === 0) {
+    return null;
+  }
 
   const currentTrack = tracks[trackIdx] || tracks[0];
 
@@ -120,12 +91,14 @@ export default function BgmPlayerClient() {
       <audio
         ref={audioRef}
         src={currentTrack.src}
-        autoPlay
-        preload="auto"
+        preload="metadata"
+        controlsList="nodownload noplaybackrate"
+        onContextMenu={(e) => e.preventDefault()}
         onEnded={nextTrack}
       />
 
       <div
+        onContextMenu={(e) => e.preventDefault()}
         style={{
           position: 'fixed',
           bottom: '24px',
@@ -134,7 +107,7 @@ export default function BgmPlayerClient() {
           display: 'flex',
           flexDirection: 'column',
           gap: '10px',
-          maxWidth: '370px',
+          maxWidth: '380px',
         }}
       >
         {expanded && (
@@ -159,7 +132,7 @@ export default function BgmPlayerClient() {
               }}
             >
               <span style={{ fontWeight: 800, color: '#d4af37', fontSize: '0.95rem' }}>
-                🎧 조선힙합소리꾼 명곡 선곡표
+                🎧 조선힙합소리꾼 명곡 선곡표 ({tracks.length}곡)
               </span>
               <button
                 onClick={() => setExpanded(false)}
@@ -168,12 +141,14 @@ export default function BgmPlayerClient() {
                   color: '#aaa',
                   fontSize: '0.9rem',
                   fontWeight: 700,
+                  cursor: 'pointer',
                 }}
               >
                 ✕ 닫기
               </button>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '240px', overflowY: 'auto' }}>
               {tracks.map((t, i) => (
                 <button
                   key={t.id}
@@ -197,6 +172,7 @@ export default function BgmPlayerClient() {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     gap: '8px',
+                    cursor: 'pointer',
                   }}
                 >
                   <span>
@@ -206,6 +182,7 @@ export default function BgmPlayerClient() {
                 </button>
               ))}
             </div>
+
             <a
               href="https://www.youtube.com/@%EC%A1%B0%EC%84%A0%ED%9E%99%ED%95%A9%EC%86%8C%EB%A6%AC%EA%BE%BC"
               target="_blank"
@@ -228,32 +205,47 @@ export default function BgmPlayerClient() {
         )}
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {/* 음악 ON / OFF 메인 스위치 버튼 */}
           <button
             onClick={toggleBgm}
             style={{
               background: isPlaying
-                ? 'linear-gradient(135deg, #d4af37 0%, #f5d061 100%)'
-                : 'rgba(18, 18, 24, 0.92)',
-              color: isPlaying ? '#000' : '#fff',
+                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                : 'rgba(24, 24, 30, 0.95)',
+              color: '#fff',
               backdropFilter: 'blur(10px)',
-              border: '2px solid #d4af37',
+              border: isPlaying ? '2px solid #10b981' : '2px solid #71717a',
               padding: '12px 20px',
               borderRadius: '30px',
               fontSize: '0.95rem',
-              fontWeight: 800,
+              fontWeight: 900,
               cursor: 'pointer',
-              boxShadow: '0 6px 20px rgba(212, 175, 55, 0.35)',
+              boxShadow: isPlaying
+                ? '0 6px 20px rgba(16, 185, 129, 0.45)'
+                : '0 4px 15px rgba(0,0,0,0.5)',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
             }}
           >
-            <span>{isPlaying ? '🔊 일시정지' : '▶️ 노래 켜기'}</span>
+            <span
+              style={{
+                padding: '2px 8px',
+                borderRadius: '999px',
+                background: isPlaying ? '#ffffff' : '#3f3f46',
+                color: isPlaying ? '#059669' : '#a1a1aa',
+                fontSize: '0.8rem',
+                fontWeight: 900,
+              }}
+            >
+              {isPlaying ? 'ON' : 'OFF'}
+            </span>
+            <span>{isPlaying ? '🔊 음악 끄기' : '▶️ 음악 켜기'}</span>
             <span
               style={{
                 fontSize: '0.85rem',
-                opacity: 0.9,
-                maxWidth: '150px',
+                opacity: 0.85,
+                maxWidth: '130px',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -277,7 +269,7 @@ export default function BgmPlayerClient() {
               boxShadow: '0 6px 20px rgba(0,0,0,0.4)',
             }}
           >
-            🎶 곡 변경 ({trackIdx + 1}/{tracks.length})
+            🎶 선곡표 ({trackIdx + 1}/{tracks.length})
           </button>
         </div>
       </div>
