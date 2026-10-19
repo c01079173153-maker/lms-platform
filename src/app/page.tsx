@@ -413,7 +413,6 @@ export default function Home() {
               </p>
 
               <div
-                onContextMenu={(e) => e.preventDefault()}
                 style={{ marginTop: '8px', background: 'rgba(212,175,55,0.1)', padding: '14px', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(212,175,55,0.3)' }}
               >
                 <p style={{ fontSize: '0.9rem', color: '#fff1b8', marginBottom: '8px', fontWeight: 800 }}>
@@ -422,7 +421,6 @@ export default function Home() {
                 <audio
                   controls
                   controlsList="nodownload noplaybackrate"
-                  onContextMenu={(e) => e.preventDefault()}
                   src="/sorikkun/nado_saramida.mp3"
                   style={{ width: '100%', height: '34px' }}
                 ></audio>
