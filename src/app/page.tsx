@@ -497,7 +497,7 @@ export default function Home() {
             <h2 className={styles.sectionTitle} style={{ textAlign: 'left' }}>
               음악으로 위로하고, <span className="text-gradient">기술을 무료로 나누는</span>
               <br />
-              크리에이터 염상민 (조선힙합소리꾼)
+              크리에이터 조선힙합소리꾼
             </h2>
             <p style={{ fontSize: '1.15rem', lineHeight: 1.7, marginBottom: '24px', color: '#e4e4e7' }}>
               한국적인 감성과 힙합·발라드를 결합한 <strong>‘조선힙합소리꾼’</strong> 유튜브 채널을 통해 지친 현대인들에게 따뜻한 위로와 통쾌한 카타르시스를 전하고 있습니다.
