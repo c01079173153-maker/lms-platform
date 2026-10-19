@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import songsData from '../data/songs.json';
 
 export interface SongItem {
@@ -8,7 +8,7 @@ export interface SongItem {
   videoId: string;
   title: string;
   subtitle: string;
-  category: 'all' | 'comfort' | 'cider' | 'playlist' | string;
+  category: string;
   badge: string;
   badgeColor: string;
   desc: string;
@@ -21,14 +21,156 @@ const INITIAL_SONGS: SongItem[] = (songsData as SongItem[]) || [];
 const CHANNEL_URL = 'https://www.youtube.com/@%EC%A1%B0%EC%84%A0%ED%9E%99%ED%95%A9%EC%86%8C%EB%A6%AC%EA%BE%BC';
 const PLAYLIST_URL = 'https://www.youtube.com/playlist?list=PLar4-ZPn22bA';
 
+const CATEGORIES = [
+  { key: 'all', label: '🔥 전체 보기' },
+  { key: 'comfort', label: '😭 눈물·인생 위로곡' },
+  { key: 'cider', label: '🤬 속시원한 사이다곡' },
+  { key: 'parents', label: '🙇 부모님·가족 효도곡' },
+  { key: 'work', label: '💼 직장인·퇴근길 공감곡' },
+  { key: 'healing', label: '🌙 새벽 감성·힐링곡' },
+  { key: 'gugak', label: '🥁 국악·사자후 힙합' },
+  { key: 'hope', label: '🌅 희망·응원·역전곡' },
+  { key: 'playlist', label: '🎶 연속듣기·모음집' },
+];
+
+/** 다운로드 버튼이 원천 차단된 전용 스트리밍 오디오 플레이어 */
+function ProtectedAudioPlayer({ src, title }: { src: string; title: string }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [currentTime, setCurrentTime] = useState('0:00');
+  const [duration, setDuration] = useState('0:00');
+
+  useEffect(() => {
+    setPlaying(false);
+    setProgress(0);
+    setCurrentTime('0:00');
+  }, [src]);
+
+  const fmt = (sec: number) => {
+    if (!sec || isNaN(sec)) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
+
+  const toggle = () => {
+    if (!audioRef.current) return;
+    if (playing) {
+      audioRef.current.pause();
+      setPlaying(false);
+    } else {
+      audioRef.current.play().then(() => setPlaying(true)).catch(() => {});
+    }
+  };
+
+  const onTimeUpdate = () => {
+    if (!audioRef.current) return;
+    const cur = audioRef.current.currentTime;
+    const dur = audioRef.current.duration || 1;
+    setCurrentTime(fmt(cur));
+    setDuration(fmt(dur));
+    setProgress((cur / dur) * 100);
+  };
+
+  const onSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!audioRef.current || !audioRef.current.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    audioRef.current.currentTime = ratio * audioRef.current.duration;
+  };
+
+  return (
+    <div
+      onContextMenu={(e) => e.preventDefault()}
+      style={{
+        background: 'rgba(212, 175, 55, 0.1)',
+        padding: '14px 18px',
+        borderRadius: '12px',
+        border: '1px solid rgba(212, 175, 55, 0.35)',
+        marginBottom: '20px',
+        userSelect: 'none',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          fontSize: '0.9rem',
+          fontWeight: 800,
+          color: '#fff1b8',
+          marginBottom: '10px',
+        }}
+      >
+        <span>🎵 홈페이지 전용 스트리밍 감상 (무단 다운로드 보호됨)</span>
+        <span style={{ color: '#d4af37', fontSize: '0.85rem' }}>
+          {currentTime} / {duration}
+        </span>
+      </div>
+
+      <audio
+        ref={audioRef}
+        src={src}
+        controlsList="nodownload noplaybackrate"
+        onContextMenu={(e) => e.preventDefault()}
+        onTimeUpdate={onTimeUpdate}
+        onLoadedMetadata={onTimeUpdate}
+        onEnded={() => setPlaying(false)}
+        style={{ display: 'none' }}
+      />
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <button
+          type="button"
+          onClick={toggle}
+          style={{
+            padding: '8px 18px',
+            borderRadius: '999px',
+            background: playing ? '#ff0033' : '#d4af37',
+            color: playing ? '#fff' : '#000',
+            fontWeight: 900,
+            fontSize: '0.95rem',
+            cursor: 'pointer',
+          }}
+        >
+          {playing ? '⏸ 일시정지' : '▶ 원곡 듣기'}
+        </button>
+
+        <div
+          onClick={onSeek}
+          style={{
+            flex: 1,
+            height: '10px',
+            background: 'rgba(255,255,255,0.12)',
+            borderRadius: '999px',
+            cursor: 'pointer',
+            overflow: 'hidden',
+            position: 'relative',
+          }}
+          title={title}
+        >
+          <div
+            style={{
+              width: `${progress}%`,
+              height: '100%',
+              background: 'linear-gradient(90deg, #d4af37 0%, #ff0033 100%)',
+              borderRadius: '999px',
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function JoseonHipHopShowcase() {
   const [songs, setSongs] = useState<SongItem[]>(INITIAL_SONGS);
   const [selectedSong, setSelectedSong] = useState<SongItem | null>(
     INITIAL_SONGS[0] || null
   );
-  const [activeTab, setActiveTab] = useState<'all' | 'comfort' | 'cider' | 'playlist'>('all');
+  const [activeTab, setActiveTab] = useState<string>('all');
 
-  // 배포 직후에도 딜레이 없이 1초 만에 최신 목록을 즉시 불러오도록 실시간 동기화
   useEffect(() => {
     fetch(
       `https://api.github.com/repos/c01079173153-maker/lms-platform/contents/src/data/songs.json?t=${Date.now()}`,
@@ -53,6 +195,7 @@ export default function JoseonHipHopShowcase() {
   return (
     <section
       id="sorikkun-channel"
+      onContextMenu={(e) => e.preventDefault()}
       style={{
         padding: '80px 5%',
         background:
@@ -266,34 +409,12 @@ export default function JoseonHipHopShowcase() {
                 {selectedSong.desc}
               </p>
 
-              {/* 내장 고음질 MP3 미리듣기 바 (있을 경우) */}
+              {/* 다운로드 방지 전용 스트리밍 플레이어 */}
               {selectedSong.mp3Src && (
-                <div
-                  style={{
-                    background: 'rgba(212, 175, 55, 0.08)',
-                    padding: '14px 18px',
-                    borderRadius: '12px',
-                    border: '1px solid rgba(212, 175, 55, 0.3)',
-                    marginBottom: '20px',
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: '0.92rem',
-                      fontWeight: 800,
-                      color: '#fff1b8',
-                      marginBottom: '8px',
-                    }}
-                  >
-                    🎵 홈페이지에서 고음질 원곡 음원 바로 듣기:
-                  </div>
-                  <audio
-                    key={selectedSong.mp3Src}
-                    controls
-                    src={selectedSong.mp3Src}
-                    style={{ width: '100%', height: '38px' }}
-                  />
-                </div>
+                <ProtectedAudioPlayer
+                  src={selectedSong.mp3Src}
+                  title={selectedSong.title}
+                />
               )}
 
               {/* 선택한 영상으로 유튜브 바로 타고 들어가기 버튼 */}
@@ -322,7 +443,7 @@ export default function JoseonHipHopShowcase() {
 
             {/* 오른쪽: 곡 선택 카드 리스트 */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {/* 카테고리 탭 */}
+              {/* 8개 카테고리 필터 탭 */}
               <div
                 style={{
                   display: 'flex',
@@ -331,20 +452,15 @@ export default function JoseonHipHopShowcase() {
                   marginBottom: '4px',
                 }}
               >
-                {[
-                  { key: 'all', label: `🔥 전체 명곡 (${songs.length})` },
-                  { key: 'comfort', label: '😭 눈물·인생 위로곡' },
-                  { key: 'cider', label: '🤬 속시원한 사이다곡' },
-                  { key: 'playlist', label: '🎶 연속듣기' },
-                ].map((tab) => (
+                {CATEGORIES.map((tab) => (
                   <button
                     key={tab.key}
-                    onClick={() => setActiveTab(tab.key as any)}
+                    onClick={() => setActiveTab(tab.key)}
                     style={{
-                      padding: '10px 18px',
+                      padding: '8px 14px',
                       borderRadius: '999px',
                       fontWeight: 800,
-                      fontSize: '0.95rem',
+                      fontSize: '0.88rem',
                       background:
                         activeTab === tab.key
                           ? '#d4af37'
@@ -356,7 +472,7 @@ export default function JoseonHipHopShowcase() {
                           : '1px solid rgba(255,255,255,0.12)',
                     }}
                   >
-                    {tab.label}
+                    {tab.key === 'all' ? `${tab.label} (${songs.length})` : tab.label}
                   </button>
                 ))}
               </div>

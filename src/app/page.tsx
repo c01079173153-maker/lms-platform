@@ -412,11 +412,20 @@ export default function Home() {
                 사람들의 마음을 울리는 가사 작법부터 국악·힙합·발라드 명곡을 탄생시키는 프롬프트 엔지니어링 비법을 아낌없이 나눕니다.
               </p>
 
-              <div style={{ marginTop: '8px', background: 'rgba(212,175,55,0.1)', padding: '14px', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(212,175,55,0.3)' }}>
+              <div
+                onContextMenu={(e) => e.preventDefault()}
+                style={{ marginTop: '8px', background: 'rgba(212,175,55,0.1)', padding: '14px', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(212,175,55,0.3)' }}
+              >
                 <p style={{ fontSize: '0.9rem', color: '#fff1b8', marginBottom: '8px', fontWeight: 800 }}>
-                  🎵 대표곡 샘플: 조선힙합소리꾼 - 나도 사람이다
+                  🎵 대표곡 샘플: 조선힙합소리꾼 - 나도 사람이다 (다운로드 보호됨)
                 </p>
-                <audio controls src="/sorikkun/nado_saramida.mp3" style={{ width: '100%', height: '34px' }}></audio>
+                <audio
+                  controls
+                  controlsList="nodownload noplaybackrate"
+                  onContextMenu={(e) => e.preventDefault()}
+                  src="/sorikkun/nado_saramida.mp3"
+                  style={{ width: '100%', height: '34px' }}
+                ></audio>
               </div>
 
               <div className={styles.coursePrice}>
