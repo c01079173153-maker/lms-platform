@@ -10,18 +10,44 @@ interface BgmTrack {
   youtubeUrl?: string;
 }
 
-const TRACKS: BgmTrack[] = (bgmData.tracks || []) as BgmTrack[];
-const DEFAULT_ID: string = bgmData.defaultTrackId || (TRACKS[0]?.id ?? '');
+const INITIAL_TRACKS: BgmTrack[] = (bgmData.tracks || []) as BgmTrack[];
+const INITIAL_DEFAULT_ID: string = bgmData.defaultTrackId || (INITIAL_TRACKS[0]?.id ?? '');
 
 export default function BgmPlayerClient() {
-  const initialIdx = Math.max(
-    0,
-    TRACKS.findIndex((t) => t.id === DEFAULT_ID)
+  const [tracks, setTracks] = useState<BgmTrack[]>(INITIAL_TRACKS);
+  const [trackIdx, setTrackIdx] = useState<number>(
+    Math.max(
+      0,
+      INITIAL_TRACKS.findIndex((t) => t.id === INITIAL_DEFAULT_ID)
+    )
   );
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [trackIdx, setTrackIdx] = useState(initialIdx);
   const [expanded, setExpanded] = useState(false);
+
+  // 배포 직후에도 1초 만에 최신 선곡표 및 첫 시작 음악 설정을 불러오도록 실시간 동기화
+  useEffect(() => {
+    fetch(
+      `https://api.github.com/repos/c01079173153-maker/lms-platform/contents/src/data/bgm.json?t=${Date.now()}`,
+      {
+        headers: { Accept: 'application/vnd.github.v3.raw' },
+        cache: 'no-store',
+      }
+    )
+      .then((res) => (res.ok ? res.json() : null))
+      .then((liveBgm: { defaultTrackId?: string; tracks?: BgmTrack[] } | null) => {
+        if (liveBgm && Array.isArray(liveBgm.tracks) && liveBgm.tracks.length > 0) {
+          setTracks(liveBgm.tracks);
+          const defIdx = liveBgm.tracks.findIndex(
+            (t) => t.id === liveBgm.defaultTrackId
+          );
+          if (defIdx >= 0) {
+            setTrackIdx(defIdx);
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     let started = false;
@@ -53,14 +79,13 @@ export default function BgmPlayerClient() {
       events.forEach((ev) => window.removeEventListener(ev, tryPlay));
     };
 
-    // 페이지 열리자마자 즉시 자동재생 시도 + 마우스 이동/스크롤/클릭 시 즉시 재생
     tryPlay();
     events.forEach((ev) => window.addEventListener(ev, tryPlay, { passive: true }));
 
     return cleanup;
-  }, []);
+  }, [trackIdx]);
 
-  if (TRACKS.length === 0) return null;
+  if (tracks.length === 0) return null;
 
   const toggleBgm = () => {
     if (!audioRef.current) return;
@@ -84,11 +109,11 @@ export default function BgmPlayerClient() {
   };
 
   const nextTrack = () => {
-    const next = (trackIdx + 1) % TRACKS.length;
+    const next = (trackIdx + 1) % tracks.length;
     selectTrack(next);
   };
 
-  const currentTrack = TRACKS[trackIdx] || TRACKS[0];
+  const currentTrack = tracks[trackIdx] || tracks[0];
 
   return (
     <>
@@ -149,7 +174,7 @@ export default function BgmPlayerClient() {
               </button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {TRACKS.map((t, i) => (
+              {tracks.map((t, i) => (
                 <button
                   key={t.id}
                   onClick={() => selectTrack(i)}
@@ -252,7 +277,7 @@ export default function BgmPlayerClient() {
               boxShadow: '0 6px 20px rgba(0,0,0,0.4)',
             }}
           >
-            🎶 곡 변경 ({trackIdx + 1}/{TRACKS.length})
+            🎶 곡 변경 ({trackIdx + 1}/{tracks.length})
           </button>
         </div>
       </div>

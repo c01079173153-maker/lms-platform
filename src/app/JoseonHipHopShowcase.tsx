@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import songsData from '../data/songs.json';
 
 export interface SongItem {
@@ -16,18 +16,39 @@ export interface SongItem {
   mp3Src?: string;
 }
 
-const SONGS: SongItem[] = songsData as SongItem[];
+const INITIAL_SONGS: SongItem[] = (songsData as SongItem[]) || [];
 
 const CHANNEL_URL = 'https://www.youtube.com/@%EC%A1%B0%EC%84%A0%ED%9E%99%ED%95%A9%EC%86%8C%EB%A6%AC%EA%BE%BC';
 const PLAYLIST_URL = 'https://www.youtube.com/playlist?list=PLar4-ZPn22bA';
 
 export default function JoseonHipHopShowcase() {
-  const defaultSong = SONGS.find((s) => s.id === 'nado-saramida') || SONGS[0];
-  const [selectedSong, setSelectedSong] = useState<SongItem>(defaultSong);
+  const [songs, setSongs] = useState<SongItem[]>(INITIAL_SONGS);
+  const [selectedSong, setSelectedSong] = useState<SongItem | null>(
+    INITIAL_SONGS[0] || null
+  );
   const [activeTab, setActiveTab] = useState<'all' | 'comfort' | 'cider' | 'playlist'>('all');
 
+  // 배포 직후에도 딜레이 없이 1초 만에 최신 목록을 즉시 불러오도록 실시간 동기화
+  useEffect(() => {
+    fetch(
+      `https://api.github.com/repos/c01079173153-maker/lms-platform/contents/src/data/songs.json?t=${Date.now()}`,
+      {
+        headers: { Accept: 'application/vnd.github.v3.raw' },
+        cache: 'no-store',
+      }
+    )
+      .then((res) => (res.ok ? res.json() : null))
+      .then((liveSongs: SongItem[] | null) => {
+        if (Array.isArray(liveSongs)) {
+          setSongs(liveSongs);
+          setSelectedSong(liveSongs[0] || null);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const filteredSongs =
-    activeTab === 'all' ? SONGS : SONGS.filter((s) => s.category === activeTab);
+    activeTab === 'all' ? songs : songs.filter((s) => s.category === activeTab);
 
   return (
     <section
@@ -42,7 +63,7 @@ export default function JoseonHipHopShowcase() {
     >
       <div style={{ maxWidth: '1300px', margin: '0 auto' }}>
         {/* 상단 채널 소개 헤더 */}
-        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+        <div style={{ textAlign: 'center', marginBottom: songs.length > 0 ? '48px' : '16px' }}>
           <div
             style={{
               display: 'inline-flex',
@@ -86,8 +107,6 @@ export default function JoseonHipHopShowcase() {
             한국적인 전통의 울림(가야금·해금·판소리 사자후)과 현대적인 힙합·발라드가 만나,
             <br />
             <strong>누구에게도 말 못 한 삶의 서러움, 위로, 그리고 속 시원한 사이다</strong>를 노래합니다.
-            <br />
-            아래에서 원하시는 곡을 <strong>직접 선택해 감상</strong>하시거나 <strong>유튜브 채널로 바로 이동</strong>해 보세요!
           </p>
 
           {/* 채널 직행 빅 버튼 */}
@@ -142,308 +161,310 @@ export default function JoseonHipHopShowcase() {
           </div>
         </div>
 
-        {/* 메인 플레이어 & 선택형 곡 리스트 레이아웃 */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-            gap: '32px',
-            alignItems: 'start',
-          }}
-        >
-          {/* 왼쪽: 선택된 곡 유튜브 뮤직비디오 즉시 감상 & 바로가기 */}
+        {/* 곡이 1개 이상 있을 때만 플레이어 & 곡 선택 리스트 표시 */}
+        {songs.length > 0 && selectedSong && (
           <div
             style={{
-              background: 'rgba(20, 20, 26, 0.95)',
-              borderRadius: '24px',
-              padding: '28px',
-              border: '2px solid #d4af37',
-              boxShadow: '0 20px 50px rgba(0,0,0,0.6)',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+              gap: '32px',
+              alignItems: 'start',
             }}
           >
+            {/* 왼쪽: 선택된 곡 유튜브 뮤직비디오 즉시 감상 & 바로가기 */}
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '16px',
-                flexWrap: 'wrap',
-                gap: '8px',
+                background: 'rgba(20, 20, 26, 0.95)',
+                borderRadius: '24px',
+                padding: '28px',
+                border: '2px solid #d4af37',
+                boxShadow: '0 20px 50px rgba(0,0,0,0.6)',
               }}
             >
-              <span
-                style={{
-                  background: selectedSong.badgeColor,
-                  color: '#fff',
-                  padding: '6px 14px',
-                  borderRadius: '999px',
-                  fontWeight: 800,
-                  fontSize: '0.9rem',
-                }}
-              >
-                {selectedSong.badge}
-              </span>
-              <span style={{ color: '#d4af37', fontWeight: 700, fontSize: '0.95rem' }}>
-                ✨ 오른쪽 목록에서 곡을 선택해 보세요
-              </span>
-            </div>
-
-            {/* 유튜브 임베드 플레이어 */}
-            <div
-              style={{
-                position: 'relative',
-                width: '100%',
-                aspectRatio: '16 / 9',
-                borderRadius: '16px',
-                overflow: 'hidden',
-                backgroundColor: '#000',
-                marginBottom: '20px',
-                border: '1px solid rgba(255,255,255,0.15)',
-              }}
-            >
-              <iframe
-                key={selectedSong.videoId}
-                src={`https://www.youtube.com/embed/${selectedSong.videoId}?rel=0`}
-                title={selectedSong.title}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  border: 'none',
-                }}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-
-            <h3
-              style={{
-                fontSize: '1.5rem',
-                fontWeight: 900,
-                marginBottom: '8px',
-                color: '#fff',
-              }}
-            >
-              {selectedSong.title}
-            </h3>
-            <p
-              style={{
-                fontSize: '1.08rem',
-                color: '#d4af37',
-                fontWeight: 700,
-                marginBottom: '12px',
-              }}
-            >
-              {selectedSong.subtitle}
-            </p>
-            <p
-              style={{
-                fontSize: '1rem',
-                color: '#a1a1aa',
-                lineHeight: 1.6,
-                marginBottom: '20px',
-              }}
-            >
-              {selectedSong.desc}
-            </p>
-
-            {/* 내장 고음질 MP3 미리듣기 바 (있을 경우) */}
-            {selectedSong.mp3Src && (
               <div
                 style={{
-                  background: 'rgba(212, 175, 55, 0.08)',
-                  padding: '14px 18px',
-                  borderRadius: '12px',
-                  border: '1px solid rgba(212, 175, 55, 0.3)',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '16px',
+                  flexWrap: 'wrap',
+                  gap: '8px',
+                }}
+              >
+                <span
+                  style={{
+                    background: selectedSong.badgeColor || '#ff3b30',
+                    color: '#fff',
+                    padding: '6px 14px',
+                    borderRadius: '999px',
+                    fontWeight: 800,
+                    fontSize: '0.9rem',
+                  }}
+                >
+                  {selectedSong.badge}
+                </span>
+                <span style={{ color: '#d4af37', fontWeight: 700, fontSize: '0.95rem' }}>
+                  ✨ 오른쪽 목록에서 곡을 선택해 보세요
+                </span>
+              </div>
+
+              {/* 유튜브 임베드 플레이어 */}
+              <div
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                  aspectRatio: '16 / 9',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  backgroundColor: '#000',
+                  marginBottom: '20px',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                }}
+              >
+                <iframe
+                  key={selectedSong.videoId}
+                  src={`https://www.youtube.com/embed/${selectedSong.videoId}?rel=0`}
+                  title={selectedSong.title}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    border: 'none',
+                  }}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+
+              <h3
+                style={{
+                  fontSize: '1.5rem',
+                  fontWeight: 900,
+                  marginBottom: '8px',
+                  color: '#fff',
+                }}
+              >
+                {selectedSong.title}
+              </h3>
+              <p
+                style={{
+                  fontSize: '1.08rem',
+                  color: '#d4af37',
+                  fontWeight: 700,
+                  marginBottom: '12px',
+                }}
+              >
+                {selectedSong.subtitle}
+              </p>
+              <p
+                style={{
+                  fontSize: '1rem',
+                  color: '#a1a1aa',
+                  lineHeight: 1.6,
                   marginBottom: '20px',
                 }}
               >
+                {selectedSong.desc}
+              </p>
+
+              {/* 내장 고음질 MP3 미리듣기 바 (있을 경우) */}
+              {selectedSong.mp3Src && (
                 <div
                   style={{
-                    fontSize: '0.92rem',
-                    fontWeight: 800,
-                    color: '#fff1b8',
-                    marginBottom: '8px',
+                    background: 'rgba(212, 175, 55, 0.08)',
+                    padding: '14px 18px',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(212, 175, 55, 0.3)',
+                    marginBottom: '20px',
                   }}
                 >
-                  🎵 홈페이지에서 고음질 원곡 음원 바로 듣기:
+                  <div
+                    style={{
+                      fontSize: '0.92rem',
+                      fontWeight: 800,
+                      color: '#fff1b8',
+                      marginBottom: '8px',
+                    }}
+                  >
+                    🎵 홈페이지에서 고음질 원곡 음원 바로 듣기:
+                  </div>
+                  <audio
+                    key={selectedSong.mp3Src}
+                    controls
+                    src={selectedSong.mp3Src}
+                    style={{ width: '100%', height: '38px' }}
+                  />
                 </div>
-                <audio
-                  key={selectedSong.mp3Src}
-                  controls
-                  src={selectedSong.mp3Src}
-                  style={{ width: '100%', height: '38px' }}
-                />
-              </div>
-            )}
+              )}
 
-            {/* 선택한 영상으로 유튜브 바로 타고 들어가기 버튼 */}
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <a
-                href={selectedSong.youtubeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              {/* 선택한 영상으로 유튜브 바로 타고 들어가기 버튼 */}
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <a
+                  href={selectedSong.youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    flex: 1,
+                    minWidth: '220px',
+                    textAlign: 'center',
+                    padding: '16px 20px',
+                    borderRadius: '14px',
+                    background: 'linear-gradient(90deg, #ff0033 0%, #e60023 100%)',
+                    color: '#fff',
+                    fontWeight: 900,
+                    fontSize: '1.1rem',
+                    boxShadow: '0 8px 20px rgba(255, 0, 51, 0.35)',
+                  }}
+                >
+                  🚀 이 곡 유튜브에서 크게 보기 &amp; 댓글 소통하기 ↗
+                </a>
+              </div>
+            </div>
+
+            {/* 오른쪽: 곡 선택 카드 리스트 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* 카테고리 탭 */}
+              <div
                 style={{
-                  flex: 1,
-                  minWidth: '220px',
-                  textAlign: 'center',
-                  padding: '16px 20px',
-                  borderRadius: '14px',
-                  background: 'linear-gradient(90deg, #ff0033 0%, #e60023 100%)',
-                  color: '#fff',
-                  fontWeight: 900,
-                  fontSize: '1.1rem',
-                  boxShadow: '0 8px 20px rgba(255, 0, 51, 0.35)',
+                  display: 'flex',
+                  gap: '8px',
+                  flexWrap: 'wrap',
+                  marginBottom: '4px',
                 }}
               >
-                🚀 이 곡 유튜브에서 크게 보기 &amp; 댓글 소통하기 ↗
-              </a>
-            </div>
-          </div>
-
-          {/* 오른쪽: 곡 선택 카드 리스트 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* 카테고리 탭 */}
-            <div
-              style={{
-                display: 'flex',
-                gap: '8px',
-                flexWrap: 'wrap',
-                marginBottom: '4px',
-              }}
-            >
-              {[
-                { key: 'all', label: `🔥 전체 명곡 (${SONGS.length})` },
-                { key: 'comfort', label: '😭 눈물·인생 위로곡' },
-                { key: 'cider', label: '🤬 속시원한 사이다곡' },
-                { key: 'playlist', label: '🎶 연속듣기' },
-              ].map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key as any)}
-                  style={{
-                    padding: '10px 18px',
-                    borderRadius: '999px',
-                    fontWeight: 800,
-                    fontSize: '0.95rem',
-                    background:
-                      activeTab === tab.key
-                        ? '#d4af37'
-                        : 'rgba(255,255,255,0.06)',
-                    color: activeTab === tab.key ? '#000' : '#e4e4e7',
-                    border:
-                      activeTab === tab.key
-                        ? '1px solid #d4af37'
-                        : '1px solid rgba(255,255,255,0.12)',
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* 곡 카드 목록 */}
-            {filteredSongs.map((song, idx) => {
-              const isSelected = selectedSong.id === song.id;
-              return (
-                <div
-                  key={song.id}
-                  onClick={() => setSelectedSong(song)}
-                  style={{
-                    cursor: 'pointer',
-                    padding: '20px 22px',
-                    borderRadius: '18px',
-                    background: isSelected
-                      ? 'linear-gradient(135deg, rgba(212, 175, 55, 0.22) 0%, rgba(24, 24, 30, 0.95) 100%)'
-                      : 'rgba(24, 24, 30, 0.8)',
-                    border: isSelected
-                      ? '2px solid #d4af37'
-                      : '1px solid rgba(255,255,255,0.1)',
-                    transition: 'all 0.2s ease',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '10px',
-                    boxShadow: isSelected
-                      ? '0 10px 25px rgba(212, 175, 55, 0.2)'
-                      : 'none',
-                  }}
-                >
-                  <div
+                {[
+                  { key: 'all', label: `🔥 전체 명곡 (${songs.length})` },
+                  { key: 'comfort', label: '😭 눈물·인생 위로곡' },
+                  { key: 'cider', label: '🤬 속시원한 사이다곡' },
+                  { key: 'playlist', label: '🎶 연속듣기' },
+                ].map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key as any)}
                     style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      gap: '8px',
+                      padding: '10px 18px',
+                      borderRadius: '999px',
+                      fontWeight: 800,
+                      fontSize: '0.95rem',
+                      background:
+                        activeTab === tab.key
+                          ? '#d4af37'
+                          : 'rgba(255,255,255,0.06)',
+                      color: activeTab === tab.key ? '#000' : '#e4e4e7',
+                      border:
+                        activeTab === tab.key
+                          ? '1px solid #d4af37'
+                          : '1px solid rgba(255,255,255,0.12)',
                     }}
                   >
-                    <span
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* 곡 카드 목록 */}
+              {filteredSongs.map((song, idx) => {
+                const isSelected = selectedSong.id === song.id;
+                return (
+                  <div
+                    key={song.id}
+                    onClick={() => setSelectedSong(song)}
+                    style={{
+                      cursor: 'pointer',
+                      padding: '20px 22px',
+                      borderRadius: '18px',
+                      background: isSelected
+                        ? 'linear-gradient(135deg, rgba(212, 175, 55, 0.22) 0%, rgba(24, 24, 30, 0.95) 100%)'
+                        : 'rgba(24, 24, 30, 0.8)',
+                      border: isSelected
+                        ? '2px solid #d4af37'
+                        : '1px solid rgba(255,255,255,0.1)',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '10px',
+                      boxShadow: isSelected
+                        ? '0 10px 25px rgba(212, 175, 55, 0.2)'
+                        : 'none',
+                    }}
+                  >
+                    <div
                       style={{
-                        fontSize: '0.82rem',
-                        fontWeight: 800,
-                        padding: '4px 10px',
-                        borderRadius: '999px',
-                        background: song.badgeColor,
-                        color: '#fff',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: '8px',
                       }}
                     >
-                      {song.badge}
-                    </span>
-
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedSong(song);
-                        }}
+                      <span
                         style={{
-                          padding: '6px 12px',
-                          borderRadius: '8px',
-                          background: isSelected ? '#d4af37' : 'rgba(255,255,255,0.1)',
-                          color: isSelected ? '#000' : '#fff',
+                          fontSize: '0.82rem',
                           fontWeight: 800,
-                          fontSize: '0.85rem',
-                        }}
-                      >
-                        {isSelected ? '▶ 현재 선택됨' : '🎧 여기서 듣기'}
-                      </button>
-
-                      <a
-                        href={song.youtubeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        style={{
-                          padding: '6px 12px',
-                          borderRadius: '8px',
-                          background: '#ff0033',
+                          padding: '4px 10px',
+                          borderRadius: '999px',
+                          background: song.badgeColor || '#ff3b30',
                           color: '#fff',
-                          fontWeight: 800,
-                          fontSize: '0.85rem',
                         }}
                       >
-                        유튜브 이동 ↗
-                      </a>
+                        {song.badge}
+                      </span>
+
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedSong(song);
+                          }}
+                          style={{
+                            padding: '6px 12px',
+                            borderRadius: '8px',
+                            background: isSelected ? '#d4af37' : 'rgba(255,255,255,0.1)',
+                            color: isSelected ? '#000' : '#fff',
+                            fontWeight: 800,
+                            fontSize: '0.85rem',
+                          }}
+                        >
+                          {isSelected ? '▶ 현재 선택됨' : '🎧 여기서 듣기'}
+                        </button>
+
+                        <a
+                          href={song.youtubeUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          style={{
+                            padding: '6px 12px',
+                            borderRadius: '8px',
+                            background: '#ff0033',
+                            color: '#fff',
+                            fontWeight: 800,
+                            fontSize: '0.85rem',
+                          }}
+                        >
+                          유튜브 이동 ↗
+                        </a>
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        fontSize: '1.2rem',
+                        fontWeight: 800,
+                        color: isSelected ? '#fff1b8' : '#fff',
+                      }}
+                    >
+                      {idx + 1}. {song.title}
+                    </div>
+
+                    <div style={{ fontSize: '0.96rem', color: '#a1a1aa' }}>
+                      {song.subtitle}
                     </div>
                   </div>
-
-                  <div
-                    style={{
-                      fontSize: '1.2rem',
-                      fontWeight: 800,
-                      color: isSelected ? '#fff1b8' : '#fff',
-                    }}
-                  >
-                    {idx + 1}. {song.title}
-                  </div>
-
-                  <div style={{ fontSize: '0.96rem', color: '#a1a1aa' }}>
-                    {song.subtitle}
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );
