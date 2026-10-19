@@ -768,6 +768,14 @@ class HomepageManagerApp:
         if not title:
             title = Path(mp3_path).stem
 
+        size_mb = os.path.getsize(mp3_path) / (1024 * 1024)
+        if size_mb > 50:
+            messagebox.showerror(
+                "파일 크기 초과",
+                f"선택하신 파일의 크기가 {size_mb:.1f}MB로 너무 큽니다!\n(서버 업로드 제한: 최대 50MB 이하)\n\n보통 노래 MP3 파일은 3~10MB입니다. 영상 파일이나 너무 큰 파일이 아닌 순수 음악 MP3 파일을 선택해 주세요!"
+            )
+            return
+
         safe_name = f"bgm_{int(time.time())}.mp3"
         dest = SORIKKUN_PUBLIC_DIR / safe_name
         shutil.copy2(mp3_path, dest)
