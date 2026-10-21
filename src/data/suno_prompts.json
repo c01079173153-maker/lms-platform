@@ -1,5 +1,20 @@
 [
   {
+    "id": "suno-1792608209",
+    "title": "작은 불빛",
+    "category": "국악 & 퓨전",
+    "badge": "👑 시그니처 한국 전통 퓨전",
+    "badgeColor": "#f43f5e",
+    "sunoUrl": "https://suno.com/s/NYoxeX81rM8jkV4X",
+    "clipId": "c6484b86-5f56-4bbf-bd99-5bc87835b743",
+    "imageUrl": "https://cdn2.suno.ai/image_large_c6484b86-5f56-4bbf-bd99-5bc87835b743.jpeg",
+    "audioUrl": "https://d2lwuy8qc234o3.cloudfront.net/1/clip/c6484b86-5f56-4bbf-bd99-5bc87835b743.m4a",
+    "stylePromptEn": "Warm husky female voice speaking Korean, intimate breathy delivery with rhythmic phrasing, measured pace, soulful pansori-inspired vocal ornaments kept subtle and speech-like, deep restrained bass, sparse gayageum plucks, gentle haegeum and daegeum replies, light janggu and buk accents, warm cinematic mix, gradually builds to a forceful climax while keeping the voice clearly spoken.",
+    "stylePromptKo": "따뜻하고 허스키한 여성의 한국어 목소리, 리드미컬한 프레이징을 통한 친근하고 숨쉬는 전달력, 절제된 속도, 미묘하고 말투처럼 유지된 소울풀한 판소리의 성악, 깊고 절제된 베이스, 희박한 가야금 연주, 온화한 해금과 대금의 화답, 가벼운 장구와 북 악센트, 따뜻한 영화적 믹스가 명료한 목소리를 유지하면서 점차 힘찬 클라이맥스를 구축해 나간다.",
+    "desc": "Suno 전용 고품질 국악 & 퓨전 스타일 프롬프트입니다. 영문 프롬프트를 복사하여 Suno의 'Style of Music'에 넣고, 가사를 입력하면 누구나 완성도 높은 명곡을 제작할 수 있습니다.",
+    "lyrics": "오늘도 나는 오래된 골목을 지나 집으로 간다. 기와 끝에 맺힌 빗물이 천천히 떨어지고, 젖은 돌계단 위로 내 발소리가 번진다.\n\n어머니는 문 앞에 작은 등잔을 두셨다. 바람이 불어도 꺼지지 않도록, 손바닥으로 둘러 감싸 놓으셨다. 나는 그 불빛을 보고서야 내가 돌아왔다는 걸 알았다.\n\n세월은 많은 것을 바꾸었다. 담장은 낮아지고, 나무 문은 낡았고, 떠난 사람들의 이름은 마음속에서 더 또렷해졌다. 그래도 이 마당에는 아직 매화 향기가 남아 있다.\n\n나는 오늘의 걱정을 문밖에 잠시 내려놓는다. 숨을 고르고, 고개를 들어, 다시 걸어갈 길을 바라본다. 내 안에 남은 작은 불빛 하나면 충분하다.\n\n내일 아침, 나는 다시 문을 연다. 천천히, 그러나 멈추지 않고."
+  },
+  {
     "id": "suno-1792604505",
     "title": "가맥 한잔하자",
     "category": "팝 & 댄스",
