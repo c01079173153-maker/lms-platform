@@ -367,24 +367,32 @@ export default function SunoPromptHub() {
                   )}
                 </div>
 
-                {/* Suno 공식 임베드 플레이어 (clipId가 있을 경우) */}
-                {item.clipId && (
-                  <div style={{ marginBottom: '28px', borderRadius: '14px', overflow: 'hidden' }}>
-                    <iframe
-                      width="100%"
-                      height="150"
-                      src={`https://suno.com/embed/${item.clipId}`}
-                      title={item.title}
-                      frameBorder="0"
-                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                      style={{
-                        borderRadius: '14px',
-                        border: '1px solid rgba(212, 175, 55, 0.4)',
-                        display: 'block',
-                      }}
-                    />
-                  </div>
-                )}
+                {/* Suno 공식 임베드 플레이어 (clipId가 있거나 URL에서 추출 가능한 경우) */}
+                {(() => {
+                  const effectiveClipId =
+                    item.clipId ||
+                    (item.sunoUrl
+                      ? (item.sunoUrl.match(/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i) || [])[1]
+                      : '');
+                  if (!effectiveClipId) return null;
+                  return (
+                    <div style={{ marginBottom: '28px', borderRadius: '14px', overflow: 'hidden' }}>
+                      <iframe
+                        width="100%"
+                        height="150"
+                        src={`https://suno.com/embed/${effectiveClipId}`}
+                        title={item.title}
+                        frameBorder="0"
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        style={{
+                          borderRadius: '14px',
+                          border: '1px solid rgba(212, 175, 55, 0.4)',
+                          display: 'block',
+                        }}
+                      />
+                    </div>
+                  );
+                })()}
 
                 {/* 1. 스타일 프롬프트 섹션 (영어 + 한글 두 가지 나타나게 설정) */}
                 <div style={{ marginBottom: '30px' }}>
