@@ -14,6 +14,7 @@ import subprocess
 import threading
 import time
 import urllib.request
+import urllib.parse
 import webbrowser
 from pathlib import Path
 import tkinter as tk
@@ -23,6 +24,7 @@ BASE_DIR = Path(r"D:\lms_platform")
 BGM_JSON = BASE_DIR / "src" / "data" / "bgm.json"
 SONGS_JSON = BASE_DIR / "src" / "data" / "songs.json"
 PROGRAMS_JSON = BASE_DIR / "src" / "data" / "programs.json"
+SUNO_PROMPTS_JSON = BASE_DIR / "src" / "data" / "suno_prompts.json"
 SORIKKUN_PUBLIC_DIR = BASE_DIR / "public" / "sorikkun"
 DOWNLOADS_PUBLIC_DIR = BASE_DIR / "public" / "downloads"
 SITE_URL = "https://lms-platform-ten-coral.vercel.app/"
@@ -40,6 +42,85 @@ CATEGORIES_DICT = {
     "hope": "🌅 희망·응원·역전곡",
     "playlist": "🎶 연속듣기·모음집",
 }
+
+
+SUNO_CATEGORIES = [
+    "EDM / 페스티벌",
+    "국악 힙합",
+    "붐뱁 & 트랩",
+    "감성 발라드",
+    "판소리 록",
+    "팝 & 댄스",
+    "힐링 & 명상",
+    "기타 장르",
+]
+
+SUNO_BADGE_PRESETS = [
+    "🔥 140 BPM 페스티벌 드롭",
+    "👑 시그니처 판소리 트랩",
+    "😭 눈물주의 감성 발라드",
+    "🥁 가슴을 울리는 국악 비트",
+    "✨ 추천 명곡 스타일",
+    "⚡ 폭발적인 댄스 앤섬",
+    "🌙 새벽 감성 칠(Chill)",
+    "직접 입력",
+]
+
+def translate_en_to_ko_helper(text: str) -> str:
+    if not text or not text.strip():
+        return ""
+    try:
+        url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q=" + urllib.parse.quote(text.strip())
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return "".join([part[0] for part in data[0] if part[0]])
+    except Exception as e:
+        return f"[번역 실패: {e}]"
+
+def fetch_suno_details_helper(suno_url: str):
+    suno_url = suno_url.strip()
+    if not suno_url:
+        return None
+    req = urllib.request.Request(suno_url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
+    with urllib.request.urlopen(req, timeout=12) as resp:
+        final_url = resp.geturl()
+        html = resp.read().decode("utf-8", errors="ignore")
+
+    clip_id = ""
+    m = re.search(r"song/([a-f0-9-]{36})", final_url)
+    if not m:
+        m = re.search(r"([a-f0-9-]{36})", html)
+    if m:
+        clip_id = m.group(1)
+
+    title = ""
+    tm = re.search(r'<meta property="og:title" content="(.*?)"', html)
+    if tm:
+        title = tm.group(1).replace("&amp;", "&")
+
+    tags = ""
+    tags_m = re.search(r'\\?"tags\\?":\s*\\?"(.*?)\\?"', html)
+    if tags_m:
+        tags = tags_m.group(1).encode("utf-8", errors="ignore").decode("unicode_escape", errors="ignore")
+
+    lyrics = ""
+    pm = re.search(r'\\?"prompt\\?":\s*\\?"(.*?)(?=\\?",\\?"type\\?")', html)
+    if pm:
+        raw_l = pm.group(1).encode("utf-8", errors="ignore").decode("unicode_escape", errors="ignore")
+        lyrics = raw_l.replace(r"\n", "\n").replace(r'\"', '"').replace(r"\'", "'")
+
+    image_url = f"https://cdn2.suno.ai/image_large_{clip_id}.jpeg" if clip_id else ""
+    audio_url = f"https://d2lwuy8qc234o3.cloudfront.net/1/clip/{clip_id}.m4a" if clip_id else ""
+
+    return {
+        "title": title,
+        "clip_id": clip_id,
+        "tags": tags,
+        "lyrics": lyrics,
+        "image_url": image_url,
+        "audio_url": audio_url,
+    }
 
 BADGE_PRESETS = [
     "🔥 최신 신곡",
@@ -95,14 +176,17 @@ class HomepageManagerApp:
         self.bgm_data = load_json(BGM_JSON, {"defaultTrackId": "", "tracks": []})
         self.songs = load_json(SONGS_JSON, [])
         self.programs = load_json(PROGRAMS_JSON, [])
+        self.suno_prompts = load_json(SUNO_PROMPTS_JSON, [])
 
         self.current_song_edit_index = None
+        self.current_suno_edit_index = None
         self.current_prog_edit_index = None
 
         self._build_ui()
         self.refresh_bgm_list()
         self.refresh_songs_list()
         self.refresh_programs_list()
+        self.refresh_suno_list()
 
     def _build_ui(self):
         header = tk.Frame(self.root, bg="#1b1b22", pady=14, padx=20)
@@ -150,14 +234,17 @@ class HomepageManagerApp:
 
         self.tab_bgm = tk.Frame(self.notebook, bg="#181820", padx=18, pady=14)
         self.tab_songs = tk.Frame(self.notebook, bg="#181820", padx=18, pady=14)
+        self.tab_suno = tk.Frame(self.notebook, bg="#181820", padx=18, pady=14)
         self.tab_programs = tk.Frame(self.notebook, bg="#181820", padx=18, pady=14)
 
-        self.notebook.add(self.tab_bgm, text=" 🎵 1. 홈페이지 명곡 선곡표 & 첫 시작 음악 지정 ")
-        self.notebook.add(self.tab_songs, text=" 📺 2. 메인 화면 유튜브 영상 쇼케이스 관리 (수정 가능) ")
-        self.notebook.add(self.tab_programs, text=" 🛠️ 3. 무료 프로그램 / 전자책 / 자료실 관리 ")
+        self.notebook.add(self.tab_bgm, text=" 🎵 1. 명곡 선곡표 & 첫 시작 음악 ")
+        self.notebook.add(self.tab_songs, text=" 📺 2. 유튜브 영상 쇼케이스 ")
+        self.notebook.add(self.tab_suno, text=" ⚡ 3. Suno AI 프롬프트·가사 관리 (한글 자동번역) ")
+        self.notebook.add(self.tab_programs, text=" 🛠️ 4. 무료 프로그램 / 자료실 ")
 
         self._build_bgm_tab()
         self._build_songs_tab()
+        self._build_suno_tab()
         self._build_programs_tab()
 
         footer = tk.Frame(self.root, bg="#1b1b22", pady=14, padx=20)
@@ -700,6 +787,7 @@ class HomepageManagerApp:
 
         save_json(PROGRAMS_JSON, self.programs)
         self.refresh_programs_list()
+        self.refresh_suno_list()
         self.programs_listbox.selection_set(self.current_prog_edit_index)
 
         self.status_label.config(text=f"✅ '{title}' 자료 수정이 저장되었습니다! [🚀 홈페이지 서버에 즉시 반영하기]를 눌러주세요.")
@@ -1002,6 +1090,7 @@ class HomepageManagerApp:
         self.programs.insert(0, new_prog)
         save_json(PROGRAMS_JSON, self.programs)
         self.refresh_programs_list()
+        self.refresh_suno_list()
         self.clear_program_inputs()
 
         self.status_label.config(text=f"✅ '{title}' 자료가 추가되었습니다!")
@@ -1015,6 +1104,7 @@ class HomepageManagerApp:
         self.programs[i - 1], self.programs[i] = self.programs[i], self.programs[i - 1]
         save_json(PROGRAMS_JSON, self.programs)
         self.refresh_programs_list()
+        self.refresh_suno_list()
         self.programs_listbox.selection_set(i - 1)
 
     def move_program_down(self):
@@ -1025,6 +1115,7 @@ class HomepageManagerApp:
         self.programs[i + 1], self.programs[i] = self.programs[i], self.programs[i + 1]
         save_json(PROGRAMS_JSON, self.programs)
         self.refresh_programs_list()
+        self.refresh_suno_list()
         self.programs_listbox.selection_set(i + 1)
 
     def delete_selected_program(self):
@@ -1035,8 +1126,444 @@ class HomepageManagerApp:
         removed = self.programs.pop(i)
         save_json(PROGRAMS_JSON, self.programs)
         self.refresh_programs_list()
+        self.refresh_suno_list()
         self.clear_program_inputs()
         self.status_label.config(text=f"🗑️ '{removed['title']}' 항목을 삭제했습니다.")
+
+
+    # ================= 탭 4: Suno AI 프롬프트 관리 =================
+    def _build_suno_tab(self):
+        left = tk.Frame(self.tab_suno, bg="#181820")
+        left.pack(side="left", fill="both", expand=True, padx=(0, 14))
+
+        tk.Label(
+            left,
+            text="🎵 홈페이지 등록된 Suno 프롬프트 목록 (클릭 시 즉시 수정)",
+            font=("맑은 고딕", 13, "bold"),
+            fg="#fb923c",
+            bg="#181820",
+        ).pack(anchor="w", pady=(0, 4))
+
+        list_frame = tk.Frame(left, bg="#181820")
+        list_frame.pack(fill="both", expand=True)
+
+        scrollbar = tk.Scrollbar(list_frame)
+        scrollbar.pack(side="right", fill="y")
+
+        self.suno_listbox = tk.Listbox(
+            list_frame,
+            font=("맑은 고딕", 10),
+            bg="#101015",
+            fg="#f3f4f6",
+            selectbackground="#f43f5e",
+            selectforeground="white",
+            relief="flat",
+            highlightthickness=1,
+            highlightbackground="#374151",
+            yscrollcommand=scrollbar.set,
+        )
+        self.suno_listbox.pack(side="left", fill="both", expand=True)
+        scrollbar.config(command=self.suno_listbox.yview)
+        self.suno_listbox.bind("<<ListboxSelect>>", self.on_suno_select)
+
+        btn_box = tk.Frame(left, bg="#181820", pady=8)
+        btn_box.pack(fill="x")
+
+        tk.Button(
+            btn_box,
+            text="▲ 위로",
+            font=("맑은 고딕", 10, "bold"),
+            bg="#272730",
+            fg="white",
+            relief="flat",
+            padx=10,
+            pady=4,
+            command=self.move_suno_up,
+        ).pack(side="left", padx=2)
+
+        tk.Button(
+            btn_box,
+            text="▼ 아래로",
+            font=("맑은 고딕", 10, "bold"),
+            bg="#272730",
+            fg="white",
+            relief="flat",
+            padx=10,
+            pady=4,
+            command=self.move_suno_down,
+        ).pack(side="left", padx=2)
+
+        tk.Button(
+            btn_box,
+            text="🗑️ 선택 삭제",
+            font=("맑은 고딕", 10, "bold"),
+            bg="#dc2626",
+            fg="white",
+            relief="flat",
+            padx=12,
+            pady=4,
+            command=self.delete_selected_suno,
+        ).pack(side="right")
+
+        # 오른쪽: 수정 및 추가 폼
+        right = tk.Frame(self.tab_suno, bg="#202028", padx=16, pady=12, relief="flat")
+        right.pack(side="right", fill="both", expand=True)
+
+        self.suno_form_header = tk.Label(
+            right,
+            text="➕ 새 Suno 프롬프트 등록",
+            font=("맑은 고딕", 13, "bold"),
+            fg="#f43f5e",
+            bg="#202028",
+        )
+        self.suno_form_header.pack(anchor="w", pady=(0, 6))
+
+        # 1) Suno 링크 + 자동 정보 가져오기 버튼
+        url_frame = tk.Frame(right, bg="#202028")
+        url_frame.pack(fill="x", pady=2)
+        tk.Label(url_frame, text="Suno 공유 링크:", font=("맑은 고딕", 9, "bold"), fg="#e5e7eb", bg="#202028").pack(side="left")
+        self.suno_url_entry = tk.Entry(url_frame, font=("맑은 고딕", 9), bg="#121216", fg="white", relief="flat")
+        self.suno_url_entry.pack(side="left", fill="x", expand=True, padx=6)
+        tk.Button(
+            url_frame,
+            text="🔍 자동 정보 가져오기",
+            font=("맑은 고딕", 9, "bold"),
+            bg="#f43f5e",
+            fg="white",
+            relief="flat",
+            padx=8,
+            pady=2,
+            command=self.auto_fetch_suno,
+        ).pack(side="right")
+
+        # 2) 제목 & 카테고리
+        row2 = tk.Frame(right, bg="#202028")
+        row2.pack(fill="x", pady=3)
+        tk.Label(row2, text="곡 제목:", font=("맑은 고딕", 9, "bold"), fg="#e5e7eb", bg="#202028").pack(side="left")
+        self.suno_title_entry = tk.Entry(row2, font=("맑은 고딕", 10, "bold"), bg="#121216", fg="white", relief="flat")
+        self.suno_title_entry.pack(side="left", fill="x", expand=True, padx=(6, 12))
+
+        tk.Label(row2, text="장르/분류:", font=("맑은 고딕", 9, "bold"), fg="#e5e7eb", bg="#202028").pack(side="left")
+        self.suno_cat_combo = ttk.Combobox(row2, values=SUNO_CATEGORIES, state="normal", width=14, font=("맑은 고딕", 9))
+        self.suno_cat_combo.set("EDM / 페스티벌")
+        self.suno_cat_combo.pack(side="left", padx=4)
+
+        # 3) 배지 문구
+        row3 = tk.Frame(right, bg="#202028")
+        row3.pack(fill="x", pady=3)
+        tk.Label(row3, text="배지 문구:", font=("맑은 고딕", 9, "bold"), fg="#e5e7eb", bg="#202028").pack(side="left")
+        self.suno_badge_combo = ttk.Combobox(row3, values=SUNO_BADGE_PRESETS, state="normal", font=("맑은 고딕", 9))
+        self.suno_badge_combo.set("🔥 140 BPM 페스티벌 드롭")
+        self.suno_badge_combo.pack(side="left", fill="x", expand=True, padx=6)
+
+        # 4) 영문 스타일 프롬프트
+        en_hdr = tk.Frame(right, bg="#202028")
+        en_hdr.pack(fill="x", pady=(6, 2))
+        tk.Label(en_hdr, text="🇺🇸 영문 스타일 프롬프트 (Suno Style of Music 입력용):", font=("맑은 고딕", 9, "bold"), fg="#f43f5e", bg="#202028").pack(side="left")
+        tk.Button(
+            en_hdr,
+            text="🌐 영문 → 한글 자동 번역 실행",
+            font=("맑은 고딕", 9, "bold"),
+            bg="#3b82f6",
+            fg="white",
+            relief="flat",
+            padx=8,
+            pady=1,
+            command=self.auto_translate_suno_prompt,
+        ).pack(side="right")
+
+        self.suno_prompt_en_text = tk.Text(right, font=("Consolas", 9), height=3, bg="#121216", fg="#f1f5f9", relief="flat")
+        self.suno_prompt_en_text.pack(fill="x", pady=2)
+
+        # 5) 한글 스타일 프롬프트 (번역 & 해설)
+        tk.Label(right, text="🇰🇷 한글 번역 및 음악 요소 해설 (방문자 학습 가이드용):", font=("맑은 고딕", 9, "bold"), fg="#fbbf24", bg="#202028").pack(anchor="w", pady=(4, 2))
+        self.suno_prompt_ko_text = tk.Text(right, font=("맑은 고딕", 9), height=3, bg="#121216", fg="#fef08a", relief="flat")
+        self.suno_prompt_ko_text.pack(fill="x", pady=2)
+
+        # 6) 실전 가사
+        tk.Label(right, text="🎤 실전 가사 (Lyrics with [Intro], [Drop], [Verse] etc.):", font=("맑은 고딕", 9, "bold"), fg="#e5e7eb", bg="#202028").pack(anchor="w", pady=(4, 2))
+        self.suno_lyrics_text = tk.Text(right, font=("Consolas", 9), height=4, bg="#121216", fg="#e2e8f0", relief="flat")
+        self.suno_lyrics_text.pack(fill="x", pady=2)
+
+        # 7) 간단 설명
+        desc_frame = tk.Frame(right, bg="#202028")
+        desc_frame.pack(fill="x", pady=3)
+        tk.Label(desc_frame, text="설명/팁:", font=("맑은 고딕", 9, "bold"), fg="#9ca3af", bg="#202028").pack(side="left")
+        self.suno_desc_entry = tk.Entry(desc_frame, font=("맑은 고딕", 9), bg="#121216", fg="white", relief="flat")
+        self.suno_desc_entry.pack(side="left", fill="x", expand=True, padx=6)
+
+        # 하단 액션 버튼
+        action_frame = tk.Frame(right, bg="#202028", pady=6)
+        action_frame.pack(fill="x")
+
+        self.save_suno_edit_btn = tk.Button(
+            action_frame,
+            text="💾 선택 프롬프트 수정 저장",
+            font=("맑은 고딕", 10, "bold"),
+            bg="#d4af37",
+            fg="black",
+            relief="flat",
+            padx=12,
+            pady=6,
+            command=self.save_suno_edit,
+            state="disabled",
+        )
+        self.save_suno_edit_btn.pack(side="left", padx=4)
+
+        tk.Button(
+            action_frame,
+            text="➕ 새 프롬프트로 등록",
+            font=("맑은 고딕", 10, "bold"),
+            bg="#f43f5e",
+            fg="white",
+            relief="flat",
+            padx=12,
+            pady=6,
+            command=self.add_new_suno,
+        ).pack(side="left", padx=4)
+
+        tk.Button(
+            action_frame,
+            text="🔄 입력창 초기화",
+            font=("맑은 고딕", 9),
+            bg="#374151",
+            fg="white",
+            relief="flat",
+            padx=10,
+            pady=6,
+            command=self.clear_suno_inputs,
+        ).pack(side="right")
+
+    def refresh_suno_list(self):
+        self.suno_listbox.delete(0, tk.END)
+        for idx, item in enumerate(self.suno_prompts):
+            title = item.get("title", "제목 없음")
+            badge = item.get("badge", "")
+            cat = item.get("category", "")
+            self.suno_listbox.insert(tk.END, f"{idx+1}. [{cat}] {title} ({badge})")
+
+    def on_suno_select(self, event):
+        sel = self.suno_listbox.curselection()
+        if not sel:
+            return
+        idx = sel[0]
+        self.current_suno_edit_index = idx
+        item = self.suno_prompts[idx]
+
+        self.suno_form_header.config(text=f"✏️ '{item.get('title')}' 프롬프트 수정 중", fg="#d4af37")
+        self.save_suno_edit_btn.config(state="normal")
+
+        self.suno_url_entry.delete(0, tk.END)
+        self.suno_url_entry.insert(0, item.get("sunoUrl", ""))
+
+        self.suno_title_entry.delete(0, tk.END)
+        self.suno_title_entry.insert(0, item.get("title", ""))
+
+        self.suno_cat_combo.set(item.get("category", "EDM / 페스티벌"))
+        self.suno_badge_combo.set(item.get("badge", "🔥 140 BPM 페스티벌 드롭"))
+
+        self.suno_prompt_en_text.delete("1.0", tk.END)
+        self.suno_prompt_en_text.insert("1.0", item.get("stylePromptEn", ""))
+
+        self.suno_prompt_ko_text.delete("1.0", tk.END)
+        self.suno_prompt_ko_text.insert("1.0", item.get("stylePromptKo", ""))
+
+        self.suno_lyrics_text.delete("1.0", tk.END)
+        self.suno_lyrics_text.insert("1.0", item.get("lyrics", ""))
+
+        self.suno_desc_entry.delete(0, tk.END)
+        self.suno_desc_entry.insert(0, item.get("desc", ""))
+
+        self.status_label.config(text=f"선택한 Suno 프롬프트 '{item.get('title')}'을(를) 불러왔습니다.")
+
+    def clear_suno_inputs(self):
+        self.current_suno_edit_index = None
+        self.suno_form_header.config(text="➕ 새 Suno 프롬프트 등록", fg="#f43f5e")
+        self.save_suno_edit_btn.config(state="disabled")
+
+        self.suno_url_entry.delete(0, tk.END)
+        self.suno_title_entry.delete(0, tk.END)
+        self.suno_cat_combo.set("EDM / 페스티벌")
+        self.suno_badge_combo.set("🔥 140 BPM 페스티벌 드롭")
+        self.suno_prompt_en_text.delete("1.0", tk.END)
+        self.suno_prompt_ko_text.delete("1.0", tk.END)
+        self.suno_lyrics_text.delete("1.0", tk.END)
+        self.suno_desc_entry.delete(0, tk.END)
+
+    def auto_fetch_suno(self):
+        url = self.suno_url_entry.get().strip()
+        if not url:
+            messagebox.showwarning("입력 필요", "Suno 공유 링크(예: https://suno.com/s/...)를 입력해 주세요.")
+            return
+
+        self.status_label.config(text="⏳ Suno에서 정보(제목, 프롬프트, 가사)를 가져오는 중입니다...")
+        self.root.update_idletasks()
+
+        def worker():
+            res = fetch_suno_details_helper(url)
+            def update_ui():
+                if not res:
+                    messagebox.showerror("가져오기 실패", "Suno 링크 정보를 가져오지 못했습니다. 링크를 확인해 주세요.")
+                    self.status_label.config(text="⚠️ Suno 정보 가져오기 실패")
+                    return
+
+                if res.get("title") and not self.suno_title_entry.get().strip():
+                    self.suno_title_entry.delete(0, tk.END)
+                    self.suno_title_entry.insert(0, res["title"])
+
+                if res.get("tags"):
+                    self.suno_prompt_en_text.delete("1.0", tk.END)
+                    self.suno_prompt_en_text.insert("1.0", res["tags"])
+
+                if res.get("lyrics"):
+                    self.suno_lyrics_text.delete("1.0", tk.END)
+                    self.suno_lyrics_text.insert("1.0", res["lyrics"])
+
+                self.status_label.config(text="✅ Suno 정보(제목, 프롬프트, 가사)를 성공적으로 불러왔습니다! 이제 [한글 자동 번역]을 눌러보세요.")
+                msg_txt = f"Suno에서 정보를 성공적으로 불러왔습니다!\n- 곡명: {res.get('title')}\n- 프롬프트 및 가사가 자동 채워졌습니다."
+                messagebox.showinfo("가져오기 성공 🎉", msg_txt)
+
+            self.root.after(0, update_ui)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def auto_translate_suno_prompt(self):
+        en_text = self.suno_prompt_en_text.get("1.0", tk.END).strip()
+        if not en_text:
+            messagebox.showwarning("입력 필요", "먼저 [영문 스타일 프롬프트]를 입력하거나 [자동 정보 가져오기]를 실행해 주세요.")
+            return
+
+        self.status_label.config(text="🌐 영문 프롬프트를 한글로 자동 번역하는 중입니다...")
+        self.root.update_idletasks()
+
+        def worker():
+            ko_text = translate_en_to_ko_helper(en_text)
+            def update_ui():
+                self.suno_prompt_ko_text.delete("1.0", tk.END)
+                self.suno_prompt_ko_text.insert("1.0", ko_text)
+                self.status_label.config(text="✅ 영문 프롬프트의 한글 번역이 완료되었습니다!")
+            self.root.after(0, update_ui)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def add_new_suno(self):
+        title = self.suno_title_entry.get().strip()
+        if not title:
+            messagebox.showwarning("입력 필요", "곡 제목을 입력해 주세요.")
+            return
+
+        url = self.suno_url_entry.get().strip()
+        prompt_en = self.suno_prompt_en_text.get("1.0", tk.END).strip()
+        prompt_ko = self.suno_prompt_ko_text.get("1.0", tk.END).strip()
+        lyrics = self.suno_lyrics_text.get("1.0", tk.END).strip()
+        cat = self.suno_cat_combo.get().strip() or "기타 장르"
+        badge = self.suno_badge_combo.get().strip() or "🔥 Suno 명곡"
+        desc = self.suno_desc_entry.get().strip()
+
+        clip_id = ""
+        m = re.search(r"song/([a-f0-9-]{36})", url)
+        if m:
+            clip_id = m.group(1)
+
+        new_item = {
+            "id": f"suno-{int(time.time())}",
+            "title": title,
+            "category": cat,
+            "badge": badge,
+            "badgeColor": "#f43f5e",
+            "sunoUrl": url,
+            "clipId": clip_id,
+            "imageUrl": f"https://cdn2.suno.ai/image_large_{clip_id}.jpeg" if clip_id else "",
+            "audioUrl": f"https://d2lwuy8qc234o3.cloudfront.net/1/clip/{clip_id}.m4a" if clip_id else "",
+            "stylePromptEn": prompt_en,
+            "stylePromptKo": prompt_ko,
+            "desc": desc,
+            "lyrics": lyrics,
+        }
+
+        self.suno_prompts.insert(0, new_item)
+        save_json(SUNO_PROMPTS_JSON, self.suno_prompts)
+        self.refresh_suno_list()
+        self.clear_suno_inputs()
+        self.status_label.config(text=f"✅ '{title}' Suno 프롬프트가 추가되었습니다! 오른쪽 배포 버튼을 눌러 서버에 반영하세요.")
+        messagebox.showinfo("추가 완료", f"'{title}' 프롬프트가 추가되었습니다!")
+
+    def save_suno_edit(self):
+        if self.current_suno_edit_index is None:
+            return
+        idx = self.current_suno_edit_index
+        item = self.suno_prompts[idx]
+
+        title = self.suno_title_entry.get().strip()
+        if not title:
+            messagebox.showwarning("입력 필요", "곡 제목을 입력해 주세요.")
+            return
+
+        url = self.suno_url_entry.get().strip()
+        prompt_en = self.suno_prompt_en_text.get("1.0", tk.END).strip()
+        prompt_ko = self.suno_prompt_ko_text.get("1.0", tk.END).strip()
+        lyrics = self.suno_lyrics_text.get("1.0", tk.END).strip()
+        cat = self.suno_cat_combo.get().strip() or "기타 장르"
+        badge = self.suno_badge_combo.get().strip() or "🔥 Suno 명곡"
+        desc = self.suno_desc_entry.get().strip()
+
+        clip_id = item.get("clipId", "")
+        if url:
+            m = re.search(r"song/([a-f0-9-]{36})", url)
+            if m:
+                clip_id = m.group(1)
+
+        item["title"] = title
+        item["sunoUrl"] = url
+        item["category"] = cat
+        item["badge"] = badge
+        item["stylePromptEn"] = prompt_en
+        item["stylePromptKo"] = prompt_ko
+        item["lyrics"] = lyrics
+        item["desc"] = desc
+        if clip_id:
+            item["clipId"] = clip_id
+            item["imageUrl"] = f"https://cdn2.suno.ai/image_large_{clip_id}.jpeg"
+            item["audioUrl"] = f"https://d2lwuy8qc234o3.cloudfront.net/1/clip/{clip_id}.m4a"
+
+        self.suno_prompts[idx] = item
+        save_json(SUNO_PROMPTS_JSON, self.suno_prompts)
+        self.refresh_suno_list()
+        self.status_label.config(text=f"💾 '{title}' 프롬프트 수정사항이 저장되었습니다.")
+        messagebox.showinfo("저장 완료", f"'{title}' 프롬프트 수정사항이 안전하게 저장되었습니다!")
+
+    def move_suno_up(self):
+        sel = self.suno_listbox.curselection()
+        if not sel or sel[0] == 0:
+            return
+        i = sel[0]
+        self.suno_prompts[i - 1], self.suno_prompts[i] = self.suno_prompts[i], self.suno_prompts[i - 1]
+        save_json(SUNO_PROMPTS_JSON, self.suno_prompts)
+        self.refresh_suno_list()
+        self.suno_listbox.selection_set(i - 1)
+
+    def move_suno_down(self):
+        sel = self.suno_listbox.curselection()
+        if not sel or sel[0] >= len(self.suno_prompts) - 1:
+            return
+        i = sel[0]
+        self.suno_prompts[i + 1], self.suno_prompts[i] = self.suno_prompts[i], self.suno_prompts[i + 1]
+        save_json(SUNO_PROMPTS_JSON, self.suno_prompts)
+        self.refresh_suno_list()
+        self.suno_listbox.selection_set(i + 1)
+
+    def delete_selected_suno(self):
+        sel = self.suno_listbox.curselection()
+        if not sel:
+            return
+        i = sel[0]
+        title = self.suno_prompts[i].get("title", "")
+        if messagebox.askyesno("삭제 확인", f"정말로 '{title}' Suno 프롬프트를 삭제하시겠습니까?"):
+            removed = self.suno_prompts.pop(i)
+            save_json(SUNO_PROMPTS_JSON, self.suno_prompts)
+            self.refresh_suno_list()
+            self.clear_suno_inputs()
+            self.status_label.config(text=f"🗑️ '{removed.get('title')}' 프롬프트를 삭제했습니다.")
 
     def deploy_to_server(self):
         self.deploy_btn.config(state="disabled", text="⏳ 서버에 업로드 중입니다... 잠시만 기다려주세요")

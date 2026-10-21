@@ -2,6 +2,7 @@ import Link from 'next/link';
 import styles from './page.module.css';
 import BgmPlayerClient from './BgmPlayerClient';
 import JoseonHipHopShowcase from './JoseonHipHopShowcase';
+import SunoPromptHub from './SunoPromptHub';
 import programsData from '../data/programs.json';
 
 interface ProgramItem {
@@ -106,6 +107,21 @@ export default function Home() {
               >
                 🛠️ 무료 프로그램 &amp; 영상제작 자료실
               </a>
+
+              <a
+                href="#suno-prompts"
+                className={styles.ctaButton}
+                style={{
+                  background: 'linear-gradient(135deg, #f43f5e 0%, #fb923c 100%)',
+                  color: '#fff',
+                  padding: '20px 32px',
+                  fontSize: '1.2rem',
+                  fontWeight: 900,
+                  boxShadow: '0 12px 30px rgba(244, 63, 94, 0.4)',
+                }}
+              >
+                🎵 Suno AI 프롬프트 가이드 &amp; 가사
+              </a>
             </div>
 
             {/* 핵심 3대 약속 뱃지 */}
@@ -181,7 +197,10 @@ export default function Home() {
       {/* 2. 조선힙합소리꾼 공식 채널 소개 & 곡 선택 쇼케이스 */}
       <JoseonHipHopShowcase />
 
-      {/* 3. 앞으로 영상제작 및 각종 유용한 프로그램 무료 제공 선언 & 자료실 */}
+      {/* 3. Suno AI 프롬프트 & 실전 가사 가이드 공유소 */}
+      <SunoPromptHub />
+
+      {/* 4. 앞으로 영상제작 및 각종 유용한 프로그램 무료 제공 선언 & 자료실 */}
       <section id="free-programs" className={styles.sectionBlock}>
         <div
           className="glass-panel"

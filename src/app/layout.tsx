@@ -107,6 +107,12 @@ export default function RootLayout({
               🎧 조선힙합소리꾼 곡 선택
             </a>
             <a
+              href="/#suno-prompts"
+              style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fb923c' }}
+            >
+              🎵 Suno 프롬프트 가이드
+            </a>
+            <a
               href="/#free-programs"
               style={{ fontSize: '1.05rem', fontWeight: 700 }}
             >
