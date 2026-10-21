@@ -1292,6 +1292,24 @@ class HomepageManagerApp:
         self.suno_desc_entry = tk.Entry(desc_frame, font=("맑은 고딕", 9), bg="#121216", fg="white", relief="flat")
         self.suno_desc_entry.pack(side="left", fill="x", expand=True, padx=6)
 
+        # 8) MP3 파일 직접 등록 (등록 시 홈페이지에서 방문자가 바로 다운로드 가능!)
+        mp3_row = tk.Frame(right, bg="#202028")
+        mp3_row.pack(fill="x", pady=3)
+        tk.Label(mp3_row, text="💾 MP3 직접 다운로드용 파일:", font=("맑은 고딕", 9, "bold"), fg="#10b981", bg="#202028").pack(side="left")
+        self.suno_mp3_entry = tk.Entry(mp3_row, font=("맑은 고딕", 9), bg="#121216", fg="#a7f3d0", relief="flat")
+        self.suno_mp3_entry.pack(side="left", fill="x", expand=True, padx=6)
+        tk.Button(
+            mp3_row,
+            text="📁 MP3 찾기...",
+            font=("맑은 고딕", 9, "bold"),
+            bg="#059669",
+            fg="white",
+            relief="flat",
+            padx=8,
+            pady=2,
+            command=self.browse_suno_mp3,
+        ).pack(side="right")
+
         # 하단 액션 버튼
         action_frame = tk.Frame(right, bg="#202028", pady=6)
         action_frame.pack(fill="x")
@@ -1334,6 +1352,20 @@ class HomepageManagerApp:
             command=self.clear_suno_inputs,
         ).pack(side="right")
 
+
+    def browse_suno_mp3(self):
+        f = filedialog.askopenfilename(
+            title="Suno 다운로드용 MP3 파일 선택",
+            filetypes=[("오디오 파일", "*.mp3 *.m4a *.wav"), ("모든 파일", "*.*")]
+        )
+        if f:
+            size_mb = os.path.getsize(f) / (1024 * 1024)
+            if size_mb > 50:
+                messagebox.showerror("용량 초과", f"선택한 파일이 {size_mb:.1f}MB로 너무 큽니다. (50MB 이하 파일만 등록 가능)")
+                return
+            self.suno_mp3_entry.delete(0, tk.END)
+            self.suno_mp3_entry.insert(0, f)
+
     def refresh_suno_list(self):
         self.suno_listbox.delete(0, tk.END)
         for idx, item in enumerate(self.suno_prompts):
@@ -1372,7 +1404,11 @@ class HomepageManagerApp:
         self.suno_lyrics_text.insert("1.0", item.get("lyrics", ""))
 
         self.suno_desc_entry.delete(0, tk.END)
+        self.suno_mp3_entry.delete(0, tk.END)
         self.suno_desc_entry.insert(0, item.get("desc", ""))
+
+        self.suno_mp3_entry.delete(0, tk.END)
+        self.suno_mp3_entry.insert(0, item.get("audioUrl", ""))
 
         self.status_label.config(text=f"선택한 Suno 프롬프트 '{item.get('title')}'을(를) 불러왔습니다.")
 
@@ -1389,6 +1425,7 @@ class HomepageManagerApp:
         self.suno_prompt_ko_text.delete("1.0", tk.END)
         self.suno_lyrics_text.delete("1.0", tk.END)
         self.suno_desc_entry.delete(0, tk.END)
+        self.suno_mp3_entry.delete(0, tk.END)
 
     def auto_fetch_suno(self):
         url = self.suno_url_entry.get().strip()
@@ -1459,6 +1496,17 @@ class HomepageManagerApp:
         cat = self.suno_cat_combo.get().strip() or "기타 장르"
         badge = self.suno_badge_combo.get().strip() or "🔥 Suno 명곡"
         desc = self.suno_desc_entry.get().strip()
+        mp3_input = self.suno_mp3_entry.get().strip()
+
+        final_audio_url = ""
+        if mp3_input:
+            if os.path.isfile(mp3_input):
+                dest_name = f"suno_{int(time.time())}.mp3"
+                dest_path = DOWNLOADS_PUBLIC_DIR / dest_name
+                shutil.copy2(mp3_input, dest_path)
+                final_audio_url = f"/downloads/{dest_name}"
+            else:
+                final_audio_url = mp3_input
 
         clip_id = ""
         m = re.search(r"song/([a-f0-9-]{36})", url)
@@ -1474,7 +1522,7 @@ class HomepageManagerApp:
             "sunoUrl": url,
             "clipId": clip_id,
             "imageUrl": f"https://cdn2.suno.ai/image_large_{clip_id}.jpeg" if clip_id else "",
-            "audioUrl": f"https://d2lwuy8qc234o3.cloudfront.net/1/clip/{clip_id}.m4a" if clip_id else "",
+            "audioUrl": final_audio_url or (f"https://d2lwuy8qc234o3.cloudfront.net/1/clip/{clip_id}.m4a" if clip_id else ""),
             "stylePromptEn": prompt_en,
             "stylePromptKo": prompt_ko,
             "desc": desc,
@@ -1506,6 +1554,16 @@ class HomepageManagerApp:
         cat = self.suno_cat_combo.get().strip() or "기타 장르"
         badge = self.suno_badge_combo.get().strip() or "🔥 Suno 명곡"
         desc = self.suno_desc_entry.get().strip()
+        mp3_input = self.suno_mp3_entry.get().strip()
+
+        if mp3_input:
+            if os.path.isfile(mp3_input):
+                dest_name = f"suno_{int(time.time())}.mp3"
+                dest_path = DOWNLOADS_PUBLIC_DIR / dest_name
+                shutil.copy2(mp3_input, dest_path)
+                item["audioUrl"] = f"/downloads/{dest_name}"
+            else:
+                item["audioUrl"] = mp3_input
 
         clip_id = item.get("clipId", "")
         if url:

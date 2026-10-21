@@ -342,29 +342,53 @@ export default function SunoPromptHub() {
                     )}
                   </div>
 
-                  {/* Suno 바로가기 링크 */}
-                  {item.sunoUrl && (
-                    <a
-                      href={item.sunoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        padding: '12px 22px',
-                        borderRadius: '12px',
-                        background: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)',
-                        color: '#fff',
-                        fontWeight: 900,
-                        fontSize: '0.95rem',
-                        textDecoration: 'none',
-                        boxShadow: '0 6px 18px rgba(244, 63, 94, 0.35)',
-                      }}
-                    >
-                      🎧 Suno에서 원곡 듣기 ↗
-                    </a>
-                  )}
+                  {/* 다운로드 & Suno 바로가기 링크 버튼군 */}
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+                    {item.audioUrl ? (
+                      <a
+                        href={item.audioUrl}
+                        download={`${item.title}.mp3`}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '12px 22px',
+                          borderRadius: '12px',
+                          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                          color: '#fff',
+                          fontWeight: 900,
+                          fontSize: '0.95rem',
+                          textDecoration: 'none',
+                          boxShadow: '0 6px 18px rgba(16, 185, 129, 0.45)',
+                        }}
+                      >
+                        ⬇️ MP3 음원 다운로드 (무료)
+                      </a>
+                    ) : null}
+
+                    {item.sunoUrl && (
+                      <a
+                        href={item.sunoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '12px 20px',
+                          borderRadius: '12px',
+                          background: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)',
+                          color: '#fff',
+                          fontWeight: 900,
+                          fontSize: '0.95rem',
+                          textDecoration: 'none',
+                          boxShadow: '0 6px 18px rgba(244, 63, 94, 0.35)',
+                        }}
+                      >
+                        🎧 Suno 원곡 듣기 ↗
+                      </a>
+                    )}
+                  </div>
                 </div>
 
                 {/* Suno 공식 임베드 플레이어 (clipId가 있을 경우) */}
