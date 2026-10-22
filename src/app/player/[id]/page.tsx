@@ -12,12 +12,16 @@ export default async function PlayerPage({
   const lecture = resolvedSearchParams.lecture || '1';
   
   const videoSrc = lecture === '4' ? "/videos/GPT_이미지생성_실전영상.mp4" : lecture === '2' ? "/videos/lecture2.mp4" : "/videos/lecture1.mp4";
-  const lectureTitle = lecture === '4'
+  const lectureTitle = lecture === '5'
+    ? "특별강의: Suno AI 음악 제작 & GPT 작사·작곡 완전 마스터"
+    : lecture === '4'
     ? "특별강의: GPT 이미지 생성 실전 영상본"
     : lecture === '2' 
     ? "[2강] 챗GPT 실전 활용 - 긴 글 요약의 달인 되기" 
     : lecture === '3' ? "특별강의: GPT 이미지 생성 완전 마스터" : "[1강] 챗GPT 가입부터 기본 대화법 마스터하기";
-  const lectureDesc = lecture === '4'
+  const lectureDesc = lecture === '5'
+    ? "악기나 작곡 이론을 몰라도 챗GPT와 Suno AI를 결합해 1,000자 이내 최적화 스타일 프롬프트와 메타태그 실전 가사로 5분 만에 음원 발매급 트랙을 완성하는 실전 마스터클래스입니다."
+    : lecture === '4'
     ? "군더더기 없는 나레이션과 정확한 타이밍의 자막으로 더욱 편안하게 학습하실 수 있는 실전 활용본 영상입니다."
     : lecture === '2'
     ? "아무리 길고 복잡한 뉴스 기사나 건강 칼럼도 챗GPT를 활용해 단 3줄로 완벽하게 요약하는 비법을 알아봅니다."
@@ -36,7 +40,32 @@ export default async function PlayerPage({
           
           {/* Video Player */}
           {resolvedParams.id === 'course-ai-101' ? (
-            lecture === '3' ? (
+            lecture === '5' ? (
+              <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}>
+                <div style={{ 
+                  aspectRatio: '16/9', 
+                  width: '100%', 
+                  maxWidth: 'calc((100vh - 90px) * 16 / 9)',
+                  maxHeight: '100%', 
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  <iframe 
+                    key="suno-special-lecture"
+                    src="/특별강의_Suno_AI작곡_완전마스터.html" 
+                    style={{ 
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%', 
+                      height: '100%',
+                      border: 'none' 
+                    }}
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            ) : lecture === '3' ? (
               <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}>
                 <div style={{ 
                   aspectRatio: '16/9', 
@@ -112,6 +141,10 @@ export default async function PlayerPage({
           <Link href={`/player/${resolvedParams.id}?lecture=4`} style={{ padding: '20px 24px', display: 'block', borderBottom: '1px solid rgba(255,255,255,0.05)', backgroundColor: lecture === '4' ? 'rgba(212, 175, 55, 0.1)' : 'transparent', textDecoration: 'none' }}>
             <div style={{ fontSize: '0.9rem', color: lecture === '4' ? '#d4af37' : 'var(--text-secondary)', marginBottom: '8px' }}>특별강의 실전 영상 (3:15)</div>
             <div style={{ color: '#fff', fontSize: '1.1rem', fontWeight: lecture === '4' ? 'bold' : 'normal' }}>GPT 이미지 생성 실전 활용본</div>
+          </Link>
+          <Link href={`/player/${resolvedParams.id}?lecture=5`} style={{ padding: '20px 24px', display: 'block', borderBottom: '1px solid rgba(255,255,255,0.05)', backgroundColor: lecture === '5' ? 'rgba(212, 175, 55, 0.1)' : 'transparent', textDecoration: 'none' }}>
+            <div style={{ fontSize: '0.9rem', color: lecture === '5' ? '#d4af37' : 'var(--text-secondary)', marginBottom: '8px' }}>🔥 신규 특별강의 (Suno 마스터)</div>
+            <div style={{ color: '#fff', fontSize: '1.1rem', fontWeight: lecture === '5' ? 'bold' : 'normal' }}>Suno AI 음악 제작 & GPT 작사·작곡 완전 마스터</div>
           </Link>
         </div>
       </div>

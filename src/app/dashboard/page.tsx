@@ -44,6 +44,11 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <li>
+              <Link href="/player/course-ai-101?lecture=5" style={{ display: 'block', padding: '16px', background: 'linear-gradient(135deg, rgba(244, 63, 94, 0.15), rgba(255, 215, 0, 0.15))', border: '1px solid rgba(255, 215, 0, 0.35)', borderRadius: '8px', textDecoration: 'none', color: '#ffd700', fontWeight: 700, transition: 'all 0.2s' }}>
+                🎵 [특별강좌] Suno AI 음악 제작 & GPT 작사·작곡 완전 마스터
+              </Link>
+            </li>
+            <li>
               <a href="/downloads/chatgpt_master_guide.html" target="_blank" rel="noopener noreferrer" style={{ display: 'block', padding: '16px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', textDecoration: 'none', color: 'white', transition: 'background 0.2s' }}>
                 📘 [비법서 1] ChatGPT 수익화 마스터 가이드
               </a>
