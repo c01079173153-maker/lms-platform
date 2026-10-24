@@ -197,6 +197,85 @@ export default function Home() {
       {/* 2. 조선힙합소리꾼 공식 채널 소개 & 곡 선택 쇼케이스 */}
       <JoseonHipHopShowcase />
 
+      {/* VIP 실습자료실 배너 (영상 제작 & 실제 업로드 영상 프롬프트 공유, 비번: 7979) */}
+      <section style={{ maxWidth: '1200px', margin: '40px auto 20px', padding: '0 5%' }}>
+        <div
+          style={{
+            background: 'linear-gradient(135deg, rgba(244, 63, 94, 0.18) 0%, rgba(212, 175, 55, 0.18) 100%)',
+            border: '2px solid rgba(212, 175, 55, 0.6)',
+            borderRadius: '20px',
+            padding: '28px 32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '20px',
+            boxShadow: '0 15px 40px rgba(0,0,0,0.6)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
+            <div style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '14px',
+              background: 'linear-gradient(135deg, #f43f5e, #ffd700)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.8rem',
+              boxShadow: '0 0 20px rgba(244, 63, 94, 0.4)',
+              flexShrink: 0
+            }}>
+              🔒
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <span style={{
+                  background: '#f43f5e',
+                  color: '#fff',
+                  fontSize: '0.78rem',
+                  fontWeight: 900,
+                  padding: '2px 8px',
+                  borderRadius: '999px'
+                }}>
+                  VIP 실습자료실
+                </span>
+                <span style={{ color: '#ffd700', fontSize: '0.85rem', fontWeight: 800 }}>
+                  비밀번호: 7979
+                </span>
+              </div>
+              <h3 style={{ fontSize: 'clamp(1.1rem, 2vw, 1.4rem)', fontWeight: 900, color: '#fff', margin: 0 }}>
+                영상 제작 실전 프롬프트 & 실제 업로드 영상 프롬프트 파일 공유
+              </h3>
+              <p style={{ color: '#d4d4d8', fontSize: '0.9rem', margin: '4px 0 0' }}>
+                유튜브에 실제 업로드된 영상의 미드저니, 런웨이, Suno 프롬프트를 실습용으로 무료 다운로드하세요!
+              </p>
+            </div>
+          </div>
+
+          <Link
+            href="/downloads/secret-prompts"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '14px 26px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #ffd700 0%, #f59e0b 100%)',
+              color: '#000',
+              fontWeight: 900,
+              fontSize: '1rem',
+              textDecoration: 'none',
+              boxShadow: '0 8px 24px rgba(255, 215, 0, 0.35)',
+              transition: 'transform 0.2s',
+              flexShrink: 0
+            }}
+          >
+            🔓 프롬프트 자료실 바로가기 (비번 7979) →
+          </Link>
+        </div>
+      </section>
+
       {/* 3. Suno AI 프롬프트 & 실전 가사 가이드 공유소 */}
       <SunoPromptHub />
 

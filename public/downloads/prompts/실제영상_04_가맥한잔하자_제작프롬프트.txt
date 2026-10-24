@@ -1,0 +1,18 @@
+[조선힙합소리꾼 실제 업로드 영상 프롬프트 원본]
+곡명: 가맥 한잔하자 (전주 서부시장 낭만)
+Suno 등록곡: https://suno.com/s/xlUMWiygyRbQJcBW
+
+==================================================
+1. 미드저니 (Midjourney) 썸네일 & 영상 씬 생성 프롬프트
+==================================================
+A nostalgic, warm, cinematic scene of a traditional Jeonju Gamaek (store pub) alley at night, glowing retro neon sign, dried pollack grilling over charcoal briquette embers, frosty cold beer glasses clinking together, joyful laughter of close friends, warm golden lighting, shallow depth of field, 8k resolution, Kodak color grading --ar 16:9 --v 6.0
+
+==================================================
+2. 런웨이 (Runway) 비디오 모션 프롬프트
+==================================================
+Slow camera tracking shot along the cozy market alley table, sizzling embers sparkling softly, condensation dripping down the ice-cold beer bottle, genuine laughter and smiles, cinematic warm glow.
+
+==================================================
+3. Suno AI 음악 제작 스타일 프롬프트 (1,000자 이내)
+==================================================
+Korean traditional fusion, 112 BPM dance-pop bounce; gayageum, haegeum and daegeum weave around janggu, buk, kkwaenggwari, jing, funky bass and cheerful guitar riffs; bright, playful Korean male-female vocals with lively group chants, call-and-response and a huge sing-along chorus; layered handclap accents, crisp percussion breaks, celebratory final chant.

@@ -1,0 +1,117 @@
+[조선힙합소리꾼 실제 업로드 영상 프롬프트 원본]
+곡명: 인생 설명서 어디 있소 | 인생 반품이요
+유튜브 영상: https://youtu.be/RuLf3zN8tBo
+
+==================================================
+1. 미드저니 (Midjourney) 썸네일 & 영상 씬 생성 프롬프트
+==================================================
+A weary middle-aged Korean man sitting in a moody, dimly lit vintage Korean pocha (street pub), steam rising from a bowl, holding a glass of soju with a bittersweet contemplative smile, cinematic lighting, dramatic shadows, photorealistic, 8k resolution, retro film grain, Hanbok modern techwear jacket, Korean traditional folk elements mixed with cyber street aesthetic --ar 16:9 --v 6.0 --style raw
+
+==================================================
+2. 런웨이 (Runway Gen-3) / 클링 (Kling) 영상 모션 프롬프트
+==================================================
+Slow cinematic camera push-in, the man exhales soft vapor into the cool night air, streetlights softly bokeh in the background, melancholy yet resolute expression, subtle ambient breeze moving his collar, ultra-realistic motion, 24fps.
+
+==================================================
+3. Suno AI 음악 제작 스타일 프롬프트 (1,000자 이내)
+==================================================
+Korean traditional pansori trap, 88 BPM heavy boom-bap rhythm; sorrowful daegeum flute intro leading into gritty 808 bass, acoustic gayageum plucks, crisp snare hits; raw, emotional Korean male husky vocal, spoken-word storytelling delivery, heartfelt sing-along chorus with soulful gang vocals; cinematic rain ambiance, poignant melancholic hip-hop mix.
+
+==================================================
+4. 유튜브 쇼츠(Shorts) 3초 후킹 대본 & 텍스트
+==================================================
+[0~3초 후킹 자막]: "태어날 때 인생 설명서 받은 사람 있어요?"
+[나레이션]: "설명서도 없이 시작해서 반품도 안 되는 내 청춘... 오늘 밤, 막걸리 한 잔에 다 털어 넣는다."
+[음악 클라이맥스]: "인생 설명서 어디 있소! 이거 완전 불량품이요!"
+\n\n======================================================================\n\n[조선힙합소리꾼 실제 업로드 영상 프롬프트 원본]
+곡명: 취업도 안 되고 돈도 없고 | 인생난이도 왜이래
+유튜브 영상: https://youtu.be/O9gckpyv5T0
+
+==================================================
+1. 미드저니 (Midjourney) 썸네일 & 영상 씬 생성 프롬프트
+==================================================
+A young Korean job seeker standing on a rooftop overlooking Seoul neon city at twilight, wearing oversized streetwear with traditional dragon embroidery, wind blowing his hair, clenched fists, determined defiant gaze into camera, dramatic cyberpunk sunset, volumetric light rays, hyper-detailed, cinematic movie still, 8k --ar 16:9 --v 6.0
+
+==================================================
+2. 런웨이 (Runway Gen-3) / 루마 (Luma) 비디오 프롬프트
+==================================================
+Dramatic low-angle camera orbiting around the man, neon signs flickering in the background, camera tilts up as he looks toward the stormy sky with fiery determination, cinematic slow motion 60fps.
+
+==================================================
+3. Suno AI 음악 제작 스타일 프롬프트 (1,000자 이내)
+==================================================
+Hard-hitting Korean hip-hop, 138 BPM energetic trap bounce; aggressive 808 glide bass, intense kkwaenggwari and janggu percussion bursts, distorted brass stabs, dark synth arpeggios; confident, fiery Korean male fast rap, punchy rhythmic flow, explosive anthem chorus with stadium crowd chants; high-octane modern festival mix.
+
+==================================================
+4. 유튜브 쇼츠 후킹 대본
+==================================================
+[0~3초 후킹]: "스펙 쌓고 자격증 따도 왜 내 통장은 0원일까?"
+[나레이션]: "인생 난이도 '지옥'으로 설정한 사람 누구냐. 그래도 난 오늘 밤 또 달린다."
+[음악 드롭]: "인생 난이도 왜 이래! 덤벼봐라 세상아!"
+\n\n======================================================================\n\n[조선힙합소리꾼 실제 업로드 영상 프롬프트 원본]
+곡명: 상사 눈치 보일 때 사이다 🤬 해도 지랄
+유튜브 영상: https://youtu.be/d7RQ4Zja5U8
+
+==================================================
+1. 미드저니 (Midjourney) 썸네일 & 영상 씬 생성 프롬프트
+==================================================
+A dynamic comic-webtoon style digital illustration of a frustrated modern Korean office worker snapping his pen in half with fiery energy bursting around him, exaggerated expressions, vibrant pop-art colors, traditional goblin (dokkaebi) horns faintly glowing behind him, bold graphic lines, 4k resolution --ar 16:9 --v 6.0
+
+==================================================
+2. Suno AI 음악 제작 스타일 프롬프트 (1,000자 이내)
+==================================================
+Fast aggressive Korean punk rap, 145 BPM driving pulse; loud distorted electric guitars, pounding drum kit, piercing taepyeongso brass horn riffs, punchy slap bass; exasperated sarcastic Korean male vocals, rapid-fire comedic punchlines, shouting chorus with rowdy office choir; rebellious cathartic party mix.
+
+==================================================
+3. 쇼츠 릴스 제작 팁 & 자막 가이드
+==================================================
+[화면 연출]: 서류 더미가 흩날리는 슬로우 모션 효과
+[자막 폰트]: 배달의민족 한나체 또는 여기어때 잘난체 (빨간색 테두리)
+[핵심 사이다 훅]: "가만히 있으면 가마니로 보고! 열심히 하면 일만 더 주네?!"
+\n\n======================================================================\n\n[조선힙합소리꾼 실제 업로드 영상 프롬프트 원본]
+곡명: 가맥 한잔하자 (전주 서부시장 낭만)
+Suno 등록곡: https://suno.com/s/xlUMWiygyRbQJcBW
+
+==================================================
+1. 미드저니 (Midjourney) 썸네일 & 영상 씬 생성 프롬프트
+==================================================
+A nostalgic, warm, cinematic scene of a traditional Jeonju Gamaek (store pub) alley at night, glowing retro neon sign, dried pollack grilling over charcoal briquette embers, frosty cold beer glasses clinking together, joyful laughter of close friends, warm golden lighting, shallow depth of field, 8k resolution, Kodak color grading --ar 16:9 --v 6.0
+
+==================================================
+2. 런웨이 (Runway) 비디오 모션 프롬프트
+==================================================
+Slow camera tracking shot along the cozy market alley table, sizzling embers sparkling softly, condensation dripping down the ice-cold beer bottle, genuine laughter and smiles, cinematic warm glow.
+
+==================================================
+3. Suno AI 음악 제작 스타일 프롬프트 (1,000자 이내)
+==================================================
+Korean traditional fusion, 112 BPM dance-pop bounce; gayageum, haegeum and daegeum weave around janggu, buk, kkwaenggwari, jing, funky bass and cheerful guitar riffs; bright, playful Korean male-female vocals with lively group chants, call-and-response and a huge sing-along chorus; layered handclap accents, crisp percussion breaks, celebratory final chant.
+\n\n======================================================================\n\n[조선힙합소리꾼 실제 업로드 영상 프롬프트 원본]
+곡명: 오늘도 참 잘 버텼다 (심야 힐링)
+유튜브 영상: https://youtu.be/Odl-2rsJX-8
+
+==================================================
+1. 미드저니 (Midjourney) 썸네일 & 영상 씬 생성 프롬프트
+==================================================
+A solitary figure walking across Mapo Bridge in Seoul at midnight, city lights shimmering on the Han River below, soft rainfall creating glowing puddles, clear umbrella with rain droplets, quiet comforting atmosphere, Studio Ghibli inspired anime aesthetic mixed with Makoto Shinkai photorealism, beautiful pastel night sky --ar 16:9 --v 6.0
+
+==================================================
+2. Suno AI 음악 제작 스타일 프롬프트 (1,000자 이내)
+==================================================
+Lo-fi Korean acoustic chill, 75 BPM gentle groove; warm Rhodes electric piano, delicate acoustic guitar fingerpicking, subtle haegeum string whispers, vinyl crackle and distant city rain ambiance; gentle, comforting Korean male whisper vocal, reassuring melody, intimate late-night healing ballad mix.
+\n\n======================================================================\n\n[유튜브 쇼츠 1분 바이럴 대본 생성 마스터 프롬프트]
+챗GPT(GPT-4o)에 아래 내용을 그대로 복사해 입력하세요:
+
+"너는 유튜브 쇼츠 알고리즘을 100% 장악한 조회수 1,000만 크리에이터야.
+내가 제시하는 주제: [원하는 주제 입력]
+
+아래 3단계 필수 규칙을 지켜 60초 분량 쇼츠 대본을 표(Table)로 작성해줘:
+1. 0~3초 후킹(Hook): 스크롤을 멈추게 만드는 충격적이거나 공감 100% 질문/선언
+2. 본문 전개: 군더더기 없는 핵심 정보 3가지 (각 항목당 10초 내외)
+3. 50~60초 클로징(CTA): 댓글 참여 유도 및 구독 유도 멘트
+
+표 컬럼 구성:
+- 시간(Time)
+- 화면 연출 및 이미지/영상 지시문 (미드저니/런웨이용)
+- 화면 자막 텍스트
+- AI 성우 나레이션 (TTS 읽기용 대본)"

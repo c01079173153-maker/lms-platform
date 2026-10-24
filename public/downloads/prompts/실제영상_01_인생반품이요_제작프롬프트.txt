@@ -1,0 +1,25 @@
+[조선힙합소리꾼 실제 업로드 영상 프롬프트 원본]
+곡명: 인생 설명서 어디 있소 | 인생 반품이요
+유튜브 영상: https://youtu.be/RuLf3zN8tBo
+
+==================================================
+1. 미드저니 (Midjourney) 썸네일 & 영상 씬 생성 프롬프트
+==================================================
+A weary middle-aged Korean man sitting in a moody, dimly lit vintage Korean pocha (street pub), steam rising from a bowl, holding a glass of soju with a bittersweet contemplative smile, cinematic lighting, dramatic shadows, photorealistic, 8k resolution, retro film grain, Hanbok modern techwear jacket, Korean traditional folk elements mixed with cyber street aesthetic --ar 16:9 --v 6.0 --style raw
+
+==================================================
+2. 런웨이 (Runway Gen-3) / 클링 (Kling) 영상 모션 프롬프트
+==================================================
+Slow cinematic camera push-in, the man exhales soft vapor into the cool night air, streetlights softly bokeh in the background, melancholy yet resolute expression, subtle ambient breeze moving his collar, ultra-realistic motion, 24fps.
+
+==================================================
+3. Suno AI 음악 제작 스타일 프롬프트 (1,000자 이내)
+==================================================
+Korean traditional pansori trap, 88 BPM heavy boom-bap rhythm; sorrowful daegeum flute intro leading into gritty 808 bass, acoustic gayageum plucks, crisp snare hits; raw, emotional Korean male husky vocal, spoken-word storytelling delivery, heartfelt sing-along chorus with soulful gang vocals; cinematic rain ambiance, poignant melancholic hip-hop mix.
+
+==================================================
+4. 유튜브 쇼츠(Shorts) 3초 후킹 대본 & 텍스트
+==================================================
+[0~3초 후킹 자막]: "태어날 때 인생 설명서 받은 사람 있어요?"
+[나레이션]: "설명서도 없이 시작해서 반품도 안 되는 내 청춘... 오늘 밤, 막걸리 한 잔에 다 털어 넣는다."
+[음악 클라이맥스]: "인생 설명서 어디 있소! 이거 완전 불량품이요!"

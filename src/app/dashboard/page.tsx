@@ -49,6 +49,11 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
               </Link>
             </li>
             <li>
+              <Link href="/downloads/secret-prompts" style={{ display: 'block', padding: '16px', background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(56, 189, 248, 0.15))', border: '1px solid rgba(16, 185, 129, 0.4)', borderRadius: '8px', textDecoration: 'none', color: '#34d399', fontWeight: 700, transition: 'all 0.2s' }}>
+                🔒 [VIP 실습자료실] 실제 영상 제작 프롬프트 & 실제 업로드 영상 프롬프트 (비밀번호: 7979)
+              </Link>
+            </li>
+            <li>
               <a href="/downloads/chatgpt_master_guide.html" target="_blank" rel="noopener noreferrer" style={{ display: 'block', padding: '16px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', textDecoration: 'none', color: 'white', transition: 'background 0.2s' }}>
                 📘 [비법서 1] ChatGPT 수익화 마스터 가이드
               </a>

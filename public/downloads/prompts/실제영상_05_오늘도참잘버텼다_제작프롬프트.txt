@@ -1,0 +1,13 @@
+[조선힙합소리꾼 실제 업로드 영상 프롬프트 원본]
+곡명: 오늘도 참 잘 버텼다 (심야 힐링)
+유튜브 영상: https://youtu.be/Odl-2rsJX-8
+
+==================================================
+1. 미드저니 (Midjourney) 썸네일 & 영상 씬 생성 프롬프트
+==================================================
+A solitary figure walking across Mapo Bridge in Seoul at midnight, city lights shimmering on the Han River below, soft rainfall creating glowing puddles, clear umbrella with rain droplets, quiet comforting atmosphere, Studio Ghibli inspired anime aesthetic mixed with Makoto Shinkai photorealism, beautiful pastel night sky --ar 16:9 --v 6.0
+
+==================================================
+2. Suno AI 음악 제작 스타일 프롬프트 (1,000자 이내)
+==================================================
+Lo-fi Korean acoustic chill, 75 BPM gentle groove; warm Rhodes electric piano, delicate acoustic guitar fingerpicking, subtle haegeum string whispers, vinyl crackle and distant city rain ambiance; gentle, comforting Korean male whisper vocal, reassuring melody, intimate late-night healing ballad mix.

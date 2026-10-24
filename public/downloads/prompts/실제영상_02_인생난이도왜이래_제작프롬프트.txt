@@ -1,0 +1,25 @@
+[조선힙합소리꾼 실제 업로드 영상 프롬프트 원본]
+곡명: 취업도 안 되고 돈도 없고 | 인생난이도 왜이래
+유튜브 영상: https://youtu.be/O9gckpyv5T0
+
+==================================================
+1. 미드저니 (Midjourney) 썸네일 & 영상 씬 생성 프롬프트
+==================================================
+A young Korean job seeker standing on a rooftop overlooking Seoul neon city at twilight, wearing oversized streetwear with traditional dragon embroidery, wind blowing his hair, clenched fists, determined defiant gaze into camera, dramatic cyberpunk sunset, volumetric light rays, hyper-detailed, cinematic movie still, 8k --ar 16:9 --v 6.0
+
+==================================================
+2. 런웨이 (Runway Gen-3) / 루마 (Luma) 비디오 프롬프트
+==================================================
+Dramatic low-angle camera orbiting around the man, neon signs flickering in the background, camera tilts up as he looks toward the stormy sky with fiery determination, cinematic slow motion 60fps.
+
+==================================================
+3. Suno AI 음악 제작 스타일 프롬프트 (1,000자 이내)
+==================================================
+Hard-hitting Korean hip-hop, 138 BPM energetic trap bounce; aggressive 808 glide bass, intense kkwaenggwari and janggu percussion bursts, distorted brass stabs, dark synth arpeggios; confident, fiery Korean male fast rap, punchy rhythmic flow, explosive anthem chorus with stadium crowd chants; high-octane modern festival mix.
+
+==================================================
+4. 유튜브 쇼츠 후킹 대본
+==================================================
+[0~3초 후킹]: "스펙 쌓고 자격증 따도 왜 내 통장은 0원일까?"
+[나레이션]: "인생 난이도 '지옥'으로 설정한 사람 누구냐. 그래도 난 오늘 밤 또 달린다."
+[음악 드롭]: "인생 난이도 왜 이래! 덤벼봐라 세상아!"

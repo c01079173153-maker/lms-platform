@@ -1,0 +1,20 @@
+[조선힙합소리꾼 실제 업로드 영상 프롬프트 원본]
+곡명: 상사 눈치 보일 때 사이다 🤬 해도 지랄
+유튜브 영상: https://youtu.be/d7RQ4Zja5U8
+
+==================================================
+1. 미드저니 (Midjourney) 썸네일 & 영상 씬 생성 프롬프트
+==================================================
+A dynamic comic-webtoon style digital illustration of a frustrated modern Korean office worker snapping his pen in half with fiery energy bursting around him, exaggerated expressions, vibrant pop-art colors, traditional goblin (dokkaebi) horns faintly glowing behind him, bold graphic lines, 4k resolution --ar 16:9 --v 6.0
+
+==================================================
+2. Suno AI 음악 제작 스타일 프롬프트 (1,000자 이내)
+==================================================
+Fast aggressive Korean punk rap, 145 BPM driving pulse; loud distorted electric guitars, pounding drum kit, piercing taepyeongso brass horn riffs, punchy slap bass; exasperated sarcastic Korean male vocals, rapid-fire comedic punchlines, shouting chorus with rowdy office choir; rebellious cathartic party mix.
+
+==================================================
+3. 쇼츠 릴스 제작 팁 & 자막 가이드
+==================================================
+[화면 연출]: 서류 더미가 흩날리는 슬로우 모션 효과
+[자막 폰트]: 배달의민족 한나체 또는 여기어때 잘난체 (빨간색 테두리)
+[핵심 사이다 훅]: "가만히 있으면 가마니로 보고! 열심히 하면 일만 더 주네?!"
