@@ -25,6 +25,22 @@ BGM_JSON = BASE_DIR / "src" / "data" / "bgm.json"
 SONGS_JSON = BASE_DIR / "src" / "data" / "songs.json"
 PROGRAMS_JSON = BASE_DIR / "src" / "data" / "programs.json"
 SUNO_PROMPTS_JSON = BASE_DIR / "src" / "data" / "suno_prompts.json"
+VIDEO_PROMPTS_JSON = BASE_DIR / "src" / "data" / "video_prompts.json"
+PROMPTS_PUBLIC_DIR = BASE_DIR / "public" / "downloads" / "prompts"
+PROMPTS_IMAGES_DIR = PROMPTS_PUBLIC_DIR / "images"
+PROMPTS_TXT_DIR = PROMPTS_PUBLIC_DIR / "txt"
+
+PROMPTS_IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+PROMPTS_TXT_DIR.mkdir(parents=True, exist_ok=True)
+
+VPROMPT_CATEGORIES = [
+    "📺 실제 업로드 영상",
+    "🚀 숏폼 / 쇼츠 제작",
+    "🖼️ 미드저니 썸네일",
+    "🎥 런웨이 / 비디오 모션",
+    "🎵 음악 / Suno BGM",
+    "기타 실습",
+]
 SORIKKUN_PUBLIC_DIR = BASE_DIR / "public" / "sorikkun"
 DOWNLOADS_PUBLIC_DIR = BASE_DIR / "public" / "downloads"
 SITE_URL = "https://lms-platform-ten-coral.vercel.app/"
@@ -65,6 +81,55 @@ SUNO_BADGE_PRESETS = [
     "🌙 새벽 감성 칠(Chill)",
     "직접 입력",
 ]
+
+def extract_yt_id_helper(url: str) -> str:
+    if not url:
+        return ""
+    m = re.search(r"(?:v=|/shorts/|youtu\.be/|/embed/)([A-Za-z0-9_-]{11})", url.strip())
+    return m.group(1) if m else ""
+
+def translate_ko_to_en_helper(text: str) -> str:
+    if not text or not text.strip():
+        return ""
+    clean_text = text.strip()
+    
+    # 1. Google Chrome Extension dict endpoint (clients5)
+    try:
+        url = "https://clients5.google.com/translate_a/t?client=dict-chrome-ex&sl=ko&tl=en&q=" + urllib.parse.quote(clean_text)
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"})
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            if isinstance(data, list) and len(data) > 0 and data[0]:
+                return data[0]
+            elif isinstance(data, str) and data:
+                return data
+    except Exception:
+        pass
+
+    # 2. Google Translate Web API
+    try:
+        url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=ko&tl=en&dt=t&q=" + urllib.parse.quote(clean_text)
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"})
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            if data and isinstance(data, list) and data[0]:
+                translated = "".join([segment[0] for segment in data[0] if segment and segment[0]])
+                if translated.strip():
+                    return translated.strip()
+    except Exception:
+        pass
+
+    lines = clean_text.splitlines()
+    if len(lines) > 1:
+        res_lines = []
+        for line in lines:
+            if not line.strip():
+                res_lines.append("")
+                continue
+            res_lines.append(translate_ko_to_en_helper(line))
+        return "\n".join(res_lines)
+
+    return clean_text
 
 def translate_en_to_ko_helper(text: str) -> str:
     if not text or not text.strip():
@@ -311,12 +376,15 @@ class HomepageManagerApp:
         self.current_song_edit_index = None
         self.current_suno_edit_index = None
         self.current_prog_edit_index = None
+        self.video_prompts = load_json(VIDEO_PROMPTS_JSON, [])
+        self.current_vprompt_edit_index = None
 
         self._build_ui()
         self.refresh_bgm_list()
         self.refresh_songs_list()
         self.refresh_programs_list()
         self.refresh_suno_list()
+        self.refresh_vprompts_list()
 
     def _build_ui(self):
         header = tk.Frame(self.root, bg="#1b1b22", pady=14, padx=20)
@@ -366,16 +434,19 @@ class HomepageManagerApp:
         self.tab_songs = tk.Frame(self.notebook, bg="#181820", padx=18, pady=14)
         self.tab_suno = tk.Frame(self.notebook, bg="#181820", padx=18, pady=14)
         self.tab_programs = tk.Frame(self.notebook, bg="#181820", padx=18, pady=14)
+        self.tab_vprompts = tk.Frame(self.notebook, bg="#181820", padx=18, pady=14)
 
         self.notebook.add(self.tab_bgm, text=" 🎵 1. 명곡 선곡표 & 첫 시작 음악 ")
         self.notebook.add(self.tab_songs, text=" 📺 2. 유튜브 영상 쇼케이스 ")
         self.notebook.add(self.tab_suno, text=" ⚡ 3. Suno AI 프롬프트·가사 관리 (한글 자동번역) ")
         self.notebook.add(self.tab_programs, text=" 🛠️ 4. 무료 프로그램 / 자료실 ")
+        self.notebook.add(self.tab_vprompts, text=" 🎬 5. 영상 제작 실습자료실 (비번 7979) ")
 
         self._build_bgm_tab()
         self._build_songs_tab()
         self._build_suno_tab()
         self._build_programs_tab()
+        self._build_vprompts_tab()
 
         footer = tk.Frame(self.root, bg="#1b1b22", pady=14, padx=20)
         footer.pack(fill="x", side="bottom")

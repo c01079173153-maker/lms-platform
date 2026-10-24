@@ -2,157 +2,37 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import videoPromptsData from '@/data/video_prompts.json';
 
-interface PromptItem {
+interface VideoPromptItem {
   id: string;
-  category: 'youtube-real' | 'video-tool' | 'general';
   title: string;
-  subtitle?: string;
+  category: string;
+  badgeColor?: string;
   youtubeUrl?: string;
-  file: string;
-  emoji: string;
-  badge: string;
-  preview: string;
+  youtubeId?: string;
+  imageUrl?: string;
+  promptKo: string;
+  promptEn?: string;
+  txtFileKo?: string;
+  txtFileEn?: string;
+  desc?: string;
+  createdAt?: string;
 }
-
-const ALL_PROMPTS: PromptItem[] = [
-  // 1. 실제 업로드 영상 프롬프트
-  {
-    id: 'real-01',
-    category: 'youtube-real',
-    title: '인생 설명서 어디 있소 | 인생 반품이요',
-    subtitle: '조선힙합소리꾼 실제 업로드 영상 제작 프롬프트 원본',
-    youtubeUrl: 'https://youtu.be/RuLf3zN8tBo',
-    file: '실제영상_01_인생반품이요_제작프롬프트.txt',
-    emoji: '🍶',
-    badge: '📺 실제 업로드 영상',
-    preview: `[미드저니 썸네일]: A weary middle-aged Korean man sitting in a moody, dimly lit vintage Korean pocha, holding a glass of soju with a bittersweet contemplative smile, cinematic lighting, photorealistic, 8k --ar 16:9
-[런웨이 비디오]: Slow cinematic camera push-in, the man exhales soft vapor into the cool night air, streetlights softly bokeh in background...
-[Suno 음악]: Korean traditional pansori trap, 88 BPM heavy boom-bap rhythm; sorrowful daegeum flute intro leading into gritty 808 bass, acoustic gayageum plucks...
-[쇼츠 후킹 대본]: "태어날 때 인생 설명서 받은 사람 있어요? 설명서도 없이 시작해서 반품도 안 되는 내 청춘..."`
-  },
-  {
-    id: 'real-02',
-    category: 'youtube-real',
-    title: '취업도 안 되고 돈도 없고 | 인생난이도 왜이래',
-    subtitle: '조선힙합소리꾼 실제 업로드 영상 제작 프롬프트 원본',
-    youtubeUrl: 'https://youtu.be/O9gckpyv5T0',
-    file: '실제영상_02_인생난이도왜이래_제작프롬프트.txt',
-    emoji: '🔥',
-    badge: '📺 실제 업로드 영상',
-    preview: `[미드저니 썸네일]: A young Korean job seeker standing on a rooftop overlooking Seoul neon city at twilight, streetwear with traditional dragon embroidery, determined defiant gaze, 8k --ar 16:9
-[런웨이 비디오]: Dramatic low-angle camera orbiting around the man, neon signs flickering, cinematic slow motion 60fps...
-[Suno 음악]: Hard-hitting Korean hip-hop, 138 BPM energetic trap bounce; aggressive 808 glide bass, intense kkwaenggwari and janggu percussion bursts...
-[쇼츠 후킹 대본]: "스펙 쌓고 자격증 따도 왜 내 통장은 0원일까? 인생 난이도 왜 이래! 덤벼봐라 세상아!"`
-  },
-  {
-    id: 'real-03',
-    category: 'youtube-real',
-    title: '상사 눈치 보일 때 사이다 🤬 해도 지랄',
-    subtitle: '조선힙합소리꾼 실제 업로드 영상 제작 프롬프트 원본',
-    youtubeUrl: 'https://youtu.be/d7RQ4Zja5U8',
-    file: '실제영상_03_상사눈치사이다_해도지랄_제작프롬프트.txt',
-    emoji: '🤬',
-    badge: '📺 실제 업로드 영상',
-    preview: `[미드저니 일러스트]: A dynamic comic-webtoon style digital illustration of a frustrated modern Korean office worker snapping his pen in half with fiery energy, traditional dokkaebi horns glowing, bold pop-art colors --ar 16:9
-[Suno 음악]: Fast aggressive Korean punk rap, 145 BPM driving pulse; loud distorted electric guitars, pounding drum kit, piercing taepyeongso horn riffs...
-[쇼츠 사이다 훅]: "가만히 있으면 가마니로 보고! 열심히 하면 일만 더 주네?!"`
-  },
-  {
-    id: 'real-04',
-    category: 'youtube-real',
-    title: '가맥 한잔하자 (전주 서부시장 낭만)',
-    subtitle: '조선힙합소리꾼 Suno 공식 등록 명곡 프롬프트 원본',
-    youtubeUrl: 'https://suno.com/s/xlUMWiygyRbQJcBW',
-    file: '실제영상_04_가맥한잔하자_제작프롬프트.txt',
-    emoji: '🍻',
-    badge: '⚡ Suno 공식 명곡',
-    preview: `[미드저니 썸네일]: A nostalgic, warm, cinematic scene of a traditional Jeonju Gamaek alley at night, glowing retro neon sign, dried pollack grilling over charcoal briquette embers, frosty cold beer glasses clinking together...
-[런웨이 비디오]: Slow camera tracking shot along the cozy market alley table, sizzling embers sparkling softly, condensation dripping down cold beer bottle...
-[Suno 음악 (1000자 이내)]: Korean traditional fusion, 112 BPM dance-pop bounce; gayageum, haegeum and daegeum weave around janggu, buk, kkwaenggwari, jing, funky bass...`
-  },
-  {
-    id: 'real-05',
-    category: 'youtube-real',
-    title: '오늘도 참 잘 버텼다 (심야 힐링)',
-    subtitle: '조선힙합소리꾼 실제 업로드 영상 제작 프롬프트 원본',
-    youtubeUrl: 'https://youtu.be/Odl-2rsJX-8',
-    file: '실제영상_05_오늘도참잘버텼다_제작프롬프트.txt',
-    emoji: '🌙',
-    badge: '📺 실제 업로드 영상',
-    preview: `[미드저니 감성 씬]: A solitary figure walking across Mapo Bridge in Seoul at midnight, city lights shimmering on the Han River below, soft rainfall creating glowing puddles, clear umbrella, Studio Ghibli inspired anime aesthetic --ar 16:9
-[Suno 음악]: Lo-fi Korean acoustic chill, 75 BPM gentle groove; warm Rhodes electric piano, delicate acoustic guitar fingerpicking, subtle haegeum string whispers, vinyl crackle and rain ambiance...`
-  },
-
-  // 2. 영상 제작 실전 툴 프롬프트
-  {
-    id: 'tool-01',
-    category: 'video-tool',
-    title: '유튜브 쇼츠 1분 바이럴 대본 생성 프롬프트',
-    subtitle: '조회수 터지는 3초 후킹 & 3단 분할 대본 공식',
-    file: '실전영상_06_쇼츠_바이럴대본_생성프롬프트.txt',
-    emoji: '🎬',
-    badge: '🚀 쇼츠 바이럴 치트키',
-    preview: `"너는 유튜브 쇼츠 알고리즘을 100% 장악한 조회수 1,000만 크리에이터야.
-내가 제시하는 주제: [원하는 주제]
-1. 0~3초 후킹: 스크롤을 멈추게 만드는 충격적이거나 공감 100% 질문/선언
-2. 본문 전개: 군더더기 없는 핵심 정보 3가지
-3. 50~60초 클로징: 댓글 참여 유도 및 구독 유도 멘트
-표 형태 컬럼: [시간], [화면 연출 및 이미지 프롬프트], [화면 자막], [AI 성우 나레이션 대본]"`
-  },
-  {
-    id: 'tool-02',
-    category: 'video-tool',
-    title: 'AI 영상 제작 1급 프롬프트 치트키 가이드북',
-    subtitle: '미드저니 8K, 런웨이 Gen-2, TTS 감정조절 공식 총정리',
-    file: 'video_prompts_cheat_sheet.html',
-    emoji: '📕',
-    badge: '📘 공식 비법서',
-    preview: `• 미드저니 8K 초고화질 시네마틱 썸네일 프롬프트 모음
-• 런웨이(Runway Gen-2/Gen-3) 이미지 ➔ 비디오 변환 모션 프롬프트
-• AI 성우(TTS) 숨쉬는 쉼표 및 감정 조절 연출 노하우
-• 얼굴 없이 목소리 없이 100만 유튜버가 되는 실전 비법서`
-  },
-
-  // 3. 업무 및 창작 실무 프롬프트 모음
-  {
-    id: 'gen-01',
-    category: 'general',
-    title: '교육분야 챗GPT 실전 프롬프트 10선',
-    file: '01_교육_프롬프트_무료배포.txt',
-    emoji: '🎓',
-    badge: '💼 실무 프롬프트',
-    preview: `강의 커리큘럼 설계, 학습 요약, 학생 질문 대응, 시험 문제 자동 생성 등 교육자 및 강사용 챗GPT 실무 프롬프트 10선.`
-  },
-  {
-    id: 'gen-03',
-    category: 'general',
-    title: '직장인 업무자동화 100% 프롬프트',
-    file: '03_직장인_업무자동화_프롬프트_무료배포.txt',
-    emoji: '💼',
-    badge: '💼 실무 프롬프트',
-    preview: `보고서 3줄 요약, 이메일 정중하게 쓰기, 엑셀 함수/VBA 자동 작성, 회의록 정리용 실무 자동화 프롬프트 모음.`
-  },
-  {
-    id: 'gen-08',
-    category: 'general',
-    title: '창작 & 스토리텔링 글쓰기 마스터 프롬프트',
-    file: '08_창작_글쓰기_프롬프트_무료배포.txt',
-    emoji: '🎨',
-    badge: '💼 실무 프롬프트',
-    preview: `웹소설 플롯 구성, 매력적인 캐릭터 설정, 반전 스토리텔링 기법을 적용한 AI 소설/시나리오 창작 프롬프트.`
-  }
-];
 
 export default function SecretPromptsPage() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [passwordInput, setPasswordInput] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<'all' | 'youtube-real' | 'video-tool' | 'general'>('all');
+  const [activeTab, setActiveTab] = useState<string>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [promptLangMode, setPromptLangMode] = useState<{ [id: string]: 'ko' | 'en' | 'both' }>({});
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  const prompts: VideoPromptItem[] = (videoPromptsData as VideoPromptItem[]) || [];
 
   useEffect(() => {
-    // 세션 스토리지에서 인증 상태 유지 확인
+    // 세션 스토리지에서 비밀번호 인증 상태 유지 확인
     const authed = sessionStorage.getItem('secret_prompts_authed');
     if (authed === 'true') {
       setIsAuthenticated(true);
@@ -166,20 +46,58 @@ export default function SecretPromptsPage() {
       sessionStorage.setItem('secret_prompts_authed', 'true');
       setErrorMsg('');
     } else {
-      setErrorMsg('비밀번호가 올바르지 않습니다. 다시 확인해 주세요.');
+      setErrorMsg('비밀번호가 올바르지 않습니다. (비밀번호: 7979)');
     }
   };
 
   const copyToClipboard = (text: string, id: string) => {
+    if (!text) return;
     navigator.clipboard.writeText(text).then(() => {
       setCopiedId(id);
       setTimeout(() => setCopiedId(null), 2000);
     });
   };
 
-  const filteredPrompts = activeTab === 'all' 
-    ? ALL_PROMPTS 
-    : ALL_PROMPTS.filter(p => p.category === activeTab);
+  const downloadTextFile = (filename: string, content: string) => {
+    if (!content) return;
+    try {
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Download error:', e);
+    }
+  };
+
+  const downloadImageFile = async (filename: string, imageUrl: string) => {
+    if (!imageUrl) return;
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch {
+      window.open(imageUrl, '_blank');
+    }
+  };
+
+  const categories = Array.from(new Set(['all', ...prompts.map(p => p.category || '기타')]));
+
+  const filteredPrompts = activeTab === 'all'
+    ? prompts
+    : prompts.filter(p => (p.category || '기타') === activeTab);
 
   // 1. 비밀번호 잠금 화면
   if (!isAuthenticated) {
@@ -242,7 +160,7 @@ export default function SecretPromptsPage() {
 
           <p style={{ color: '#a1a1aa', fontSize: '0.92rem', lineHeight: 1.6, marginBottom: '28px' }}>
             유튜브 <strong>'조선힙합소리꾼'</strong> 채널에 실제 업로드된 영상의<br />
-            미드저니, 런웨이, Suno 프롬프트 원본이 보관되어 있습니다.<br />
+            미드저니 이미지, 런웨이 영상, Suno 프롬프트 및 TXT 원본이 보관되어 있습니다.<br />
             <strong style={{ color: '#fff' }}>비밀번호 4자리</strong>를 입력하시면 즉시 열람 및 다운로드됩니다.
           </p>
 
@@ -311,7 +229,7 @@ export default function SecretPromptsPage() {
     );
   }
 
-  // 2. 비밀번호 통과 후 VIP 자료실 화면
+  // 2. 비밀번호 통과 후 VIP 실습자료실 화면
   return (
     <div style={{
       minHeight: '100vh',
@@ -320,20 +238,21 @@ export default function SecretPromptsPage() {
       padding: '60px 20px 100px',
       fontFamily: "'Noto Sans KR', sans-serif"
     }}>
-      <div style={{ maxWidth: '1180px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         
-        {/* 상단 헤더 & 일괄 다운로드 버튼 */}
+        {/* 상단 헤더 & 일괄 다운로드 배너 */}
         <div style={{
           background: 'linear-gradient(135deg, rgba(244, 63, 94, 0.15) 0%, rgba(212, 175, 55, 0.15) 100%)',
           border: '2px solid rgba(212, 175, 55, 0.4)',
           borderRadius: '24px',
           padding: '36px',
-          marginBottom: '40px',
+          marginBottom: '36px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: '24px'
+          gap: '24px',
+          boxShadow: '0 20px 50px rgba(0,0,0,0.6)'
         }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
@@ -342,25 +261,25 @@ export default function SecretPromptsPage() {
                 color: '#000',
                 padding: '4px 12px',
                 borderRadius: '999px',
-                fontSize: '0.8rem',
+                fontSize: '0.82rem',
                 fontWeight: 900
               }}>
                 🔓 VIP 보안 인증 완료 (비밀번호: 7979)
               </span>
               <span style={{ color: '#ffd700', fontSize: '0.88rem', fontWeight: 700 }}>
-                실습 전용 프롬프트 아카이브
+                실제 영상 프롬프트 & 이미지 아카이브
               </span>
             </div>
 
             <h1 style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.4rem)', fontWeight: 900, margin: 0 }}>
-              영상 제작용 실전 프롬프트 & 실제 업로드 영상 공유
+              영상 제작 실습자료실 (실제 업로드 영상 프롬프트 & 이미지)
             </h1>
-            <p style={{ color: '#d4d4d8', fontSize: '1rem', marginTop: '10px', maxWidth: '720px', lineHeight: 1.6 }}>
-              유튜브 <strong>'조선힙합소리꾼'</strong> 채널 영상 제작에 직접 사용된 미드저니 이미지, 런웨이 영상 모션, Suno 음악 프롬프트, 1분 쇼츠 바이럴 대본 원본을 자유롭게 복사하고 다운로드하여 실습에 활용하세요.
+            <p style={{ color: '#d4d4d8', fontSize: '1rem', marginTop: '10px', maxWidth: '750px', lineHeight: 1.6 }}>
+              유튜브 <strong>'조선힙합소리꾼'</strong> 채널 영상 제작에 실제로 쓰인 이미지 원본, 영상 링크, <strong>한글/영문 2가지 버전의 프롬프트(TXT)</strong>를 자유롭게 열람하고 다운로드하세요.
             </p>
           </div>
 
-          {/* 전체 다운로드 액션 */}
+          {/* 전체 다운로드 버튼 */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flexShrink: 0 }}>
             <a
               href="/downloads/prompts/조선힙합소리꾼_실제영상_프롬프트_전체패키지.zip"
@@ -369,7 +288,7 @@ export default function SecretPromptsPage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
-                padding: '14px 24px',
+                padding: '14px 26px',
                 borderRadius: '12px',
                 background: 'linear-gradient(135deg, #f43f5e, #e11d48)',
                 color: '#fff',
@@ -381,239 +300,466 @@ export default function SecretPromptsPage() {
             >
               📦 [전체 패키지 일괄 다운로드 (ZIP)]
             </a>
-
-            <a
-              href="/downloads/prompts/조선힙합소리꾼_실제영상_제작프롬프트_전체모음집.txt"
-              download="조선힙합소리꾼_실제영상_제작프롬프트_전체모음집.txt"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '12px 20px',
-                borderRadius: '12px',
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                color: '#ffd700',
-                fontWeight: 800,
-                fontSize: '0.92rem',
-                textDecoration: 'none',
-                justifyContent: 'center'
-              }}
-            >
-              📜 [통합본 TXT 한번에 받기]
-            </a>
           </div>
         </div>
 
         {/* 카테고리 필터 탭 */}
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '32px' }}>
-          <button
-            onClick={() => setActiveTab('all')}
-            style={{
-              padding: '10px 20px',
-              borderRadius: '999px',
-              fontSize: '0.92rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              border: activeTab === 'all' ? '2px solid #f43f5e' : '1px solid rgba(255,255,255,0.15)',
-              background: activeTab === 'all' ? '#f43f5e' : 'rgba(255,255,255,0.05)',
-              color: '#fff'
-            }}
-          >
-            🔥 전체 프롬프트 ({ALL_PROMPTS.length}종)
-          </button>
-          <button
-            onClick={() => setActiveTab('youtube-real')}
-            style={{
-              padding: '10px 20px',
-              borderRadius: '999px',
-              fontSize: '0.92rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              border: activeTab === 'youtube-real' ? '2px solid #ffd700' : '1px solid rgba(255,255,255,0.15)',
-              background: activeTab === 'youtube-real' ? '#ffd700' : 'rgba(255,255,255,0.05)',
-              color: activeTab === 'youtube-real' ? '#000' : '#fff'
-            }}
-          >
-            📺 실제 업로드 영상 프롬프트 (5종)
-          </button>
-          <button
-            onClick={() => setActiveTab('video-tool')}
-            style={{
-              padding: '10px 20px',
-              borderRadius: '999px',
-              fontSize: '0.92rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              border: activeTab === 'video-tool' ? '2px solid #38bdf8' : '1px solid rgba(255,255,255,0.15)',
-              background: activeTab === 'video-tool' ? '#38bdf8' : 'rgba(255,255,255,0.05)',
-              color: activeTab === 'video-tool' ? '#000' : '#fff'
-            }}
-          >
-            🚀 쇼츠 & 영상 제작 툴 프롬프트 (2종)
-          </button>
-          <button
-            onClick={() => setActiveTab('general')}
-            style={{
-              padding: '10px 20px',
-              borderRadius: '999px',
-              fontSize: '0.92rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              border: activeTab === 'general' ? '2px solid #a78bfa' : '1px solid rgba(255,255,255,0.15)',
-              background: activeTab === 'general' ? '#a78bfa' : 'rgba(255,255,255,0.05)',
-              color: activeTab === 'general' ? '#000' : '#fff'
-            }}
-          >
-            💼 실무 & 글쓰기 프롬프트 (3종)
-          </button>
-        </div>
-
-        {/* 프롬프트 카드 그리드 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '24px' }}>
-          {filteredPrompts.map((p) => (
-            <div
-              key={p.id}
-              style={{
-                background: 'rgba(20, 20, 28, 0.95)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                borderRadius: '20px',
-                padding: '28px',
-                display: 'flex',
-                flexDirection: 'column',
-                boxShadow: '0 15px 35px rgba(0,0,0,0.5)',
-                position: 'relative',
-                transition: 'transform 0.2s, border-color 0.2s'
-              }}
-            >
-              {/* 상단 배지 & 유튜브 링크 */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <span style={{
-                  background: p.category === 'youtube-real' ? 'rgba(255, 215, 0, 0.15)' : 'rgba(56, 189, 248, 0.15)',
-                  color: p.category === 'youtube-real' ? '#ffd700' : '#38bdf8',
-                  border: `1px solid ${p.category === 'youtube-real' ? 'rgba(255, 215, 0, 0.4)' : 'rgba(56, 189, 248, 0.4)'}`,
-                  padding: '4px 10px',
+        {categories.length > 2 && (
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '32px' }}>
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveTab(cat)}
+                style={{
+                  padding: '10px 20px',
                   borderRadius: '999px',
-                  fontSize: '0.78rem',
-                  fontWeight: 800
-                }}>
-                  {p.badge}
-                </span>
+                  fontSize: '0.92rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  border: activeTab === cat ? '2px solid #ffd700' : '1px solid rgba(255,255,255,0.15)',
+                  background: activeTab === cat ? '#ffd700' : 'rgba(255,255,255,0.05)',
+                  color: activeTab === cat ? '#000' : '#fff',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {cat === 'all' ? `🔥 전체 자료 (${prompts.length}개)` : cat}
+              </button>
+            ))}
+          </div>
+        )}
 
-                {p.youtubeUrl && (
-                  <a
-                    href={p.youtubeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      color: '#f43f5e',
-                      fontSize: '0.85rem',
-                      fontWeight: 800,
-                      textDecoration: 'none'
-                    }}
-                  >
-                    ▶ 영상 보러가기 ↗
-                  </a>
-                )}
-              </div>
-
-              {/* 제목 */}
-              <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', marginBottom: '14px' }}>
-                <div style={{
-                  fontSize: '2rem',
-                  background: 'rgba(255,255,255,0.06)',
-                  width: '54px',
-                  height: '54px',
-                  borderRadius: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  {p.emoji}
-                </div>
-                <div>
-                  <h3 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.35 }}>
-                    {p.title}
-                  </h3>
-                  {p.subtitle && (
-                    <p style={{ color: '#a1a1aa', fontSize: '0.82rem', margin: '4px 0 0', lineHeight: 1.4 }}>
-                      {p.subtitle}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* 미리보기 박스 */}
-              <div style={{
-                background: '#0d0d14',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: '12px',
-                padding: '14px',
-                fontSize: '0.82rem',
-                fontFamily: 'monospace',
-                color: '#e4e4e7',
-                lineHeight: 1.55,
-                maxHeight: '140px',
-                overflowY: 'auto',
-                whiteSpace: 'pre-line',
-                marginBottom: '20px'
-              }}>
-                {p.preview}
-              </div>
-
-              {/* 액션 버튼들 */}
-              <div style={{ marginTop: 'auto', display: 'flex', gap: '10px' }}>
-                <button
-                  onClick={() => copyToClipboard(p.preview, p.id)}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    borderRadius: '10px',
-                    background: copiedId === p.id ? '#10b981' : 'rgba(255,255,255,0.1)',
-                    border: 'none',
-                    color: '#fff',
-                    fontWeight: 800,
-                    fontSize: '0.88rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '6px'
-                  }}
-                >
-                  {copiedId === p.id ? '✓ 복사완료!' : '📋 프롬프트 복사'}
-                </button>
-
-                <a
-                  href={`/downloads/prompts/${p.file}`}
-                  download={p.file}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    borderRadius: '10px',
-                    background: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)',
-                    color: '#fff',
-                    fontWeight: 800,
-                    fontSize: '0.88rem',
-                    textDecoration: 'none',
-                    textAlign: 'center',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '6px'
-                  }}
-                >
-                  📥 TXT 다운로드
-                </a>
-              </div>
+        {/* 빈 목록 안내 (사용자가 관리기에서 등록 전일 때) */}
+        {prompts.length === 0 ? (
+          <div style={{
+            background: 'rgba(20, 20, 28, 0.9)',
+            border: '2px dashed rgba(212, 175, 55, 0.4)',
+            borderRadius: '24px',
+            padding: '60px 30px',
+            textAlign: 'center',
+            margin: '40px 0'
+          }}>
+            <div style={{ fontSize: '3rem', marginBottom: '16px' }}>📂</div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#ffd700', marginBottom: '12px' }}>
+              현재 등록 대기 중인 실습 자료실입니다
+            </h2>
+            <p style={{ color: '#a1a1aa', fontSize: '1rem', lineHeight: 1.6, maxWidth: '600px', margin: '0 auto 24px' }}>
+              바탕화면의 <strong>[조선힙합소리꾼 홈페이지 자동 관리기]</strong>의<br />
+              <strong>'🎬 5. 영상 제작 실습자료실 관리'</strong> 탭에서 사장님의 실제 영상 링크, 이미지, 프롬프트(TXT)를 입력하시면 이곳에 실시간으로 등록됩니다!
+            </p>
+            <div style={{ display: 'inline-flex', gap: '12px' }}>
+              <Link href="/" style={{ color: '#fff', padding: '10px 20px', background: 'rgba(255,255,255,0.1)', borderRadius: '10px', textDecoration: 'none', fontWeight: 700 }}>
+                ← 메인 홈으로 가기
+              </Link>
             </div>
-          ))}
-        </div>
+          </div>
+        ) : (
+          /* 프롬프트 카드 그리드 */
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
+            {filteredPrompts.map((item) => {
+              const langMode = promptLangMode[item.id] || 'both';
 
-        {/* 하단 링크 */}
-        <div style={{ textAlign: 'center', marginTop: '60px', display: 'flex', justifyContent: 'center', gap: '24px' }}>
+              return (
+                <div
+                  key={item.id}
+                  style={{
+                    background: 'rgba(20, 20, 28, 0.95)',
+                    border: '2px solid rgba(212, 175, 55, 0.3)',
+                    borderRadius: '24px',
+                    padding: '32px',
+                    boxShadow: '0 20px 50px rgba(0,0,0,0.6)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '24px'
+                  }}
+                >
+                  {/* 상단 카드 헤더 */}
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    flexWrap: 'wrap',
+                    gap: '16px',
+                    borderBottom: '1px solid rgba(255,255,255,0.1)',
+                    paddingBottom: '20px'
+                  }}>
+                    <div>
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap' }}>
+                        <span style={{
+                          background: item.badgeColor || '#f43f5e',
+                          color: '#fff',
+                          fontWeight: 900,
+                          fontSize: '0.85rem',
+                          padding: '4px 14px',
+                          borderRadius: '999px'
+                        }}>
+                          {item.category || '실제 업로드 영상'}
+                        </span>
+                        {item.createdAt && (
+                          <span style={{ color: '#71717a', fontSize: '0.82rem' }}>
+                            등록일: {item.createdAt}
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 style={{ fontSize: 'clamp(1.4rem, 2.5vw, 1.9rem)', fontWeight: 900, color: '#fff', margin: 0 }}>
+                        {item.title}
+                      </h3>
+
+                      {item.desc && (
+                        <p style={{ color: '#a1a1aa', fontSize: '0.95rem', margin: '8px 0 0', lineHeight: 1.5 }}>
+                          {item.desc}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* 유튜브 영상 바로보기 */}
+                    {item.youtubeUrl && (
+                      <a
+                        href={item.youtubeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '12px 22px',
+                          borderRadius: '12px',
+                          background: 'linear-gradient(135deg, #ff0000 0%, #cc0000 100%)',
+                          color: '#fff',
+                          fontWeight: 900,
+                          fontSize: '0.95rem',
+                          textDecoration: 'none',
+                          boxShadow: '0 6px 18px rgba(255, 0, 0, 0.4)'
+                        }}
+                      >
+                        ▶️ 실제 유튜브 영상 보기 ↗
+                      </a>
+                    )}
+                  </div>
+
+                  {/* 미디어 영역 (이미지 + 영상 플레이어) */}
+                  <div style={{ display: 'grid', gridTemplateColumns: item.imageUrl && item.youtubeId ? '1fr 1fr' : '1fr', gap: '20px' }}>
+                    {/* 이미지 */}
+                    {item.imageUrl && (
+                      <div style={{
+                        background: '#0c0c12',
+                        borderRadius: '16px',
+                        overflow: 'hidden',
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        position: 'relative'
+                      }}>
+                        <img
+                          src={item.imageUrl}
+                          alt={item.title}
+                          onClick={() => setPreviewImage(item.imageUrl || null)}
+                          style={{
+                            width: '100%',
+                            height: '240px',
+                            objectFit: 'cover',
+                            display: 'block',
+                            cursor: 'zoom-in'
+                          }}
+                        />
+                        <div style={{
+                          padding: '10px 16px',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          background: 'rgba(12, 12, 18, 0.9)'
+                        }}>
+                          <span style={{ fontSize: '0.85rem', color: '#ffd700', fontWeight: 700 }}>
+                            🖼️ 실제 영상 씬 / 썸네일 이미지
+                          </span>
+                          <button
+                            onClick={() => downloadImageFile(`${item.title || '영상'}_이미지.jpg`, item.imageUrl || '')}
+                            style={{
+                              background: 'rgba(255,255,255,0.1)',
+                              color: '#fff',
+                              border: 'none',
+                              padding: '6px 12px',
+                              borderRadius: '8px',
+                              fontSize: '0.8rem',
+                              fontWeight: 800,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            📥 이미지 원본 다운로드
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 유튜브 임베드 (있을 경우) */}
+                    {item.youtubeId && (
+                      <div style={{
+                        borderRadius: '16px',
+                        overflow: 'hidden',
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        height: '280px',
+                        background: '#000'
+                      }}>
+                        <iframe
+                          width="100%"
+                          height="100%"
+                          src={`https://www.youtube.com/embed/${item.youtubeId}`}
+                          title={item.title}
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 프롬프트 영역 (한글 & 영문 2가지 보기 모드) */}
+                  <div>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      gap: '12px',
+                      marginBottom: '14px'
+                    }}>
+                      <span style={{ fontSize: '1.15rem', fontWeight: 900, color: '#ffd700' }}>
+                        ⚡ 영상 제작 실전 프롬프트 (한글 + 영문 번역)
+                      </span>
+
+                      {/* 언어 전환 버튼 */}
+                      <div style={{
+                        display: 'inline-flex',
+                        background: 'rgba(0,0,0,0.5)',
+                        padding: '4px',
+                        borderRadius: '10px',
+                        border: '1px solid rgba(255,255,255,0.15)'
+                      }}>
+                        <button
+                          onClick={() => setPromptLangMode({ ...promptLangMode, [item.id]: 'both' })}
+                          style={{
+                            padding: '6px 14px',
+                            borderRadius: '8px',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontWeight: 800,
+                            fontSize: '0.85rem',
+                            background: langMode === 'both' ? '#f43f5e' : 'transparent',
+                            color: '#fff'
+                          }}
+                        >
+                          한글 + 영문 나란히
+                        </button>
+                        <button
+                          onClick={() => setPromptLangMode({ ...promptLangMode, [item.id]: 'ko' })}
+                          style={{
+                            padding: '6px 14px',
+                            borderRadius: '8px',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontWeight: 800,
+                            fontSize: '0.85rem',
+                            background: langMode === 'ko' ? '#ffd700' : 'transparent',
+                            color: langMode === 'ko' ? '#000' : '#fff'
+                          }}
+                        >
+                          🇰🇷 한글만
+                        </button>
+                        <button
+                          onClick={() => setPromptLangMode({ ...promptLangMode, [item.id]: 'en' })}
+                          style={{
+                            padding: '6px 14px',
+                            borderRadius: '8px',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontWeight: 800,
+                            fontSize: '0.85rem',
+                            background: langMode === 'en' ? '#38bdf8' : 'transparent',
+                            color: langMode === 'en' ? '#000' : '#fff'
+                          }}
+                        >
+                          🇺🇸 영문만
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 프롬프트 박스 그리드 */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: langMode === 'both' ? '1fr 1fr' : '1fr',
+                      gap: '16px'
+                    }}>
+                      {/* 한글 프롬프트 */}
+                      {(langMode === 'both' || langMode === 'ko') && (
+                        <div style={{
+                          background: '#0d0d14',
+                          border: '1px solid rgba(255, 215, 0, 0.4)',
+                          borderRadius: '16px',
+                          padding: '20px',
+                          display: 'flex',
+                          flexDirection: 'column'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                            <span style={{ color: '#ffd700', fontWeight: 900, fontSize: '0.95rem' }}>
+                              🇰🇷 실전 한글 프롬프트 (작업 원본)
+                            </span>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button
+                                onClick={() => copyToClipboard(item.promptKo, `${item.id}-ko`)}
+                                style={{
+                                  background: copiedId === `${item.id}-ko` ? '#10b981' : 'rgba(255,255,255,0.1)',
+                                  color: '#fff',
+                                  border: 'none',
+                                  padding: '6px 12px',
+                                  borderRadius: '8px',
+                                  fontSize: '0.8rem',
+                                  fontWeight: 800,
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                {copiedId === `${item.id}-ko` ? '✓ 복사완료' : '📋 한글 복사'}
+                              </button>
+                              {item.promptKo && (
+                                <button
+                                  onClick={() => downloadTextFile(`${item.title || '영상'}_한글_프롬프트.txt`, item.promptKo)}
+                                  style={{
+                                    background: 'linear-gradient(135deg, #ffd700, #f59e0b)',
+                                    color: '#000',
+                                    padding: '6px 12px',
+                                    borderRadius: '8px',
+                                    fontSize: '0.8rem',
+                                    fontWeight: 900,
+                                    border: 'none',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  📥 한글 TXT 다운로드
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          <div style={{
+                            background: '#14141e',
+                            borderRadius: '12px',
+                            padding: '16px',
+                            color: '#fef08a',
+                            fontSize: '0.92rem',
+                            lineHeight: 1.6,
+                            fontFamily: 'monospace',
+                            whiteSpace: 'pre-line',
+                            maxHeight: '260px',
+                            overflowY: 'auto'
+                          }}>
+                            {item.promptKo}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 영문 프롬프트 (번역본) */}
+                      {(langMode === 'both' || langMode === 'en') && (
+                        <div style={{
+                          background: '#0d0d14',
+                          border: '1px solid rgba(56, 189, 248, 0.4)',
+                          borderRadius: '16px',
+                          padding: '20px',
+                          display: 'flex',
+                          flexDirection: 'column'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                            <span style={{ color: '#38bdf8', fontWeight: 900, fontSize: '0.95rem' }}>
+                              🇺🇸 영문 프롬프트 (미드저니/런웨이/Suno 글로벌 입력용)
+                            </span>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button
+                                onClick={() => copyToClipboard(item.promptEn || '', `${item.id}-en`)}
+                                style={{
+                                  background: copiedId === `${item.id}-en` ? '#10b981' : 'rgba(255,255,255,0.1)',
+                                  color: '#fff',
+                                  border: 'none',
+                                  padding: '6px 12px',
+                                  borderRadius: '8px',
+                                  fontSize: '0.8rem',
+                                  fontWeight: 800,
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                {copiedId === `${item.id}-en` ? '✓ 복사완료' : '📋 영문 복사'}
+                              </button>
+                              {item.promptEn && (
+                                <button
+                                  onClick={() => downloadTextFile(`${item.title || '영상'}_영문_프롬프트.txt`, item.promptEn || '')}
+                                  style={{
+                                    background: 'linear-gradient(135deg, #38bdf8, #0284c7)',
+                                    color: '#fff',
+                                    padding: '6px 12px',
+                                    borderRadius: '8px',
+                                    fontSize: '0.8rem',
+                                    fontWeight: 900,
+                                    border: 'none',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  📥 영문 TXT 다운로드
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          <div style={{
+                            background: '#14141e',
+                            borderRadius: '12px',
+                            padding: '16px',
+                            color: '#bae6fd',
+                            fontSize: '0.88rem',
+                            lineHeight: 1.6,
+                            fontFamily: 'monospace',
+                            whiteSpace: 'pre-line',
+                            maxHeight: '260px',
+                            overflowY: 'auto'
+                          }}>
+                            {item.promptEn || '(영문 번역 프롬프트가 등록되지 않았습니다.)'}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* 이미지 확대 모달 */}
+        {previewImage && (
+          <div
+            onClick={() => setPreviewImage(null)}
+            style={{
+              position: 'fixed',
+              top: 0, left: 0,
+              width: '100vw', height: '100vh',
+              backgroundColor: 'rgba(0,0,0,0.85)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999,
+              cursor: 'zoom-out',
+              padding: '20px'
+            }}
+          >
+            <img
+              src={previewImage}
+              alt="확대 미리보기"
+              style={{
+                maxWidth: '90vw',
+                maxHeight: '90vh',
+                borderRadius: '16px',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.9)'
+              }}
+            />
+          </div>
+        )}
+
+        {/* 하단 내비게이션 */}
+        <div style={{ textAlign: 'center', marginTop: '60px', display: 'flex', justifyContent: 'center', gap: '20px' }}>
           <Link
             href="/"
             style={{
@@ -621,7 +767,7 @@ export default function SecretPromptsPage() {
               textDecoration: 'none',
               fontWeight: 800,
               fontSize: '1rem',
-              padding: '10px 20px',
+              padding: '12px 24px',
               borderRadius: '999px',
               background: 'rgba(255,215,0,0.1)',
               border: '1px solid rgba(255,215,0,0.3)'
@@ -636,7 +782,7 @@ export default function SecretPromptsPage() {
               textDecoration: 'none',
               fontWeight: 800,
               fontSize: '1rem',
-              padding: '10px 20px',
+              padding: '12px 24px',
               borderRadius: '999px',
               background: 'rgba(255,255,255,0.08)',
               border: '1px solid rgba(255,255,255,0.2)'
