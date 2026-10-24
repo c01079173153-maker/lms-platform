@@ -1839,6 +1839,586 @@ class HomepageManagerApp:
             self.clear_suno_inputs()
             self.status_label.config(text=f"🗑️ '{removed.get('title')}' 프롬프트를 삭제했습니다.")
 
+    def _build_vprompts_tab(self):
+        # 좌측: 목록 및 제어
+        left = tk.Frame(self.tab_vprompts, bg="#181820")
+        left.pack(side="left", fill="both", expand=True, padx=(0, 14))
+
+        tk.Label(
+            left,
+            text="🎬 등록된 영상 실습자료 목록 (클릭 시 우측에서 즉시 수정)",
+            font=("맑은 고딕", 12, "bold"),
+            fg="#f43f5e",
+            bg="#181820",
+        ).pack(anchor="w", pady=(0, 6))
+
+        list_frame = tk.Frame(left, bg="#181820")
+        list_frame.pack(fill="both", expand=True)
+
+        scrollbar = tk.Scrollbar(list_frame)
+        scrollbar.pack(side="right", fill="y")
+
+        self.vprompts_listbox = tk.Listbox(
+            list_frame,
+            font=("맑은 고딕", 10),
+            bg="#101015",
+            fg="#f3f4f6",
+            selectbackground="#f43f5e",
+            selectforeground="white",
+            relief="flat",
+            highlightthickness=1,
+            highlightbackground="#374151",
+            yscrollcommand=scrollbar.set,
+        )
+        self.vprompts_listbox.pack(side="left", fill="both", expand=True)
+        scrollbar.config(command=self.vprompts_listbox.yview)
+        self.vprompts_listbox.bind("<<ListboxSelect>>", self.on_vprompt_select)
+
+        btn_box = tk.Frame(left, bg="#181820", pady=8)
+        btn_box.pack(fill="x")
+
+        tk.Button(
+            btn_box,
+            text="▲ 위로",
+            font=("맑은 고딕", 10, "bold"),
+            bg="#272730",
+            fg="white",
+            relief="flat",
+            padx=10,
+            pady=4,
+            command=self.move_vprompt_up,
+        ).pack(side="left", padx=2)
+
+        tk.Button(
+            btn_box,
+            text="▼ 아래로",
+            font=("맑은 고딕", 10, "bold"),
+            bg="#272730",
+            fg="white",
+            relief="flat",
+            padx=10,
+            pady=4,
+            command=self.move_vprompt_down,
+        ).pack(side="left", padx=2)
+
+        tk.Button(
+            btn_box,
+            text="🗑️ 선택 삭제",
+            font=("맑은 고딕", 10, "bold"),
+            bg="#dc2626",
+            fg="white",
+            relief="flat",
+            padx=12,
+            pady=4,
+            command=self.delete_selected_vprompt,
+        ).pack(side="right")
+
+        tk.Button(
+            left,
+            text="🔒 실습자료실 웹페이지 열기 (비번: 7979)",
+            font=("맑은 고딕", 10, "bold"),
+            bg="#3b82f6",
+            fg="white",
+            relief="flat",
+            pady=6,
+            cursor="hand2",
+            command=lambda: webbrowser.open(f"{SITE_URL}downloads/secret-prompts"),
+        ).pack(fill="x", pady=(4, 0))
+
+        # 우측: 신규 추가 및 수정 폼
+        right = tk.Frame(self.tab_vprompts, bg="#202028", padx=16, pady=10, relief="flat")
+        right.pack(side="right", fill="both", expand=True)
+
+        self.vprompt_form_header = tk.Label(
+            right,
+            text="➕ 영상 실습 프롬프트 & 파일 신규 등록",
+            font=("맑은 고딕", 12, "bold"),
+            fg="#f43f5e",
+            bg="#202028",
+        )
+        self.vprompt_form_header.pack(anchor="w", pady=(0, 4))
+
+        # 1. 유튜브 영상 링크 (쇼츠/일반)
+        tk.Label(right, text="① 유튜브 영상 링크 (쇼츠/일반 링크 입력 후 자동 가져오기):", font=("맑은 고딕", 9, "bold"), fg="white", bg="#202028").pack(anchor="w")
+        yt_row = tk.Frame(right, bg="#202028")
+        yt_row.pack(fill="x", pady=(2, 6))
+        self.vprompt_yt_entry = tk.Entry(yt_row, font=("맑은 고딕", 10), bg="#141419", fg="#38bdf8", insertbackground="white")
+        self.vprompt_yt_entry.pack(side="left", fill="x", expand=True, ipady=3)
+        tk.Button(
+            yt_row,
+            text="🔍 영상제목 & 썸네일 자동가져오기",
+            font=("맑은 고딕", 9, "bold"),
+            bg="#0284c7",
+            fg="white",
+            relief="flat",
+            padx=8,
+            pady=2,
+            command=self.fetch_yt_for_vprompt,
+        ).pack(side="right", padx=(6, 0))
+
+        # 2. 이미지 파일 (미드저니/실제 영상 썸네일)
+        tk.Label(right, text="② 실습 이미지 (미드저니 생성 이미지 또는 썸네일 파일):", font=("맑은 고딕", 9, "bold"), fg="white", bg="#202028").pack(anchor="w")
+        img_row = tk.Frame(right, bg="#202028")
+        img_row.pack(fill="x", pady=(2, 6))
+        self.vprompt_img_entry = tk.Entry(img_row, font=("맑은 고딕", 10), bg="#141419", fg="#ffd700", insertbackground="white")
+        self.vprompt_img_entry.pack(side="left", fill="x", expand=True, ipady=3)
+        tk.Button(
+            img_row,
+            text="📁 내 PC에서 이미지 선택",
+            font=("맑은 고딕", 9, "bold"),
+            bg="#d97706",
+            fg="white",
+            relief="flat",
+            padx=8,
+            pady=2,
+            command=self.browse_vprompt_image,
+        ).pack(side="right", padx=(6, 0))
+
+        # 3. 제목 & 카테고리
+        meta_row = tk.Frame(right, bg="#202028")
+        meta_row.pack(fill="x", pady=(2, 6))
+
+        title_box = tk.Frame(meta_row, bg="#202028")
+        title_box.pack(side="left", fill="x", expand=True, padx=(0, 6))
+        tk.Label(title_box, text="③ 자료 제목:", font=("맑은 고딕", 9, "bold"), fg="white", bg="#202028").pack(anchor="w")
+        self.vprompt_title_entry = tk.Entry(title_box, font=("맑은 고딕", 10), bg="#141419", fg="white", insertbackground="white")
+        self.vprompt_title_entry.pack(fill="x", ipady=3)
+
+        cat_box = tk.Frame(meta_row, bg="#202028")
+        cat_box.pack(side="right", fill="x", padx=(6, 0))
+        tk.Label(cat_box, text="카테고리 분류:", font=("맑은 고딕", 9, "bold"), fg="white", bg="#202028").pack(anchor="w")
+        self.vprompt_cat_combo = ttk.Combobox(cat_box, values=VPROMPT_CATEGORIES, state="readonly", width=18, font=("맑은 고딕", 9))
+        self.vprompt_cat_combo.set(VPROMPT_CATEGORIES[0])
+        self.vprompt_cat_combo.pack(ipady=2)
+
+        # 4. 설명 문구
+        tk.Label(right, text="④ 설명 및 실습 가이드 팁:", font=("맑은 고딕", 9, "bold"), fg="white", bg="#202028").pack(anchor="w")
+        self.vprompt_desc_entry = tk.Entry(right, font=("맑은 고딕", 9), bg="#141419", fg="#d1d5db", insertbackground="white")
+        self.vprompt_desc_entry.pack(fill="x", pady=(2, 6), ipady=2)
+
+        # 5. 프롬프트 영역 (한글 + 영문)
+        prompt_header_row = tk.Frame(right, bg="#202028")
+        prompt_header_row.pack(fill="x")
+        tk.Label(prompt_header_row, text="⑤ 한글 프롬프트 (메모장 .txt 파일 로드 가능):", font=("맑은 고딕", 9, "bold"), fg="#fef08a", bg="#202028").pack(side="left")
+        tk.Button(
+            prompt_header_row,
+            text="📄 .txt 파일에서 불러오기",
+            font=("맑은 고딕", 9, "bold"),
+            bg="#10b981",
+            fg="black",
+            relief="flat",
+            padx=8,
+            pady=1,
+            command=self.load_vprompt_txt_file,
+        ).pack(side="right")
+
+        self.vprompt_prompt_ko_text = tk.Text(right, height=4, font=("맑은 고딕", 9), bg="#141419", fg="#fef08a", insertbackground="white")
+        self.vprompt_prompt_ko_text.pack(fill="x", pady=(2, 4))
+
+        trans_row = tk.Frame(right, bg="#202028")
+        trans_row.pack(fill="x")
+        tk.Label(trans_row, text="⑥ 영문 프롬프트 (미드저니/런웨이/글로벌 입력용):", font=("맑은 고딕", 9, "bold"), fg="#38bdf8", bg="#202028").pack(side="left")
+        tk.Button(
+            trans_row,
+            text="🌐 [한글 ➔ 영문 자동번역]",
+            font=("맑은 고딕", 9, "bold"),
+            bg="#6366f1",
+            fg="white",
+            relief="flat",
+            padx=8,
+            pady=1,
+            command=self.auto_translate_vprompt_prompt,
+        ).pack(side="right")
+
+        self.vprompt_prompt_en_text = tk.Text(right, height=4, font=("맑은 고딕", 9), bg="#141419", fg="#bae6fd", insertbackground="white")
+        self.vprompt_prompt_en_text.pack(fill="x", pady=(2, 6))
+
+        # 6. 하단 저장 / 등록 버튼
+        action_row = tk.Frame(right, bg="#202028")
+        action_row.pack(fill="x", pady=(4, 0))
+
+        self.vprompt_save_btn = tk.Button(
+            action_row,
+            text="➕ 신규 실습자료 등록",
+            font=("맑은 고딕", 11, "bold"),
+            bg="#10b981",
+            fg="black",
+            relief="flat",
+            padx=14,
+            pady=6,
+            command=self.add_new_vprompt,
+        )
+        self.vprompt_save_btn.pack(side="left", padx=(0, 6))
+
+        tk.Button(
+            action_row,
+            text="🧹 입력창 비우기",
+            font=("맑은 고딕", 10),
+            bg="#374151",
+            fg="white",
+            relief="flat",
+            padx=10,
+            pady=6,
+            command=self.clear_vprompt_inputs,
+        ).pack(side="left")
+
+    def fetch_yt_for_vprompt(self):
+        url = self.vprompt_yt_entry.get().strip()
+        if not url:
+            messagebox.showwarning("입력 확인", "유튜브 영상 링크를 먼저 입력해주세요!")
+            return
+
+        yt_id = extract_yt_id_helper(url)
+        if not yt_id:
+            messagebox.showwarning("주소 오류", "유효한 유튜브 링크가 아닙니다.\n(예: https://youtu.be/... 또는 https://www.youtube.com/watch?v=...)")
+            return
+
+        self.status_label.config(text=f"⏳ 유튜브 영상 정보 및 썸네일을 가져오는 중입니다... (ID: {yt_id})")
+
+        def worker():
+            try:
+                # 1. Title from oEmbed
+                title = ""
+                try:
+                    oembed_url = f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={yt_id}&format=json"
+                    req = urllib.request.Request(oembed_url, headers={"User-Agent": "Mozilla/5.0"})
+                    with urllib.request.urlopen(req, timeout=5) as resp:
+                        data = json.loads(resp.read().decode("utf-8"))
+                        title = data.get("title", "")
+                except Exception:
+                    pass
+
+                # 2. Thumbnail download
+                img_filename = f"yt_{yt_id}.jpg"
+                dest_path = PROMPTS_IMAGES_DIR / img_filename
+                thumb_downloaded = False
+
+                for thumb_res in ["maxresdefault.jpg", "hqdefault.jpg"]:
+                    try:
+                        thumb_url = f"https://img.youtube.com/vi/{yt_id}/{thumb_res}"
+                        req = urllib.request.Request(thumb_url, headers={"User-Agent": "Mozilla/5.0"})
+                        with urllib.request.urlopen(req, timeout=5) as resp:
+                            if resp.status == 200:
+                                dest_path.write_bytes(resp.read())
+                                thumb_downloaded = True
+                                break
+                    except Exception:
+                        continue
+
+                def update_ui():
+                    if title and not self.vprompt_title_entry.get().strip():
+                        self.vprompt_title_entry.delete(0, tk.END)
+                        self.vprompt_title_entry.insert(0, title)
+                    if thumb_downloaded:
+                        self.vprompt_img_entry.delete(0, tk.END)
+                        self.vprompt_img_entry.insert(0, f"/downloads/prompts/images/{img_filename}")
+                    self.status_label.config(text="✅ 유튜브 영상 정보 및 썸네일 가져오기 완료!")
+                    messagebox.showinfo("가져오기 완료", f"영상 제목과 썸네일을 성공적으로 불러왔습니다!\n제목: {title if title else '(기존 제목 유지)'}")
+
+                self.root.after(0, update_ui)
+            except Exception as e:
+                self.root.after(0, lambda: messagebox.showerror("오류", f"유튜브 정보를 불러오는 데 실패했습니다: {e}"))
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def browse_vprompt_image(self):
+        path = filedialog.askopenfilename(
+            title="실습 이미지 파일 선택 (JPG, PNG, WEBP)",
+            filetypes=[("Image files", "*.jpg;*.jpeg;*.png;*.webp;*.gif"), ("All files", "*.*")],
+        )
+        if not path:
+            return
+
+        try:
+            src_p = Path(path)
+            clean_name = re.sub(r'[^a-zA-Z0-9_\-\.]', '_', src_p.stem) + src_p.suffix
+            dest_name = f"img_{int(time.time())}_{clean_name}"
+            dest_path = PROMPTS_IMAGES_DIR / dest_name
+            shutil.copy2(src_p, dest_path)
+
+            web_path = f"/downloads/prompts/images/{dest_name}"
+            self.vprompt_img_entry.delete(0, tk.END)
+            self.vprompt_img_entry.insert(0, web_path)
+            messagebox.showinfo("이미지 선택 완료", f"이미지가 성공적으로 저장되었습니다!\n경로: {web_path}")
+        except Exception as e:
+            messagebox.showerror("오류", f"이미지 복사 실패: {e}")
+
+    def load_vprompt_txt_file(self):
+        path = filedialog.askopenfilename(
+            title="프롬프트 텍스트 파일 (.txt) 선택",
+            filetypes=[("Text files", "*.txt;*.md;*.json"), ("All files", "*.*")],
+        )
+        if not path:
+            return
+
+        try:
+            text = ""
+            for enc in ["utf-8", "cp949", "euc-kr"]:
+                try:
+                    with open(path, "r", encoding=enc) as f:
+                        text = f.read()
+                    break
+                except UnicodeDecodeError:
+                    continue
+
+            if not text.strip():
+                messagebox.showwarning("파일 확인", "선택한 파일이 비어있습니다.")
+                return
+
+            self.vprompt_prompt_ko_text.delete("1.0", tk.END)
+            self.vprompt_prompt_ko_text.insert("1.0", text.strip())
+
+            # Title suggest if empty
+            if not self.vprompt_title_entry.get().strip():
+                self.vprompt_title_entry.insert(0, Path(path).stem)
+
+            # Auto translate confirmation
+            if messagebox.askyesno("영문 자동번역", "텍스트를 성공적으로 불러왔습니다!\n바로 영문 프롬프트로도 자동 번역하시겠습니까?"):
+                self.auto_translate_vprompt_prompt()
+            else:
+                messagebox.showinfo("불러오기 완료", "텍스트 파일 내용이 한글 프롬프트 창에 입력되었습니다.")
+        except Exception as e:
+            messagebox.showerror("오류", f"텍스트 파일을 읽지 못했습니다: {e}")
+
+    def auto_translate_vprompt_prompt(self):
+        ko_text = self.vprompt_prompt_ko_text.get("1.0", tk.END).strip()
+        if not ko_text:
+            messagebox.showwarning("내용 없음", "번역할 한글 프롬프트 내용을 먼저 입력해주세요!")
+            return
+
+        self.status_label.config(text="🌐 한글 프롬프트를 영문으로 자동 번역하는 중입니다...")
+
+        def worker():
+            translated = translate_ko_to_en_helper(ko_text)
+
+            def update_ui():
+                self.vprompt_prompt_en_text.delete("1.0", tk.END)
+                self.vprompt_prompt_en_text.insert("1.0", translated)
+                self.status_label.config(text="✅ 영문 자동 번역 완료!")
+
+            self.root.after(0, update_ui)
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def add_new_vprompt(self):
+        title = self.vprompt_title_entry.get().strip()
+        category = self.vprompt_cat_combo.get().strip() or "기타 실습"
+        yt_url = self.vprompt_yt_entry.get().strip()
+        yt_id = extract_yt_id_helper(yt_url)
+        img_url = self.vprompt_img_entry.get().strip()
+        desc = self.vprompt_desc_entry.get().strip()
+        prompt_ko = self.vprompt_prompt_ko_text.get("1.0", tk.END).strip()
+        prompt_en = self.vprompt_prompt_en_text.get("1.0", tk.END).strip()
+
+        if not title:
+            messagebox.showwarning("입력 필요", "자료 제목을 입력해주세요!")
+            return
+
+        if not prompt_ko and not prompt_en:
+            messagebox.showwarning("입력 필요", "최소 1개 이상의 프롬프트 내용(한글 또는 영문)을 입력해주세요!")
+            return
+
+        item_id = f"vp_{int(time.time() * 1000)}"
+
+        # Save txt files
+        txt_file_ko = f"/downloads/prompts/txt/{item_id}_ko.txt"
+        txt_file_en = f"/downloads/prompts/txt/{item_id}_en.txt"
+        if prompt_ko:
+            (PROMPTS_TXT_DIR / f"{item_id}_ko.txt").write_text(prompt_ko, encoding="utf-8")
+        if prompt_en:
+            (PROMPTS_TXT_DIR / f"{item_id}_en.txt").write_text(prompt_en, encoding="utf-8")
+
+        new_item = {
+            "id": item_id,
+            "title": title,
+            "category": category,
+            "youtubeUrl": yt_url,
+            "youtubeId": yt_id,
+            "imageUrl": img_url,
+            "promptKo": prompt_ko,
+            "promptEn": prompt_en,
+            "txtFileKo": txt_file_ko if prompt_ko else "",
+            "txtFileEn": txt_file_en if prompt_en else "",
+            "desc": desc,
+            "createdAt": time.strftime("%Y-%m-%d"),
+        }
+
+        self.video_prompts.append(new_item)
+        save_json(VIDEO_PROMPTS_JSON, self.video_prompts)
+        self.rebuild_prompts_zip()
+        self.refresh_vprompts_list()
+        self.clear_vprompt_inputs()
+        messagebox.showinfo("등록 완료 🎉", f"'{title}' 실습자료가 성공적으로 등록되었습니다!\n하단의 [홈페이지 서버에 즉시 반영하기]를 누르면 사이트에 바로 반영됩니다.")
+
+    def on_vprompt_select(self, event=None):
+        sel = self.vprompts_listbox.curselection()
+        if not sel:
+            return
+        idx = sel[0]
+        if idx >= len(self.video_prompts):
+            return
+
+        self.current_vprompt_edit_index = idx
+        item = self.video_prompts[idx]
+
+        self.vprompt_form_header.config(
+            text=f"✏️ 영상 실습자료 수정 모드 - #{idx+1} {item.get('title', '')[:16]}...",
+            fg="#ffd700",
+        )
+        self.vprompt_yt_entry.delete(0, tk.END)
+        self.vprompt_yt_entry.insert(0, item.get("youtubeUrl", ""))
+
+        self.vprompt_img_entry.delete(0, tk.END)
+        self.vprompt_img_entry.insert(0, item.get("imageUrl", ""))
+
+        self.vprompt_title_entry.delete(0, tk.END)
+        self.vprompt_title_entry.insert(0, item.get("title", ""))
+
+        cat = item.get("category", VPROMPT_CATEGORIES[0])
+        if cat in VPROMPT_CATEGORIES:
+            self.vprompt_cat_combo.set(cat)
+        else:
+            self.vprompt_cat_combo.set(VPROMPT_CATEGORIES[0])
+
+        self.vprompt_desc_entry.delete(0, tk.END)
+        self.vprompt_desc_entry.insert(0, item.get("desc", ""))
+
+        self.vprompt_prompt_ko_text.delete("1.0", tk.END)
+        self.vprompt_prompt_ko_text.insert("1.0", item.get("promptKo", ""))
+
+        self.vprompt_prompt_en_text.delete("1.0", tk.END)
+        self.vprompt_prompt_en_text.insert("1.0", item.get("promptEn", ""))
+
+        self.vprompt_save_btn.config(
+            text="💾 수정 사항 저장하기",
+            bg="#f59e0b",
+            fg="black",
+            command=self.save_vprompt_edit,
+        )
+
+    def save_vprompt_edit(self):
+        if self.current_vprompt_edit_index is None or self.current_vprompt_edit_index >= len(self.video_prompts):
+            messagebox.showwarning("선택 오류", "수정할 대상을 목록에서 먼저 선택해주세요.")
+            return
+
+        title = self.vprompt_title_entry.get().strip()
+        if not title:
+            messagebox.showwarning("입력 필요", "자료 제목을 입력해주세요!")
+            return
+
+        item = self.video_prompts[self.current_vprompt_edit_index]
+        item_id = item.get("id") or f"vp_{int(time.time() * 1000)}"
+
+        prompt_ko = self.vprompt_prompt_ko_text.get("1.0", tk.END).strip()
+        prompt_en = self.vprompt_prompt_en_text.get("1.0", tk.END).strip()
+
+        # Update txt files
+        txt_file_ko = f"/downloads/prompts/txt/{item_id}_ko.txt"
+        txt_file_en = f"/downloads/prompts/txt/{item_id}_en.txt"
+        if prompt_ko:
+            (PROMPTS_TXT_DIR / f"{item_id}_ko.txt").write_text(prompt_ko, encoding="utf-8")
+        if prompt_en:
+            (PROMPTS_TXT_DIR / f"{item_id}_en.txt").write_text(prompt_en, encoding="utf-8")
+
+        yt_url = self.vprompt_yt_entry.get().strip()
+        item["title"] = title
+        item["category"] = self.vprompt_cat_combo.get().strip() or "기타 실습"
+        item["youtubeUrl"] = yt_url
+        item["youtubeId"] = extract_yt_id_helper(yt_url)
+        item["imageUrl"] = self.vprompt_img_entry.get().strip()
+        item["desc"] = self.vprompt_desc_entry.get().strip()
+        item["promptKo"] = prompt_ko
+        item["promptEn"] = prompt_en
+        item["txtFileKo"] = txt_file_ko if prompt_ko else ""
+        item["txtFileEn"] = txt_file_en if prompt_en else ""
+
+        save_json(VIDEO_PROMPTS_JSON, self.video_prompts)
+        self.rebuild_prompts_zip()
+        self.refresh_vprompts_list()
+        messagebox.showinfo("수정 완료 🎉", f"'{title}' 항목이 성공적으로 수정 저장되었습니다!")
+
+    def delete_selected_vprompt(self):
+        sel = self.vprompts_listbox.curselection()
+        if not sel:
+            messagebox.showwarning("선택 필요", "삭제할 자료 항목을 목록에서 먼저 선택해주세요!")
+            return
+
+        idx = sel[0]
+        item = self.video_prompts[idx]
+        title = item.get("title", f"#{idx+1}")
+
+        if messagebox.askyesno("삭제 확인", f"정말로 '{title}' 실습자료를 삭제하시겠습니까?"):
+            del self.video_prompts[idx]
+            save_json(VIDEO_PROMPTS_JSON, self.video_prompts)
+            self.rebuild_prompts_zip()
+            self.refresh_vprompts_list()
+            self.clear_vprompt_inputs()
+            messagebox.showinfo("삭제 완료", f"'{title}' 항목이 삭제되었습니다.")
+
+    def move_vprompt_up(self):
+        sel = self.vprompts_listbox.curselection()
+        if not sel or sel[0] == 0:
+            return
+        idx = sel[0]
+        self.video_prompts[idx - 1], self.video_prompts[idx] = self.video_prompts[idx], self.video_prompts[idx - 1]
+        save_json(VIDEO_PROMPTS_JSON, self.video_prompts)
+        self.refresh_vprompts_list()
+        self.vprompts_listbox.selection_set(idx - 1)
+        self.vprompts_listbox.see(idx - 1)
+
+    def move_vprompt_down(self):
+        sel = self.vprompts_listbox.curselection()
+        if not sel or sel[0] >= len(self.video_prompts) - 1:
+            return
+        idx = sel[0]
+        self.video_prompts[idx + 1], self.video_prompts[idx] = self.video_prompts[idx], self.video_prompts[idx + 1]
+        save_json(VIDEO_PROMPTS_JSON, self.video_prompts)
+        self.refresh_vprompts_list()
+        self.vprompts_listbox.selection_set(idx + 1)
+        self.vprompts_listbox.see(idx + 1)
+
+    def clear_vprompt_inputs(self):
+        self.current_vprompt_edit_index = None
+        self.vprompt_form_header.config(text="➕ 영상 실습 프롬프트 & 파일 신규 등록", fg="#f43f5e")
+        self.vprompt_yt_entry.delete(0, tk.END)
+        self.vprompt_img_entry.delete(0, tk.END)
+        self.vprompt_title_entry.delete(0, tk.END)
+        self.vprompt_cat_combo.set(VPROMPT_CATEGORIES[0])
+        self.vprompt_desc_entry.delete(0, tk.END)
+        self.vprompt_prompt_ko_text.delete("1.0", tk.END)
+        self.vprompt_prompt_en_text.delete("1.0", tk.END)
+        self.vprompt_save_btn.config(text="➕ 신규 실습자료 등록", bg="#10b981", fg="black", command=self.add_new_vprompt)
+
+    def refresh_vprompts_list(self):
+        if not hasattr(self, "vprompts_listbox"):
+            return
+        self.vprompts_listbox.delete(0, tk.END)
+        for i, item in enumerate(self.video_prompts):
+            t = item.get("title", "(제목 없음)")
+            cat = item.get("category", "기타")
+            has_yt = "📺" if item.get("youtubeId") else "  "
+            has_img = "🖼️" if item.get("imageUrl") else "  "
+            has_en = "🇺🇸" if item.get("promptEn") else "  "
+            self.vprompts_listbox.insert(tk.END, f"[{cat}] {t}  {has_yt}{has_img}{has_en}")
+
+    def rebuild_prompts_zip(self):
+        try:
+            import zipfile
+            zip_path = PROMPTS_PUBLIC_DIR / "조선힙합소리꾼_실제영상_프롬프트_전체패키지.zip"
+            with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+                # Add text prompts
+                for txt_f in PROMPTS_TXT_DIR.glob("*.txt"):
+                    if txt_f.is_file():
+                        zf.write(txt_f, arcname=f"텍스트_프롬프트/{txt_f.name}")
+                # Add images
+                for img_f in PROMPTS_IMAGES_DIR.glob("*.*"):
+                    if img_f.is_file():
+                        zf.write(img_f, arcname=f"이미지_자료/{img_f.name}")
+                zf.writestr("안내_필독.txt", "조선힙합소리꾼 영상 제작 실습 프롬프트 자료실 전체 패키지입니다.\\nhttps://lms-platform-ten-coral.vercel.app/downloads/secret-prompts".encode("utf-8"))
+        except Exception as e:
+            print("Zip rebuild error:", e)
+
+
     def deploy_to_server(self):
         self.deploy_btn.config(state="disabled", text="⏳ 서버에 업로드 중입니다... 잠시만 기다려주세요")
         self.status_label.config(text="🚀 GitHub & Vercel 서버에 변경 사항을 자동 배포하는 중입니다...")
