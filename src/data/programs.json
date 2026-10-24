@@ -49,19 +49,6 @@
     "isDownload": true
   },
   {
-    "id": "claude-guide",
-    "badge": "무료 전자책 #5",
-    "badgeBg": "#10b981",
-    "badgeColor": "#000",
-    "icon": "📘",
-    "title": "[전자책] 긴 글 요약·작사의 달인 클로드(Claude) 백서",
-    "desc": "감성적인 가사 작성과 긴 문서 정리에 탁월한 클로드 완벽 활용 가이드입니다.",
-    "href": "/downloads/claude_guide.html",
-    "downloadName": "클로드_활용_백서.html",
-    "buttonText": "📥 무료 다운로드 (₩0)",
-    "isDownload": true
-  },
-  {
     "id": "youtube-guide",
     "badge": "무료 가이드 #6",
     "badgeBg": "#10b981",
@@ -71,6 +58,19 @@
     "desc": "처음 유튜브를 시작하시는 분들을 위한 큰 글씨 실전 개설 매뉴얼입니다.",
     "href": "/downloads/youtube_guide.html",
     "downloadName": "유튜브_채널_개설법.html",
+    "buttonText": "📥 무료 다운로드 (₩0)",
+    "isDownload": true
+  },
+  {
+    "id": "claude-guide",
+    "badge": "무료 전자책 #5",
+    "badgeBg": "#10b981",
+    "badgeColor": "#000",
+    "icon": "📘",
+    "title": "[전자책] 긴 글 요약·작사의 달인 클로드(Claude) 백서",
+    "desc": "감성적인 가사 작성과 긴 문서 정리에 탁월한 클로드 완벽 활용 가이드입니다.",
+    "href": "/downloads/claude_guide.html",
+    "downloadName": "클로드_활용_백서.html",
     "buttonText": "📥 무료 다운로드 (₩0)",
     "isDownload": true
   }
