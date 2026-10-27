@@ -11,6 +11,17 @@
     "youtubeUrl": "https://youtu.be/9gb3YrrfjyQ"
   },
   {
+    "id": "song-1793110362",
+    "videoId": "_UsKBSvLHBE",
+    "title": "🎧 내가 봉인 줄 아나 | 젠장할🎶",
+    "subtitle": "조선힙합소리꾼의 가슴 울리는 명곡",
+    "category": "comfort",
+    "badge": "🔥 최신 신곡",
+    "badgeColor": "#f59e0b",
+    "desc": "유튜브 '조선힙합소리꾼' 채널에서 풀버전 뮤직비디오와 가사를 감상하세요.",
+    "youtubeUrl": "https://youtu.be/_UsKBSvLHBE"
+  },
+  {
     "id": "song-1792818399",
     "videoId": "O9gckpyv5T0",
     "title": "🎧 취업도 안 되고 돈도 없고 | 인생난이도 왜이래 🎶",
@@ -169,8 +180,8 @@
     "videoId": "LE1bA1rXVR4",
     "title": "🎧 다들 내가 안 힘든 줄 알지 | 번아웃 위로",
     "subtitle": "조선힙합소리꾼의 가슴 울리는 명곡",
-    "category": "comfort",
-    "badge": "😭 눈물 주의 대표곡",
+    "category": "hope",
+    "badge": "🌅 인생 응원가",
     "badgeColor": "#f59e0b",
     "desc": "유튜브 '조선힙합소리꾼' 채널에서 풀버전 뮤직비디오와 가사를 감상하세요.",
     "youtubeUrl": "https://youtu.be/LE1bA1rXVR4"
